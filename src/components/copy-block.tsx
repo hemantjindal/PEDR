@@ -24,7 +24,7 @@ export function CopyBlock({ text }: { text: string }) {
           {state === 'copied' ? 'Copied' : 'Copy to clipboard'}
         </button>
         {state === 'failed' && (
-          <span className="small" style={{ color: 'var(--warning-ink)' }}>
+          <span className="small" style={{ color: 'var(--pending-ink)' }}>
             Your browser blocked that — select the text below instead.
           </span>
         )}
@@ -34,7 +34,7 @@ export function CopyBlock({ text }: { text: string }) {
         value={text}
         rows={18}
         className="mono"
-        style={{ fontSize: '0.78rem', background: 'var(--surface-sunk)' }}
+        style={{ fontSize: '0.78rem', background: 'var(--sheet-sunk)' }}
         aria-label="Generated record sheet"
       />
     </div>

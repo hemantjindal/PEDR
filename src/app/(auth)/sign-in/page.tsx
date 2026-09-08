@@ -23,8 +23,8 @@ export default async function SignInPage() {
 
       <AuthForm action={signInAction} submitLabel="Sign in" mode="sign-in" />
 
-      <p className="small muted">
-        No account yet? <Link href="/sign-up" style={{ color: 'var(--accent)' }}>Create one</Link>.
+      <p className="small faint">
+        No account yet? <Link href="/sign-up" style={{ color: 'var(--ink)' }}>Create one</Link>.
       </p>
     </div>
   )

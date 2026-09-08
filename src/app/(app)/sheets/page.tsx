@@ -16,11 +16,11 @@ export default async function SheetsPage() {
     return (
       <div className="stack-l">
         <h1>Record sheets</h1>
-        <div className="note note-accent">
+        <div className="note note-ink">
           <span aria-hidden="true">→</span>
           <span>
             Set the date your practical experience started and the quarters appear here, each with
-            its own deadline. <Link href="/settings" style={{ color: 'var(--accent)' }}>Settings</Link>
+            its own deadline. <Link href="/settings" style={{ color: 'var(--ink)' }}>Settings</Link>
           </span>
         </div>
       </div>
@@ -34,7 +34,7 @@ export default async function SheetsPage() {
         <p className="dim">
           {d.deadlines.completeCount} of {SHEET_RULES.requiredSheets} signed off.
           {d.deadlines.lateCount > 0 && (
-            <> <strong style={{ color: 'var(--critical-ink)' }}>
+            <> <strong style={{ color: 'var(--revision-ink)' }}>
               {d.deadlines.lateCount} past the deadline.
             </strong></>
           )}
@@ -42,7 +42,7 @@ export default async function SheetsPage() {
       </div>
 
       {d.deadlines.headline && (
-        <div className="note note-critical">
+        <div className="note note-revision">
           <span aria-hidden="true">⚠</span>
           <span>{d.deadlines.headline}</span>
         </div>
@@ -53,21 +53,21 @@ export default async function SheetsPage() {
           const sheet = d.sheets.find((s) => s.id === period.sheetId) ?? null
           const state = signOffState(sheet, d.today)
           return (
-            <div className="card stack-s" key={period.index}>
+            <div className="sheet stack-s" key={period.index}>
               <div className="row-wrap">
                 <h2>Sheet {period.index}</h2>
-                <span className="muted small">
+                <span className="small faint">
                   {formatDate(period.periodStart, { year: false })} – {formatDate(period.periodEnd)}
                 </span>
                 <span className="spacer" />
                 {period.late ? (
-                  <span className="badge badge-critical">
+                  <span className="mark mark-revision">
                     <span aria-hidden="true">⚠</span> {period.daysLate} days late
                   </span>
                 ) : period.inProgress ? (
-                  <span className="badge">in progress</span>
+                  <span className="chip">in progress</span>
                 ) : (
-                  <span className="badge badge-warning">
+                  <span className="mark mark-pending">
                     <span aria-hidden="true">◷</span> {period.daysUntilDue} days left
                   </span>
                 )}
@@ -77,17 +77,17 @@ export default async function SheetsPage() {
                 <div className="bar-track" style={{ flex: 1, minWidth: 160 }}>
                   <div className="bar-fill" style={{ width: `${state.progress * 100}%` }} />
                 </div>
-                <span className="small muted" style={{ minWidth: 130 }}>{state.label}</span>
+                <span className="small faint" style={{ minWidth: 130 }}>{state.label}</span>
               </div>
 
               {state.chase && (
-                <p className="note note-warning small">
+                <p className="note note-pending small">
                   <span aria-hidden="true">◷</span> {state.chase}
                 </p>
               )}
 
               <div className="row-wrap">
-                <span className="small muted">{describeWindow(period)}</span>
+                <span className="small faint">{describeWindow(period)}</span>
                 <span className="spacer" />
                 <Link href={`/sheets/${period.periodStart}`} className="btn btn-sm">
                   {period.inProgress ? 'Preview' : 'Open'}
@@ -98,7 +98,7 @@ export default async function SheetsPage() {
         })}
       </div>
 
-      <p className="small muted">
+      <p className="small faint">
         These are drafts to check and paste. The record RIBA holds is at pedr.co.uk, and that is
         where your mentor and PSA sign.
       </p>

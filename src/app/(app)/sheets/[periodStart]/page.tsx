@@ -49,7 +49,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         </div>
       </div>
 
-      <div className="note note-accent no-print">
+      <div className="note note-ink no-print">
         <span aria-hidden="true">→</span>
         <span>
           A draft built from what you logged. Read it, fix anything thin, then paste it into
@@ -59,37 +59,37 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
       </div>
 
       {entries.length === 0 && (
-        <div className="note note-warning">
+        <div className="note note-pending">
           <span aria-hidden="true">⚠</span>
           <span>
             Nothing recorded in this period, so there is nothing to build a sheet from.{' '}
-            <Link href="/dump" style={{ color: 'var(--accent)' }}>Fill it in</Link> — the practice
+            <Link href="/dump" style={{ color: 'var(--ink)' }}>Fill it in</Link> — the practice
             timesheet export is the fastest way to reconstruct a quarter honestly.
           </span>
         </div>
       )}
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>General information</h2>
         <div className="table-scroll">
-          <table className="data">
+          <table className="schedule">
             <tbody>
               <tr><th style={{ width: 200 }}>Employer</th><td>{content.general.employer || '—'}</td></tr>
               <tr><th>Role</th><td>{content.general.role || '—'}</td></tr>
               <tr><th>Supervisor</th><td>{content.general.supervisorName || '—'}</td></tr>
               <tr><th>Category of experience</th><td>{content.general.category}</td></tr>
               <tr><th>Location</th><td>{content.general.location}</td></tr>
-              <tr><th>Days worked</th><td className="tabular">{content.general.daysWorked}</td></tr>
-              <tr><th>Hours recorded</th><td className="tabular">{content.general.hoursWorked}</td></tr>
+              <tr><th>Days worked</th><td className="num">{content.general.daysWorked}</td></tr>
+              <tr><th>Hours recorded</th><td className="num">{content.general.hoursWorked}</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>Describe projects</h2>
         {content.projects.length === 0 ? (
-          <p className="small muted">No project work recorded in this period.</p>
+          <p className="small faint">No project work recorded in this period.</p>
         ) : (
           <div className="stack">
             {content.projects.map((project) => (
@@ -97,9 +97,9 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
                 <div className="row-wrap">
                   <h3>{[project.code, project.name].filter(Boolean).join(' · ')}</h3>
                   <span className="spacer" />
-                  <span className="badge">{formatDuration(project.minutes)}</span>
+                  <span className="chip">{formatDuration(project.minutes)}</span>
                 </div>
-                <p className="tiny muted">
+                <p className="tiny faint">
                   {[
                     project.client && `Client: ${project.client}`,
                     project.valueGbp && `£${project.valueGbp.toLocaleString('en-GB')}`,
@@ -109,7 +109,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
                 </p>
                 {project.summary
                   ? <p className="small dim">{project.summary}</p>
-                  : <p className="small" style={{ color: 'var(--warning-ink)' }}>
+                  : <p className="small" style={{ color: 'var(--pending-ink)' }}>
                       <span aria-hidden="true">⚠ </span>
                       Nothing specific enough to summarise. The entries for this project say what
                       but not which — worth a pass before you submit.
@@ -120,10 +120,10 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         )}
       </section>
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>Record activities — hours by work stage</h2>
         <div className="table-scroll">
-          <table className="data">
+          <table className="schedule">
             <thead>
               <tr><th>Stage</th><th></th><th style={{ textAlign: 'right' }}>Hours</th></tr>
             </thead>
@@ -132,9 +132,9 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
                 const minutes = content.stageMinutes[String(s.id)] ?? 0
                 return (
                   <tr key={s.id}>
-                    <td className="tabular">{s.code}</td>
+                    <td className="num">{s.code}</td>
                     <td>{s.name}</td>
-                    <td className="num">{minutes > 0 ? (minutes / 60).toFixed(1) : '—'}</td>
+                    <td className="n">{minutes > 0 ? (minutes / 60).toFixed(1) : '—'}</td>
                   </tr>
                 )
               })}
@@ -144,23 +144,23 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
       </section>
 
       {office.length > 0 && (
-        <section className="card stack">
-          <div className="card-head">
+        <section className="sheet stack">
+          <div className="sheet-head">
             <div className="stack-s" style={{ gap: 2 }}>
               <h2>Office management</h2>
-              <p className="tiny muted">
+              <p className="tiny faint">
                 The section people forget. Holiday is recorded but is absence, not experience.
               </p>
             </div>
           </div>
           <div className="table-scroll">
-            <table className="data">
+            <table className="schedule">
               <tbody>
                 {office.map((row) => (
                   <tr key={row.id}>
                     <td>{row.name}</td>
-                    <td className="num">{(row.minutes / 60).toFixed(1)}</td>
-                    <td className="small muted">{row.counts ? 'counts as experience' : 'absence'}</td>
+                    <td className="n">{(row.minutes / 60).toFixed(1)}</td>
+                    <td className="small faint">{row.counts ? 'counts as experience' : 'absence'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -169,7 +169,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         </section>
       )}
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>Professional criteria</h2>
         <div className="stack">
           {PROFESSIONAL_CRITERIA.map((c) => {
@@ -180,8 +180,8 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
                   <h3>{c.id} · {c.name}</h3>
                   <span className="spacer" />
                   {row && row.entries > 0
-                    ? <span className="badge">{row.entries} entries · {formatDuration(row.minutes)}</span>
-                    : <span className="badge badge-critical"><span aria-hidden="true">⚠</span> nothing this period</span>}
+                    ? <span className="chip">{row.entries} entries · {formatDuration(row.minutes)}</span>
+                    : <span className="mark mark-revision"><span aria-hidden="true">⚠</span> nothing this period</span>}
                 </div>
                 {row && row.examples.length > 0 && (
                   <ul className="small dim" style={{ margin: 0, paddingLeft: 18 }}>
@@ -194,8 +194,8 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         </div>
       </section>
 
-      <section className="card stack">
-        <div className="card-head">
+      <section className="sheet stack">
+        <div className="sheet-head">
           <h2>Reflect on experience</h2>
         </div>
         {([
@@ -212,7 +212,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
                 {body.split('\n').map((line) => <li key={line}>{line}</li>)}
               </ul>
             ) : (
-              <p className="small" style={{ color: 'var(--warning-ink)' }}>
+              <p className="small" style={{ color: 'var(--pending-ink)' }}>
                 <span aria-hidden="true">⚠ </span>
                 Nothing captured. Fill this in on the weeks it belongs to and it appears here.
               </p>
@@ -221,11 +221,11 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         ))}
       </section>
 
-      <section className="card stack no-print">
-        <div className="card-head">
+      <section className="sheet stack no-print">
+        <div className="sheet-head">
           <div className="stack-s" style={{ gap: 2 }}>
             <h2>Copy it out</h2>
-            <p className="tiny muted">Markdown, in the order of the real sheet&rsquo;s sections.</p>
+            <p className="tiny faint">Markdown, in the order of the real sheet&rsquo;s sections.</p>
           </div>
         </div>
         <CopyBlock text={markdown} />

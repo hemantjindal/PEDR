@@ -155,6 +155,9 @@ async function main() {
     for (let i = 0; i < perWeek; i++) {
       const template = pick(WORK, index * 31 + i * 7)
       const date = addDays(monday, i % 5)
+      // The current week is only part-served; writing Thursday's entry on a
+      // Tuesday makes "last logged" sit in the future.
+      if (date > today) continue
       const office = 'office' in template ? (template.office as string) : null
       const isFriction = !thin && (index + i) % 5 === 0
 

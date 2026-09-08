@@ -117,6 +117,26 @@ up for one is worse than the calendar feed they already have, so the cron
 endpoint reports what it found and POSTs to `REMINDER_WEBHOOK_URL` if you set
 one.
 
+## The design
+
+The record *is* a drawing set, so the interface uses the grammar every
+architect already reads: a title block, sheet references, drafting annotation,
+hairlines instead of borders, and revision marks. Grammar, not skeuomorphism —
+no paper texture, no fake pencil, no drop shadows.
+
+Colour is rationed to make it mean something. The page is ink on paper.
+**Red means one thing — late, missing, wrong** — and appears nowhere else.
+Buttons are ink, because the subject is a document and the action on a document
+is drawn in the same ink. Even the register's density ramp is ink rather than
+blue: on a page that is otherwise entirely hairlines, a blue grid is the only
+saturated thing on screen and it takes the page over.
+
+Every ramp is validated rather than eyeballed — monotone lightness, adjacent
+step separation, and a light end that clears 2:1 against the surface it
+actually sits on, in both themes. Type is IBM Plex Sans and Mono, self-hosted,
+picked because it was drawn for technical contexts and carries the slightly
+mechanical warmth of drawing-office lettering without being a novelty face.
+
 ## How it is put together
 
 ```

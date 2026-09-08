@@ -19,7 +19,7 @@ export default async function WelcomePage() {
         </p>
       </div>
 
-      <div className="note note-accent">
+      <div className="note note-ink">
         <span aria-hidden="true">→</span>
         <span>
           <strong>If you only do one thing:</strong> log this week. Three lines about what you did
@@ -32,7 +32,7 @@ export default async function WelcomePage() {
         <Link href="/guide" className="btn">Read the guide first</Link>
       </div>
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>What you are actually working towards</h2>
         <p className="dim small">
           {REQUIREMENTS.minTotalMonths} months of practical experience, recorded across{' '}
@@ -47,11 +47,11 @@ export default async function WelcomePage() {
         <h2>Setting up properly, when you have twenty minutes</h2>
         <div className="stack-s">
           {ONBOARDING.map((step, i) => (
-            <div className="card card-tight stack-s" key={step.id}>
+            <div className="sheet sheet-tight stack-s" key={step.id}>
               <div className="row-wrap">
                 <h3>{i + 1}. {step.title}</h3>
                 <span className="spacer" />
-                <span className="badge">{step.minutes} min</span>
+                <span className="chip">{step.minutes} min</span>
               </div>
               <p className="small dim">{step.why}</p>
             </div>
@@ -63,7 +63,7 @@ export default async function WelcomePage() {
         </div>
       </section>
 
-      <p className="small muted">
+      <p className="small faint">
         This is not the official record. RIBA&rsquo;s system at pedr.co.uk is, and that is where your
         mentor and PSA sign. This is the thing that makes filling it in take twenty minutes instead
         of a weekend.

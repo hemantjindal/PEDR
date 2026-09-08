@@ -45,27 +45,27 @@ export default async function WeekPage({ params }: { params: Promise<{ weekId: s
 
       {/* The score, with its working shown — a number nobody can interrogate
           is a number nobody trusts. */}
-      <section className="card stack">
-        <div className="card-head">
+      <section className="sheet stack">
+        <div className="sheet-head">
           <h2>{score.score} out of 100 · {score.bandLabel}</h2>
           {score.nextBestAction && (
-            <span className="badge badge-warning"><span aria-hidden="true">→</span> one thing to fix</span>
+            <span className="mark mark-pending"><span aria-hidden="true">→</span> one thing to fix</span>
           )}
         </div>
         <div className="stack-s">
           {score.components.map((component) => (
             <div key={component.id} className="row-wrap" style={{ gap: 10, alignItems: 'baseline' }}>
-              <span aria-hidden="true" style={{ width: 14, color: component.earned > 0 ? 'var(--good-ink)' : 'var(--ink-muted)' }}>
+              <span aria-hidden="true" style={{ width: 14, color: component.earned > 0 ? 'var(--signed-ink)' : 'var(--ink-3)' }}>
                 {component.earned > 0 ? '✓' : '○'}
               </span>
               <span className="small" style={{ fontWeight: 500 }}>{component.label}</span>
               <span className="spacer" />
-              <span className="small tabular muted">{component.earned}/{component.points}</span>
+              <span className="ref">{component.earned}/{component.points}</span>
             </div>
           ))}
         </div>
         {score.nextBestAction && (
-          <p className="note note-accent small">
+          <p className="note note-ink small">
             <span aria-hidden="true">→</span> {score.nextBestAction}
           </p>
         )}
@@ -75,7 +75,7 @@ export default async function WeekPage({ params }: { params: Promise<{ weekId: s
         <h2>What you did</h2>
         {entries.length === 0 ? (
           <p className="note small">
-            Nothing recorded for this week. <Link href="/dump" style={{ color: 'var(--accent)' }}>Dump it</Link> —
+            Nothing recorded for this week. <Link href="/dump" style={{ color: 'var(--ink)' }}>Dump it</Link> —
             even three lines is worth 40 points and, more to the point, is evidence.
           </p>
         ) : (
@@ -88,11 +88,11 @@ export default async function WeekPage({ params }: { params: Promise<{ weekId: s
       </section>
 
       {/* The reflective boxes, with what good looks like beside each. */}
-      <section className="card stack">
-        <div className="card-head">
+      <section className="sheet stack">
+        <div className="sheet-head">
           <div className="stack-s" style={{ gap: 2 }}>
             <h2>Reflection</h2>
-            <p className="tiny muted">
+            <p className="tiny faint">
               This is what the quarterly sheet is built from, and it is what examiners read.
             </p>
           </div>
@@ -116,9 +116,9 @@ export default async function WeekPage({ params }: { params: Promise<{ weekId: s
                   <details className="hint">
                     <summary style={{ cursor: 'pointer' }}>What good looks like</summary>
                     <div className="stack-s" style={{ marginTop: 8 }}>
-                      <p className="tiny"><strong>Weak:</strong> <span className="muted">{guide.weak}</span></p>
+                      <p className="tiny"><strong>Weak:</strong> <span className="faint">{guide.weak}</span></p>
                       <p className="tiny"><strong>Strong:</strong> <span className="dim">{guide.strong}</span></p>
-                      <p className="tiny muted">{guide.whyBetter}</p>
+                      <p className="tiny faint">{guide.whyBetter}</p>
                     </div>
                   </details>
                 )}
@@ -131,7 +131,7 @@ export default async function WeekPage({ params }: { params: Promise<{ weekId: s
         </form>
       </section>
 
-      <p className="tiny muted">
+      <p className="tiny faint">
         Week runs {weekStartKey(weekId)} to {weekEndKey(weekId)}.
       </p>
     </div>

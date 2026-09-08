@@ -26,7 +26,7 @@ export default async function WeeksPage() {
       </div>
 
       {missing > 0 && (
-        <div className="note note-warning">
+        <div className="note note-pending">
           <span aria-hidden="true">◷</span>
           <span>
             The quickest win is the most recent empty week — it is the one you still remember.
@@ -34,9 +34,9 @@ export default async function WeeksPage() {
         </div>
       )}
 
-      <div className="card card-flush">
+      <div className="sheet sheet-flush">
         <div className="table-scroll">
-          <table className="data">
+          <table className="schedule">
             <thead>
               <tr>
                 <th>Week</th>
@@ -52,18 +52,18 @@ export default async function WeeksPage() {
                 return (
                   <tr key={week.weekId}>
                     <td>
-                      <Link href={`/weeks/${week.weekId}`} style={{ color: 'var(--accent)', fontWeight: 500 }}>
+                      <Link href={`/weeks/${week.weekId}`} style={{ color: 'var(--ink)', fontWeight: 500 }}>
                         {formatWeek(week.weekId)}
                       </Link>
                     </td>
-                    <td className="muted small">{formatWeekRange(week.weekId)}</td>
-                    <td className="num">
-                      <span className={`badge ${week.score === 0 ? 'badge-critical' : week.score >= 85 ? 'badge-good' : week.score < 60 ? 'badge-warning' : ''}`}>
+                    <td className="small faint">{formatWeekRange(week.weekId)}</td>
+                    <td className="n">
+                      <span className={`chip ${week.score === 0 ? 'mark-revision' : week.score >= 85 ? 'mark-signed' : week.score < 60 ? 'mark-pending' : ''}`}>
                         {week.score === 0 ? <><span aria-hidden="true">✕</span> none</> : week.score}
                       </span>
                     </td>
-                    <td className="num muted">{week.minutes > 0 ? formatDuration(week.minutes) : '—'}</td>
-                    <td className="small muted">
+                    <td className="n faint">{week.minutes > 0 ? formatDuration(week.minutes) : '—'}</td>
+                    <td className="small faint">
                       {week.score === 0 ? (band?.blurb ?? '') : (week.nextBestAction ?? 'Nothing — this one is solid.')}
                     </td>
                   </tr>

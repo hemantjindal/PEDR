@@ -25,7 +25,7 @@ export function AuthForm({
   const [state, formAction] = useActionState(action, {})
 
   return (
-    <form action={formAction} className="card stack">
+    <form action={formAction} className="sheet stack">
       {mode === 'sign-up' && (
         <div className="field">
           <label htmlFor="name">Your name</label>
@@ -62,7 +62,7 @@ export function AuthForm({
       </div>
 
       {state.error && (
-        <p className="note note-critical small" role="alert">
+        <p className="note note-revision small" role="alert">
           <span aria-hidden="true">⚠</span> {state.error}
         </p>
       )}

@@ -33,7 +33,7 @@ export default async function ProjectsPage() {
       </div>
 
       {unmatched.size > 0 && (
-        <div className="note note-warning">
+        <div className="note note-pending">
           <span aria-hidden="true">◷</span>
           <span>
             Seen in your dumps but not on this list:{' '}
@@ -45,13 +45,13 @@ export default async function ProjectsPage() {
 
       <div className="stack-s">
         {projects.map((project) => (
-          <details className="card" key={project.id} style={project.archived ? { opacity: 0.6 } : undefined}>
+          <details className="sheet" key={project.id} style={project.archived ? { opacity: 0.6 } : undefined}>
             <summary style={{ cursor: 'pointer' }}>
               <span className="row-wrap" style={{ display: 'inline-flex', gap: 8 }}>
                 <strong>{project.code ? `${project.code} · ` : ''}{project.name}</strong>
-                {project.isCaseStudy && <span className="badge badge-accent">case study</span>}
-                {project.archived && <span className="badge">archived</span>}
-                <span className="muted small">
+                {project.isCaseStudy && <span className="chip chip-ink">case study</span>}
+                {project.archived && <span className="chip">archived</span>}
+                <span className="small faint">
                   {formatDuration(minutesByProject.get(project.id) ?? 0)}
                 </span>
               </span>
@@ -61,7 +61,7 @@ export default async function ProjectsPage() {
         ))}
       </div>
 
-      <details className="card" open={projects.length === 0}>
+      <details className="sheet" open={projects.length === 0}>
         <summary style={{ cursor: 'pointer', fontWeight: 550 }}>Add a project</summary>
         <ProjectForm project={null} />
       </details>
@@ -113,7 +113,7 @@ function ProjectForm({ project }: { project: Awaited<ReturnType<typeof getProjec
         <input type="checkbox" name="isCaseStudy" defaultChecked={project?.isCaseStudy} style={{ width: 'auto' }} />
         <span>
           This is my Part 3 case study
-          <span className="muted"> — worth recording in more depth than the rest.</span>
+          <span className="faint"> — worth recording in more depth than the rest.</span>
         </span>
       </label>
 

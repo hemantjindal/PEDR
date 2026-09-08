@@ -131,7 +131,7 @@ export function DumpComposer({
 
   if (saved) {
     return (
-      <div className="card stack">
+      <div className="sheet stack">
         <h2>Saved — {saved.count} {saved.count === 1 ? 'entry' : 'entries'} on the record.</h2>
         <p className="dim small">
           That is the hard part done. The weeks, coverage and sheets all update from it.
@@ -151,10 +151,10 @@ export function DumpComposer({
   if (preview) {
     return (
       <div className="stack">
-        <div className="card stack-s">
+        <div className="sheet stack-s">
           <div className="row-wrap" style={{ justifyContent: 'space-between' }}>
             <h2>Check this before it goes on the record</h2>
-            <span className="badge">{labelForKind(preview.kind)}</span>
+            <span className="chip">{labelForKind(preview.kind)}</span>
           </div>
           <p className="dim small">
             {entries.length} {entries.length === 1 ? 'entry' : 'entries'} across {totals.days}{' '}
@@ -164,7 +164,7 @@ export function DumpComposer({
             )}
           </p>
           {preview.warnings.map((warning) => (
-            <p className="note note-warning small" key={warning}>
+            <p className="note note-pending small" key={warning}>
               <span aria-hidden="true">⚠</span> {warning}
             </p>
           ))}
@@ -186,7 +186,7 @@ export function DumpComposer({
           )}
         </div>
 
-        {error && <p className="note note-critical small" role="alert"><span aria-hidden="true">⚠</span> {error}</p>}
+        {error && <p className="note note-revision small" role="alert"><span aria-hidden="true">⚠</span> {error}</p>}
 
         <div className="row-wrap" style={{ position: 'sticky', bottom: 12 }}>
           <button
@@ -209,7 +209,7 @@ export function DumpComposer({
 
   return (
     <div className="stack">
-      <div className="card stack">
+      <div className="sheet stack">
         <div className="field">
           <label htmlFor="raw">What happened?</label>
           <textarea
@@ -254,7 +254,7 @@ export function DumpComposer({
               <span>
                 Fill in missing hours by spreading a standard day.
                 <br />
-                <span className="muted tiny">
+                <span className="tiny faint">
                   Off by default. Anything filled in this way is marked as an estimate, because your
                   mentor signs these.
                 </span>
@@ -272,7 +272,7 @@ export function DumpComposer({
               <span>
                 Use the model to tidy it up.
                 <br />
-                <span className="muted tiny">
+                <span className="tiny faint">
                   {modelAvailable
                     ? 'Improves wording and tagging on messy text. It can never set your hours.'
                     : 'Not configured — set ANTHROPIC_API_KEY to enable. Everything works without it.'}
@@ -282,7 +282,7 @@ export function DumpComposer({
           </div>
         </details>
 
-        {error && <p className="note note-critical small" role="alert"><span aria-hidden="true">⚠</span> {error}</p>}
+        {error && <p className="note note-revision small" role="alert"><span aria-hidden="true">⚠</span> {error}</p>}
 
         <div className="row-wrap">
           <button
@@ -301,18 +301,6 @@ export function DumpComposer({
         </div>
       </div>
 
-      <div className="card stack-s">
-        <h3>Worth putting in</h3>
-        <ul className="small dim" style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7 }}>
-          <li><strong>Which job.</strong> A name or a number. It is worth points on every week.</li>
-          <li><strong>What specifically.</strong> Not &ldquo;drawings&rdquo; — which drawings, and what changed.</li>
-          <li><strong>Who.</strong> Client, contractor, engineer, your own team. It shows the level you were working at.</li>
-          <li>
-            <strong>What went wrong.</strong> The box examiners actually read. A week where nothing
-            went wrong gives you nothing to write, and scores lower here for that reason.
-          </li>
-        </ul>
-      </div>
     </div>
   )
 }
@@ -344,8 +332,8 @@ function EntryCard({
 
   return (
     <div
-      className="card card-tight stack-s"
-      style={unsure ? { borderColor: 'color-mix(in srgb, var(--warning) 45%, transparent)' } : undefined}
+      className="sheet sheet-tight stack-s"
+      style={unsure ? { borderColor: 'color-mix(in srgb, var(--pending) 45%, transparent)' } : undefined}
     >
       <div className="entry-head">
         <input
@@ -370,12 +358,12 @@ function EntryCard({
           aria-label="Hours"
         />
         {entry.minutesEstimated && (
-          <span className="badge badge-warning" title="We filled this in; it was not stated">
+          <span className="mark mark-pending" title="We filled this in; it was not stated">
             <span aria-hidden="true">≈</span> estimated
           </span>
         )}
         {unsure && (
-          <span className="badge badge-warning">
+          <span className="mark mark-pending">
             <span aria-hidden="true">?</span> unsure
           </span>
         )}
@@ -444,7 +432,7 @@ function EntryCard({
       </div>
 
       {open && (
-        <div className="stack-s" style={{ borderTop: '1px solid var(--line)', paddingTop: 10 }}>
+        <div className="stack-s" style={{ borderTop: '1px solid var(--hair)', paddingTop: 10 }}>
           <div className="field">
             <label>Who you dealt with</label>
             <input
@@ -485,7 +473,7 @@ function EntryCard({
                   <button
                     key={c.id}
                     type="button"
-                    className={`badge ${on ? 'badge-accent' : ''}`}
+                    className={`chip ${on ? 'chip-ink' : ''}`}
                     style={{ cursor: 'pointer' }}
                     title={c.plainly}
                     aria-pressed={on}
@@ -505,17 +493,17 @@ function EntryCard({
           </fieldset>
 
           {entry.provenance && (
-            <p className="tiny muted">From — {entry.provenance}</p>
+            <p className="tiny faint">From — {entry.provenance}</p>
           )}
           {entry.projectId && projectById.get(entry.projectId)?.isCaseStudy && (
-            <p className="tiny" style={{ color: 'var(--accent)' }}>
+            <p className="tiny" style={{ color: 'var(--ink)' }}>
               This is your case study project. Worth more detail than the rest.
             </p>
           )}
         </div>
       )}
 
-      <p className="tiny muted">
+      <p className="tiny faint">
         {formatDate(entry.date, { weekday: true })}
         {entry.minutes > 0 && ` · ${formatDuration(entry.minutes)}`}
       </p>

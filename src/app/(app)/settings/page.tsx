@@ -21,7 +21,7 @@ export default async function SettingsPage() {
         <p className="dim">Five minutes here makes everything else more accurate.</p>
       </div>
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>You</h2>
         <form action={saveSettingsAction} className="stack">
           <div className="grid grid-2">
@@ -58,11 +58,11 @@ export default async function SettingsPage() {
         </form>
       </section>
 
-      <section className="card stack">
-        <div className="card-head">
+      <section className="sheet stack">
+        <div className="sheet-head">
           <div className="stack-s" style={{ gap: 2 }}>
             <h2>Where you work</h2>
-            <p className="tiny muted">
+            <p className="tiny faint">
               Category and location decide whether your experience counts in full.
             </p>
           </div>
@@ -70,7 +70,7 @@ export default async function SettingsPage() {
 
         {employments.length > 0 && (
           <div className="table-scroll">
-            <table className="data">
+            <table className="schedule">
               <thead>
                 <tr><th>Employer</th><th>Role</th><th>From</th><th>Category</th><th>Supervisor</th></tr>
               </thead>
@@ -78,12 +78,12 @@ export default async function SettingsPage() {
                 {employments.map((e) => (
                   <tr key={e.id}>
                     <td>{e.employer}</td>
-                    <td className="muted">{e.role ?? '—'}</td>
-                    <td className="muted small">
+                    <td className="faint">{e.role ?? '—'}</td>
+                    <td className="small faint">
                       {formatDate(e.startDate)}{e.endDate ? ` – ${formatDate(e.endDate)}` : ' – now'}
                     </td>
-                    <td><span className="badge">Category {e.category}</span></td>
-                    <td className="muted small">{e.supervisorName ?? '—'}</td>
+                    <td><span className="chip">Category {e.category}</span></td>
+                    <td className="small faint">{e.supervisorName ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -150,11 +150,11 @@ export default async function SettingsPage() {
         </details>
       </section>
 
-      <section className="card stack">
-        <div className="card-head">
+      <section className="sheet stack">
+        <div className="sheet-head">
           <div className="stack-s" style={{ gap: 2 }}>
             <h2>Reminders in your calendar</h2>
-            <p className="tiny muted">
+            <p className="tiny faint">
               Subscribe once and a nudge appears every Friday, with every sheet deadline alongside it.
             </p>
           </div>
@@ -165,13 +165,13 @@ export default async function SettingsPage() {
           under Other calendars → From URL.
         </p>
         <CopyBlock text={`${process.env.APP_URL ?? ''}/api/ics/${user.calendarToken}`} />
-        <p className="tiny muted">
+        <p className="tiny faint">
           Anyone with this link can see your deadlines, so treat it as private. It does not give
           access to your account.
         </p>
       </section>
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>Projects</h2>
         <p className="small dim">
           Naming a project is worth points on every week it appears in, and it is what lets a dump
@@ -180,7 +180,7 @@ export default async function SettingsPage() {
         <Link href="/projects" className="btn" style={{ alignSelf: 'flex-start' }}>Manage projects</Link>
       </section>
 
-      <section className="card stack">
+      <section className="sheet stack">
         <h2>The model pass</h2>
         <p className="small dim">
           {isEnrichmentAvailable()

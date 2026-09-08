@@ -32,7 +32,7 @@ export function EntryRow({
 
   if (editing) {
     return (
-      <form action={saveEntryAction} className="card card-tight stack-s">
+      <form action={saveEntryAction} className="sheet sheet-tight stack-s">
         <input type="hidden" name="entryId" value={entry.id} />
         <div className="row-wrap" style={{ gap: 8 }}>
           <input type="date" name="date" defaultValue={entry.date} style={{ width: 150 }} aria-label="Date" />
@@ -105,27 +105,27 @@ export function EntryRow({
 
   return (
     <div
-      className="card card-tight stack-s"
-      style={unsure ? { borderColor: 'color-mix(in srgb, var(--warning) 45%, transparent)' } : undefined}
+      className="sheet sheet-tight stack-s"
+      style={unsure ? { borderColor: 'color-mix(in srgb, var(--pending) 45%, transparent)' } : undefined}
     >
       <div className="row-wrap" style={{ gap: 8 }}>
-        {showDate && <span className="small tabular muted">{formatDate(entry.date, { weekday: true, year: false })}</span>}
-        {project && <span className="badge badge-accent">{project.code || project.name}</span>}
+        {showDate && <span className="ref">{formatDate(entry.date, { weekday: true, year: false })}</span>}
+        {project && <span className="chip chip-ink">{project.code || project.name}</span>}
         {!project && entry.projectHint && (
-          <span className="badge badge-warning" title="Not matched to a project on your list">
+          <span className="mark mark-pending" title="Not matched to a project on your list">
             <span aria-hidden="true">?</span> {entry.projectHint}
           </span>
         )}
-        {office && <span className="badge">{office.name}</span>}
+        {office && <span className="chip">{office.name}</span>}
         {entry.stage !== null && (
-          <span className="badge" title={stageInfo(entry.stage)?.blurb}>
+          <span className="chip" title={stageInfo(entry.stage)?.blurb}>
             Stage {entry.stage} · {stageInfo(entry.stage)?.short}
           </span>
         )}
-        {entry.criteria.map((c) => <span className="badge" key={c}>{c}</span>)}
+        {entry.criteria.map((c) => <span className="chip" key={c}>{c}</span>)}
         <span className="spacer" />
         {entry.minutes > 0 && (
-          <span className="small tabular muted">
+          <span className="ref">
             {formatDuration(entry.minutes)}
             {entry.minutesEstimated && <span title="Estimated, not stated"> ≈</span>}
           </span>
@@ -139,7 +139,7 @@ export function EntryRow({
       {entry.detail && <p className="small dim">{entry.detail}</p>}
 
       {entry.people.length > 0 && (
-        <p className="tiny muted">With {entry.people.join(', ')}</p>
+        <p className="tiny faint">With {entry.people.join(', ')}</p>
       )}
       {entry.wentWrong && (
         <p className="small" style={{ color: 'var(--serious-ink)' }}>
@@ -147,12 +147,12 @@ export function EntryRow({
         </p>
       )}
       {entry.learned && (
-        <p className="small" style={{ color: 'var(--good-ink)' }}>
+        <p className="small" style={{ color: 'var(--signed-ink)' }}>
           <span aria-hidden="true">✦ </span>{entry.learned}
         </p>
       )}
       {unsure && (
-        <p className="tiny muted">
+        <p className="tiny faint">
           Read this one — we were not sure.{entry.provenance ? ` From: ${entry.provenance}` : ''}
         </p>
       )}

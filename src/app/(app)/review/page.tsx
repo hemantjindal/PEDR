@@ -29,7 +29,7 @@ export default async function ReviewPage() {
         <div className="note">
           <span aria-hidden="true">✓</span>
           <span>
-            Everything has been checked. <Link href="/dashboard" style={{ color: 'var(--accent)' }}>Back to the dashboard</Link>
+            Everything has been checked. <Link href="/dashboard" style={{ color: 'var(--ink)' }}>Back to the dashboard</Link>
           </span>
         </div>
       ) : (
