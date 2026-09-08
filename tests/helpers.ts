@@ -25,6 +25,7 @@ export function entry(over: Partial<Entry> & { date: DateKey }): Entry {
     learned: null,
     confidence: 0.9,
     source: 'manual',
+    provenance: null,
     verified: true,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',

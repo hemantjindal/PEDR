@@ -54,6 +54,7 @@ function toEntry(row: EntryRow): Entry {
     learned: row.learned,
     confidence: row.confidence / 100,
     source: row.source as EntrySource,
+    provenance: row.provenance,
     verified: row.verified,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,

@@ -137,6 +137,17 @@ export function extractPeople(text: string, known: string[] = []): PeopleResult 
     classify(`${m[1]} ${m[2]}`, people, organisations)
   }
 
+  // "<Person> from <X>" — in English X is the person's organisation, not
+  // another person. Without this, "site visit with Sarah Chen from Mace"
+  // records a colleague called Mace.
+  const affiliation = /\b([A-Z][\w'’-]+(?:\s+[A-Z][\w'’-]+)?)\s+(?:from|at|of)\s+([A-Z][\w'’&-]+(?:\s+[A-Z][\w'’&-]+)?)/g
+  for (const m of text.matchAll(affiliation)) {
+    if (people.has(m[1]) || [...people].some((p) => p.startsWith(m[1]))) {
+      people.delete(m[2])
+      organisations.add(m[2])
+    }
+  }
+
   for (const [pattern, label] of ROLE_PATTERNS) {
     if (pattern.test(text)) roles.add(label)
   }

@@ -122,3 +122,19 @@ describe('allocateDayMinutes', () => {
     expect(out[1].minutesEstimated).toBe(true)
   })
 })
+
+describe('stripDuration tidies what removal leaves behind', () => {
+  it('collapses the orphaned punctuation', () => {
+    expect(stripDuration('worked up the stair details with Tom. 4h. sent the wrong revision', '4h'))
+      .toBe('worked up the stair details with Tom. sent the wrong revision')
+  })
+
+  it('does not leave a space before punctuation', () => {
+    expect(stripDuration('Site visit 2h30, then back to the office', '2h30'))
+      .toBe('Site visit, then back to the office')
+  })
+
+  it('drops a leading full stop left by a removal at the start', () => {
+    expect(stripDuration('4h. tender package', '4h')).toBe('tender package')
+  })
+})

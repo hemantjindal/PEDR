@@ -143,9 +143,12 @@ export function stripDuration(text: string, matched: string | null): string {
   return out
     .replace(/\(\s*\)/g, '')
     .replace(/\[\s*\]/g, '')
-    .replace(/\s*[,;]\s*$/, '')
+    // Cutting "4h" out of "with Tom. 4h. sent the wrong revision" leaves
+    // ". . " behind. Collapse the orphaned punctuation the removal created.
+    .replace(/([.,;:!?])\s*(?=[.,;:!?])/g, '')
+    .replace(/\s+([.,;:!?])/g, '$1')
     .replace(/\s{2,}/g, ' ')
-    .replace(/^[\s\-–—:,]+|[\s\-–—:,]+$/g, '')
+    .replace(/^[\s\-–—:,.]+|[\s\-–—:,]+$/g, '')
     .trim()
 }
 

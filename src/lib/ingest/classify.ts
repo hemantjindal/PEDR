@@ -119,10 +119,14 @@ function findSentence(text: string, triggers: string[]): string | null {
   for (const sentence of sentences) {
     const lower = sentence.toLowerCase()
     for (const trigger of triggers) {
-      const idx = lower.indexOf(trigger)
-      if (idx === -1) continue
+      // Word-boundary matched, not substring matched. A plain indexOf finds
+      // "miss" inside "submission" and reports every planning submission as a
+      // mistake, which is both wrong and the sort of wrong nobody notices.
+      const pattern = new RegExp(`(?<![a-z0-9])${escapeRegExp(trigger)}(?![a-z0-9])`, 'i')
+      const match = pattern.exec(lower)
+      if (!match) continue
       // Skip a negated match: "nothing went wrong" is not a thing that went wrong.
-      const before = lower.slice(Math.max(0, idx - 24), idx)
+      const before = lower.slice(Math.max(0, match.index - 24), match.index)
       if (NEGATIONS.some((n) => before.includes(n))) continue
       return sentence.trim()
     }

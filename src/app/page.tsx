@@ -1,1 +1,7 @@
-export default function Page() { return <main className="p-8 text-2xl">smoke</main> }
+import { redirect } from 'next/navigation'
+import { getUser } from '@/lib/auth'
+
+export default async function Root() {
+  const user = await getUser()
+  redirect(user ? '/dashboard' : '/sign-in')
+}

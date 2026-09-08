@@ -41,6 +41,12 @@ export interface Entry {
   /** 0–1. Below `REVIEW_THRESHOLD` the entry is held for confirmation. */
   confidence: number
   source: EntrySource
+  /**
+   * Which part of the input this came from. Kept so a record can always be
+   * traced back to what was actually typed — if we say Stage 5, you can see
+   * the words that made us think so.
+   */
+  provenance: string | null
   /** True once a human has looked at it. Machine-made entries start false. */
   verified: boolean
   createdAt: string
@@ -55,10 +61,9 @@ export const REVIEW_THRESHOLD = 0.55
 /** An entry as the parser produces it, before it has an id or an owner. */
 export type DraftEntry = Omit<
   Entry,
-  'id' | 'userId' | 'dumpId' | 'createdAt' | 'updatedAt' | 'verified'
+  'id' | 'userId' | 'dumpId' | 'createdAt' | 'updatedAt' | 'verified' | 'provenance'
 > & {
-  /** Which bit of the input this came from, so a user can check our working. */
-  provenance?: string
+  provenance?: string | null
 }
 
 /** The reflective writing for one week. Free text, written by you, not derived. */

@@ -1,10 +1,12 @@
 import { eq } from 'drizzle-orm'
 import { cookies } from 'next/headers'
-import {
-  createHash, randomBytes, randomUUID, scrypt as scryptCb, timingSafeEqual,
-} from 'node:crypto'
-import { promisify } from 'node:util'
+import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { db, schema } from './db/client'
+import {
+  DUMMY_HASH, hashPassword, isEmail, normaliseEmail, validatePassword, verifyPassword,
+} from './password'
+
+export { hashPassword, isEmail, normaliseEmail, validatePassword, verifyPassword }
 
 /**
  * Small, self-contained auth. Email and password, scrypt, a session cookie.
@@ -20,13 +22,6 @@ import { db, schema } from './db/client'
  *    time does not reveal whether an address is registered.
  */
 
-const scrypt = promisify(scryptCb) as (
-  password: string | Buffer,
-  salt: string | Buffer,
-  keylen: number,
-) => Promise<Buffer>
-
-const SCRYPT_KEYLEN = 64
 const SESSION_COOKIE = 'pedr_session'
 const SESSION_DAYS = 30
 
@@ -39,31 +34,6 @@ export interface SessionUser {
   experienceStart: string | null
   targetExamDate: string | null
 }
-
-// ---------------------------------------------------------------------------
-// Passwords
-// ---------------------------------------------------------------------------
-
-export async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString('hex')
-  const derived = await scrypt(password, salt, SCRYPT_KEYLEN)
-  return `scrypt$${salt}$${derived.toString('hex')}`
-}
-
-export async function verifyPassword(password: string, stored: string): Promise<boolean> {
-  const parts = stored.split('$')
-  if (parts.length !== 3 || parts[0] !== 'scrypt') return false
-  const [, salt, expected] = parts
-  const derived = await scrypt(password, salt, SCRYPT_KEYLEN)
-  const expectedBuf = Buffer.from(expected, 'hex')
-  if (expectedBuf.length !== derived.length) return false
-  return timingSafeEqual(derived, expectedBuf)
-}
-
-/** A dummy hash to compare against when the account does not exist. */
-const DUMMY_HASH =
-  'scrypt$0000000000000000000000000000000000000000000000000000000000000000$' +
-  '0'.repeat(SCRYPT_KEYLEN * 2)
 
 // ---------------------------------------------------------------------------
 // Sessions
@@ -171,18 +141,6 @@ export async function destroySession(): Promise<void> {
 
 export type AuthOutcome = { ok: true; userId: string } | { ok: false; error: string }
 
-export function normaliseEmail(email: string): string {
-  return email.trim().toLowerCase()
-}
-
-export function validatePassword(password: string): string | null {
-  if (password.length < 10) return 'Use at least 10 characters.'
-  if (password.length > 200) return 'That is too long.'
-  // Nothing more. Length is what matters, and composition rules push people
-  // toward Password1! which is worse than a long phrase they will remember.
-  return null
-}
-
 export async function signUp(input: {
   email: string
   password: string
@@ -191,7 +149,7 @@ export async function signUp(input: {
   const email = normaliseEmail(input.email)
   const name = input.name.trim()
 
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: 'That email does not look right.' }
+  if (!isEmail(email)) return { ok: false, error: 'That email does not look right.' }
   if (!name) return { ok: false, error: 'What should we call you?' }
 
   const passwordProblem = validatePassword(input.password)

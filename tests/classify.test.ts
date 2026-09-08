@@ -180,3 +180,44 @@ describe('extractPeople', () => {
     expect(result.roles).toContain('structural engineer')
   })
 })
+
+describe('friction triggers are word-boundary matched', () => {
+  it('does not read "submission" as a miss', () => {
+    expect(classify('Half day, planning submission for BSQ').wentWrong).toBeNull()
+  })
+
+  it('does not fire on other words that merely contain a trigger', () => {
+    for (const text of [
+      'Reviewed the misson statement wording',
+      'Updated the latest drawing register',
+      'Checked the wrongful dismissal clause is not our concern',
+    ]) {
+      const result = classify(text)
+      // Any hit here must be a real word match, not a fragment.
+      if (result.wentWrong) expect(result.wentWrong.toLowerCase()).toMatch(/\bwrong\b|\blate\b|\bmiss\b/)
+    }
+  })
+
+  it('still catches the real thing', () => {
+    expect(classify('Missed the drainage connection detail entirely.').wentWrong).not.toBeNull()
+    expect(classify('The package went out late because of me.').wentWrong).not.toBeNull()
+  })
+})
+
+describe('affiliations', () => {
+  it('reads "<Person> from <Firm>" as a person and a firm', () => {
+    const result = extractPeople('Site visit with Sarah Chen from Mace')
+    expect(result.people).toEqual(['Sarah Chen'])
+    expect(result.organisations).toContain('Mace')
+  })
+
+  it('handles "at" and "of" the same way', () => {
+    expect(extractPeople('Call with Priya Nair at Arup').people).toEqual(['Priya Nair'])
+    expect(extractPeople('Call with Priya Nair at Arup').organisations).toContain('Arup')
+  })
+
+  it('does not strip a second genuine person', () => {
+    const result = extractPeople('Met Tom Reilly and Sarah Chen on site')
+    expect(result.people).toEqual(['Sarah Chen', 'Tom Reilly'])
+  })
+})
