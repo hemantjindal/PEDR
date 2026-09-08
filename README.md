@@ -76,6 +76,19 @@ reflective" is useless advice and two paragraphs side by side is not.
    discarded in code, not merely discouraged in the prompt. Without an API key
    the deterministic parser does the whole job.
 
+## Try it without installing anything
+
+The parser is pure, dependency-free code, so it runs in a browser on its own:
+
+```bash
+npm install && npm run demo      # -> demo/dist/pedr-demo.html
+```
+
+Open that file. One HTML page, no server, no database, no network — paste a
+rough week and watch it get filed. It bundles the real engine from `src/lib`
+rather than a copy, so the demo cannot drift into being a flattering mock-up of
+the app.
+
 ## Running it
 
 ```bash

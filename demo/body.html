@@ -1,0 +1,125 @@
+<div class="wrap">
+
+  <div class="titleblock">
+    <div><span class="label">Instrument</span><span class="value">PEDR parser</span></div>
+    <div><span class="label">Input</span><span class="value">Anything you type</span></div>
+    <div><span class="label">Output</span><span class="value">A filed record</span></div>
+    <div><span class="label">Runs</span><span class="value">In this tab</span></div>
+  </div>
+
+  <div class="stack" style="margin-bottom:22px">
+    <h1>Type your week badly. Watch it become a record.</h1>
+    <p class="dim" style="max-width:64ch">
+      This is the engine out of the PEDR app, running here in your browser — the same 57&nbsp;kB of
+      code, nothing sent anywhere. Edit the box and everything to the right redraws as you type.
+    </p>
+  </div>
+
+  <div class="row" style="margin-bottom:14px">
+    <span class="label" style="display:inline">Try</span>
+    <button class="btn" data-sample="week" aria-pressed="true">A rough week</button>
+    <button class="btn" data-sample="teams">A Teams chat</button>
+    <button class="btn" data-sample="timesheet">A timesheet export</button>
+    <button class="btn" data-sample="lazy">A lazy week</button>
+  </div>
+
+  <div class="bench">
+    <div class="stack">
+      <div class="sheet">
+        <div class="sheet-head">
+          <div>
+            <span class="label">Week commencing 7 September 2026</span>
+            <h2 style="margin-top:3px">What happened?</h2>
+          </div>
+          <span class="chip" id="kind">notes</span>
+        </div>
+        <textarea id="raw" spellcheck="false" aria-label="Your rough notes"></textarea>
+        <p class="tiny faint" style="margin-top:9px">
+          Days, half-sentences, no punctuation — all fine. Job numbers below are matched
+          automatically, along with the nicknames you would set for them.
+        </p>
+        <div class="row" style="margin-top:9px">
+          <span class="chip">1042 · Battersea</span>
+          <span class="chip">1088 · Nine Elms</span>
+          <span class="chip">1103 · Hackney</span>
+        </div>
+      </div>
+
+      <div class="sheet" id="scorecard"></div>
+    </div>
+
+    <div class="stack">
+      <div class="sheet">
+        <div class="sheet-head">
+          <div>
+            <span class="label" id="tally">nothing yet</span>
+            <h2 style="margin-top:3px">Filed record</h2>
+          </div>
+        </div>
+        <div id="out"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols" style="margin-top:26px">
+    <div class="sheet">
+      <div class="sheet-head"><div>
+        <span class="label">Why it scores that way</span>
+        <h2 style="margin-top:3px">The friction weighting</h2>
+      </div></div>
+      <p class="small dim">
+        Recording something that went wrong is worth 20 — more than naming a project, more than
+        naming who you dealt with. It is the heaviest thing on the sheet apart from logging at all.
+      </p>
+      <p class="small dim" style="margin-top:9px">
+        That is deliberate. The reflective boxes are what Part&nbsp;3 examiners actually read, and the
+        most-cited weakness in them is describing rather than reflecting. A week where everything
+        went smoothly gives you nothing to write, so it caps at 80 here.
+      </p>
+    </div>
+
+    <div class="sheet">
+      <div class="sheet-head"><div>
+        <span class="label">Two rules the code enforces</span>
+        <h2 style="margin-top:3px">It never invents hours</h2>
+      </div></div>
+      <p class="small dim">
+        No stated duration means zero, not a guess. Filling blanks is a separate, explicit action
+        that marks every minute it estimated — a mentor signs these records, and a plausible
+        fabricated number is worse than an obvious blank.
+      </p>
+      <p class="small dim" style="margin-top:9px">
+        The optional model pass may improve wording and tagging. It is not allowed to set hours, and
+        it may only pick projects, stages and criteria that exist. Everything else is discarded in
+        code, not discouraged in a prompt.
+      </p>
+    </div>
+
+    <div class="sheet">
+      <div class="sheet-head"><div>
+        <span class="label">The finding that reshaped the app</span>
+        <h2 style="margin-top:3px">The two-month deadline</h2>
+      </div></div>
+      <p class="small dim">
+        A record sheet covers up to three months and must be completed <strong>within two months of
+        that period ending</strong>. Miss it and the sheet is late: your PSA can no longer give you
+        useful feedback, and a run of late sheets is a number an examiner can count against your
+        time management.
+      </p>
+      <p class="small dim" style="margin-top:9px">
+        It is buried in guidance PDFs and no tool surfaces it. The app counts down to every one.
+      </p>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:20px">
+    <span class="label" style="padding-top:2px;flex:none">Scope</span>
+    <span>
+      This page is the parser only. The full app adds the record itself, the register, coverage
+      across RIBA stages&nbsp;0–7 and PC1–PC5, the deadline engine, generated quarterly sheets, and a
+      calendar feed that reminds you. <strong>Nothing you type here is stored or sent.</strong>
+      It is not the official record either — that is RIBA's system at pedr.co.uk, where your mentor
+      and PSA sign.
+    </span>
+  </div>
+</div>
