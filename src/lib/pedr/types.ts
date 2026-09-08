@@ -1,4 +1,6 @@
-import type { CriterionId, ExperienceCategory, ExperienceLocation, ScoreBandId, StageId } from './constants'
+import type {
+  CriterionId, ExperienceCategory, ExperienceLocation, OfficeCategoryId, ScoreBandId, StageId,
+} from './constants'
 import type { DateKey, MonthKey, WeekId } from './week'
 
 /**
@@ -14,10 +16,20 @@ export interface Entry {
   dumpId: string | null
   date: DateKey
   minutes: number
+  /**
+   * True when we filled the number in rather than being told it. Mentors sign
+   * these records, so an estimate must always look like an estimate.
+   */
+  minutesEstimated: boolean
   projectId: string | null
   /** Raw project text when we could not match it to a project record yet. */
   projectHint: string | null
   stage: StageId | null
+  /**
+   * Set instead of a project when this was non-project time — CPD, Part 3
+   * lectures, practice management, holiday. A whole section of the real sheet.
+   */
+  officeCategory: OfficeCategoryId | null
   /** The headline: "Issued RFI response on the curtain wall head detail". */
   activity: string
   detail: string | null
