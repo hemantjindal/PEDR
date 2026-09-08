@@ -347,12 +347,11 @@ function EntryCard({
       className="card card-tight stack-s"
       style={unsure ? { borderColor: 'color-mix(in srgb, var(--warning) 45%, transparent)' } : undefined}
     >
-      <div className="row-wrap" style={{ gap: 8 }}>
+      <div className="entry-head">
         <input
           type="date"
           value={entry.date}
           onChange={(e) => onChange({ date: e.target.value })}
-          style={{ width: 150 }}
           aria-label="Date"
         />
         <input
@@ -368,7 +367,6 @@ function EntryCard({
               minutesEstimated: false,
             })
           }
-          style={{ width: 82 }}
           aria-label="Hours"
         />
         {entry.minutesEstimated && (
@@ -382,12 +380,16 @@ function EntryCard({
           </span>
         )}
         <span className="spacer" />
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-          {open ? 'Less' : 'More'}
-        </button>
-        <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={onRemove}>
-          Remove
-        </button>
+        {/* Grouped so the two actions wrap together on a narrow screen rather
+            than leaving "Remove" stranded on a line of its own. */}
+        <span className="row" style={{ gap: 4, flex: 'none' }}>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+            {open ? 'Less' : 'More'}
+          </button>
+          <button type="button" className="btn btn-ghost btn-sm btn-danger" onClick={onRemove}>
+            Remove
+          </button>
+        </span>
       </div>
 
       <input

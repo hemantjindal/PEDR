@@ -498,6 +498,12 @@ table.data td.num { text-align: right; font-variant-numeric: tabular-nums; }
 }
 .meter > span { display: block; height: 100%; border-radius: 5px; }
 
+/* An entry's date and hours stay side by side; the inputs shrink rather than
+   pushing each other onto separate lines. */
+.entry-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.entry-head input[type="date"] { flex: 1 1 130px; min-width: 120px; max-width: 170px; }
+.entry-head input[type="number"] { flex: 0 1 76px; min-width: 62px; }
+
 /* A requirement row keeps its value beside its label on a phone rather than
    letting a badge push the number onto its own line. */
 .check-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }

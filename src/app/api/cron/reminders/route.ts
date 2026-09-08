@@ -1,9 +1,8 @@
-import { and, eq, isNotNull } from 'drizzle-orm'
+import { isNotNull } from 'drizzle-orm'
 import { db, schema } from '@/lib/db/client'
-import { getSheets } from '@/lib/data'
+import { getEntries, getSheets, getWeekNotes } from '@/lib/data'
 import { planSheetPeriods, summariseDeadlines } from '@/lib/pedr/deadlines'
 import { scoreWeeks } from '@/lib/pedr/scoring'
-import { getEntries, getWeekNotes } from '@/lib/data'
 import { addWeeks, todayKey, weekIdOf } from '@/lib/pedr/week'
 
 export const runtime = 'nodejs'
