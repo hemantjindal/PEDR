@@ -266,6 +266,105 @@ export type ExperienceLocation = (typeof EXPERIENCE_LOCATIONS)[number]['id']
 // Every one of these is checked in progress.ts and shown on the dashboard.
 // ---------------------------------------------------------------------------
 
+export const OFFICE_MANAGEMENT_CATEGORIES = [
+  {
+    id: 'cpd',
+    name: 'CPD',
+    blurb: 'Structured and informal continuing professional development.',
+    countsAsExperience: true,
+    keywords: ['cpd', 'lunchtime talk', 'seminar', 'webinar', 'conference', 'lecture series'],
+  },
+  {
+    id: 'part3',
+    name: 'Part 3 course',
+    blurb: 'Lectures, tutorials and coursework for your Part 3.',
+    countsAsExperience: true,
+    keywords: ['part 3', 'part iii', 'professional practice course', 'psa tutorial'],
+  },
+  {
+    id: 'training',
+    name: 'Office training',
+    blurb: 'Software, standards, induction, health and safety training.',
+    countsAsExperience: true,
+    keywords: ['training', 'induction', 'onboarding', 'software training', 'revit training'],
+  },
+  {
+    id: 'mentoring',
+    name: 'Mentoring and supervision',
+    blurb: 'Time with your mentor, appraisals, and mentoring others.',
+    countsAsExperience: true,
+    keywords: ['mentor', 'mentoring', 'appraisal', 'one to one', '1:1', 'review meeting'],
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing and bids',
+    blurb: 'Competitions, bids, fee proposals, portfolio and award submissions.',
+    countsAsExperience: true,
+    keywords: ['bid', 'competition', 'pitch', 'award submission', 'marketing', 'portfolio'],
+  },
+  {
+    id: 'strategy',
+    name: 'Practice management',
+    blurb: 'Resourcing, quality systems, office standards, practice meetings.',
+    countsAsExperience: true,
+    keywords: ['practice meeting', 'resourcing', 'office standard', 'quality management', 'qa'],
+  },
+  {
+    id: 'it',
+    name: 'IT and office systems',
+    blurb: 'Templates, BIM standards, document control, software setup.',
+    countsAsExperience: true,
+    keywords: ['bim standard', 'template', 'document control', 'file naming', 'it support'],
+  },
+  {
+    id: 'admin',
+    name: 'Admin',
+    blurb: 'Timesheets, expenses, general office administration.',
+    countsAsExperience: true,
+    keywords: ['timesheet', 'expenses', 'admin'],
+  },
+  {
+    id: 'leave',
+    name: 'Holiday and absence',
+    blurb: 'Annual leave, sickness, and other absence. Recorded, but not experience.',
+    countsAsExperience: false,
+    keywords: ['annual leave', 'holiday', 'off sick', 'sick leave', 'bank holiday', 'day off'],
+  },
+] as const
+
+export type OfficeCategoryId = (typeof OFFICE_MANAGEMENT_CATEGORIES)[number]['id']
+
+export function officeCategory(id: string) {
+  return OFFICE_MANAGEMENT_CATEGORIES.find((c) => c.id === id)
+}
+
+/**
+ * Sheet timing. These are the rules almost nobody knows, buried in guidance
+ * PDFs, and they are the reason people end up with "late" on their record.
+ *
+ * A sheet covers at most three months and must be completed within two months
+ * of the end of the period it covers. Your PSA then aims to sign within a
+ * month. Miss the two-month window and the sheet is late: the PSA cannot give
+ * you useful feedback, and a run of late sheets reads as poor time management
+ * at the Part 3 exam.
+ */
+export const SHEET_RULES = {
+  /** A record sheet covers up to this many months. */
+  maxPeriodMonths: 3,
+  /** Deadline for completing a sheet, counted from the end of its period. */
+  submitWithinMonths: 2,
+  /** What a PSA aims for once you submit. Used to decide when to chase. */
+  psaTargetDays: 30,
+  /** What a mentor realistically takes. Used to decide when to chase. */
+  mentorTargetDays: 14,
+  /** 24 months of experience at 3 months a sheet. */
+  requiredSheets: 8,
+  /** Examiners want around this many pages. Less is more. */
+  targetPages: 6,
+  source: 'RIBA PEDR student guidance; university PSA handbooks',
+  asOf: '2026-09',
+} as const
+
 export const REQUIREMENTS = {
   /** Total practical experience needed before the Part 3 exam. */
   minTotalMonths: 24,
