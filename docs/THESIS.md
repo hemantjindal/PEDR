@@ -66,6 +66,47 @@ Excel can hold step one. It cannot do steps two, three or four, because they
 require knowing what a Part 3 examiner asks, what a good answer contains, and
 what experience produces one.
 
+## The correction: this is a catch-up tool
+
+The section above is right about *what makes the product defensible*. It was
+wrong about *what gets anybody through the door*.
+
+Nobody searches for "rehearse my Part 3 viva". The viva screen is why somebody
+stays; it is not why they arrive. People arrive in one of three states, and all
+three are searches somebody types at 11pm:
+
+| They think | They search | They need |
+|---|---|---|
+| I am months behind and dreading it | *pedr behind, catch up on pedr* | **Reconstruct the past** |
+| I have been avoiding it and it has grown | *pedr deadline missed, is my pedr late* | **A straight answer, no account** |
+| I do not know what one even is | *what is a pedr, pedr example* | **See a finished one** |
+
+The two real pain points, plainly:
+
+1. **People procrastinate.** For a term, then a quarter, then it is a thing
+   they are afraid of.
+2. **Most have never seen a finished PEDR** before they are told to write one.
+   It is hard to start a document you have never laid eyes on.
+
+Everything built before this served neither. A weekly score, a streak, a Friday
+nudge — every one of those is a tool for somebody who is keeping up, and almost
+nobody is. Worse: shown to somebody eight months behind, a streak of zero and
+thirty-four blank weeks is a shame machine. It is the product telling you what
+you already knew and did not want to hear.
+
+**So the primary loop runs backwards, not forwards.** You do not have to
+remember eight months — you already recorded them, in your Outlook calendar and
+your practice timesheet. The job is to pull that back out, merge it, say which
+weeks it reached, and for the ones it could not, say what is *known* about that
+week so it can be recalled rather than invented.
+
+That reframe costs almost nothing to build, because every parser already
+existed. They were simply all pointed at "log today" instead of "recover the
+last eight months". The features were right and the direction was wrong.
+
+The one rule it must never break: **recover, never invent.** A week nothing
+reached comes back blank with a prompt, not with a plausible sentence in it.
+
 ## What follows from it
 
 Ranked by how much of the thesis each carries.

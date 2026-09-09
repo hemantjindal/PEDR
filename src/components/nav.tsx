@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 const ITEMS = [
   { href: '/dashboard', label: 'Dashboard' },
   { href: '/dump', label: 'Dump' },
+  { href: '/catch-up', label: 'Catch up' },
   { href: '/calendar', label: 'Calendar' },
   { href: '/weeks', label: 'Weeks' },
   { href: '/coverage', label: 'Coverage' },
@@ -20,6 +21,7 @@ const TABS = [
   { href: '/dashboard', label: 'Home', icon: 'M3 11.5 12 4l9 7.5M6 10v9h12v-9' },
   { href: '/weeks', label: 'Weeks', icon: 'M4 6h16M4 12h16M4 18h10' },
   { href: '/dump', label: 'Dump', icon: 'M12 5v14M5 12h14' },
+  { href: '/catch-up', label: 'Catch up', icon: 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5' },
   { href: '/exam', label: 'Viva', icon: 'M12 6.5a5 5 0 1 1 3 9v2m-3 3h.01' },
   { href: '/sheets', label: 'Sheets', icon: 'M7 3h7l5 5v13H7zM14 3v5h5' },
 ]

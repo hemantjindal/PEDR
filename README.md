@@ -15,6 +15,15 @@ filling that in take twenty minutes instead of a weekend.
 
 ---
 
+**Who it is for:** somebody months behind who has been avoiding it. Not
+somebody keeping up — almost nobody is, and a streak counter shown to someone
+with thirty-four blank weeks is a shame machine. So the primary loop runs
+backwards: **you do not have to remember eight months, because you already
+recorded them.** Point it at your Outlook calendar and your practice timesheet
+and it reconstructs the period, tells you which weeks it reached, and for the
+ones it could not, tells you what is known about that week so you can recall it
+rather than invent it.
+
 **The thesis, in one line:** a tool that records is a spreadsheet; a tool that
 interrogates the record the way an examiner will — and turns what you cannot
 answer into what to go and do this month — is a product. The long version, and
@@ -211,7 +220,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 496 tests
+npm test        # 526 tests
 npm run build
 ```
 
@@ -272,7 +281,7 @@ src/lib/ingest/     the parsers — dates, durations, people, classification,
 src/lib/db/         schema and client
 src/app/            Next.js App Router: pages and route handlers
 src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
-tests/              496 tests, mostly against the domain and the parsers
+tests/              526 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:
