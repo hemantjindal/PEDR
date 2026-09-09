@@ -6,6 +6,7 @@ import type {
 } from './pedr/constants'
 import { REQUIREMENTS } from './pedr/constants'
 import { computeCoverage, coverageHeadline, participationTrend } from './pedr/coverage'
+import { buildMissions } from './pedr/missions'
 import { planSheetPeriods, summariseDeadlines } from './pedr/deadlines'
 import { computeProgress } from './pedr/progress'
 import {
@@ -187,6 +188,7 @@ export interface Dashboard {
   coverage: ReturnType<typeof computeCoverage>
   coverageNote: string | null
   participation: ReturnType<typeof participationTrend>
+  missions: ReturnType<typeof buildMissions>
   progress: ReturnType<typeof computeProgress>
   deadlines: ReturnType<typeof summariseDeadlines>
   streak: number
@@ -236,6 +238,11 @@ export async function getDashboard(
     ? planSheetPeriods(start, { today, sheets })
     : []
 
+  const coverageResult = coverage
+  const progressResult = computeProgress(entries, scores, employments, { today })
+  const deadlineResult = summariseDeadlines(periods)
+  const participationResult = participationTrend(entries)
+
   return {
     today,
     entries,
@@ -249,9 +256,20 @@ export async function getDashboard(
     thinWeeks: findThinWeeks(scores),
     coverage,
     coverageNote: coverageHeadline(coverage),
-    participation: participationTrend(entries),
-    progress: computeProgress(entries, scores, employments, { today }),
-    deadlines: summariseDeadlines(periods),
+    participation: participationResult,
+    progress: progressResult,
+    deadlines: deadlineResult,
+    missions: buildMissions({
+      thisWeek: scores[scores.length - 1] ?? null,
+      scores,
+      coverage: coverageResult,
+      deadlines: deadlineResult,
+      progress: progressResult,
+      participation: participationResult,
+      hasExperienceStart: Boolean(opts.experienceStart),
+      hasEmployment: employments.length > 0,
+      projectCount: projects.filter((p) => !p.archived).length,
+    }),
     streak: currentStreak(scores),
     best: bestStreak(scores),
     unverified,
@@ -488,7 +506,15 @@ export async function createEmployment(
 
 export async function updateUser(
   userId: string,
-  patch: { name?: string; teamsName?: string | null; experienceStart?: DateKey | null; targetExamDate?: DateKey | null },
+  patch: {
+    name?: string
+    teamsName?: string | null
+    experienceStart?: DateKey | null
+    targetExamDate?: DateKey | null
+    part2School?: string | null
+    practiceSize?: string | null
+    onboardedAt?: string | null
+  },
 ): Promise<void> {
   const values: Record<string, unknown> = {}
   for (const [key, value] of Object.entries(patch)) {

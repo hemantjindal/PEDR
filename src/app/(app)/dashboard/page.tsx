@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { MissionPanel } from '@/components/missions'
 import { CoverageSchedule, Register, ScaleBar, Stat, Trend } from '@/components/charts'
 import type { RegisterRow } from '@/components/charts'
 import { requireUser } from '@/lib/auth'
@@ -13,6 +15,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   const user = await requireUser()
+  // Nothing on this page means anything without a start date, so a new account
+  // is sent through setup first. Skipping sets the same flag, so it asks once.
+  if (!user.onboardedAt && !user.experienceStart) redirect('/start')
   const d = await getDashboard(user.id, { experienceStart: user.experienceStart })
 
   const started = d.entries.length > 0
@@ -139,16 +144,10 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {/* One instruction, in priority order. */}
-      <Instruction
-        started={started}
-        /* The alarm band above already carries the overdue count, so the bar
-           only speaks when there is nothing overdue and a deadline is near. */
-        deadlineNote={d.deadlines.lateCount > 0 ? null : d.deadlines.headline}
-        coverageNote={d.coverageNote}
-        thisWeekLogged={(thisWeekScore?.score ?? 0) > 0}
-        unverified={d.unverified}
-      />
+      {/* What to do next, ranked, with what each thing is actually worth. The
+          alarm band above already carries the overdue count, so nothing here
+          repeats it. */}
+      <MissionPanel board={d.missions} />
 
       {/* The register — the signature view. */}
       <section className="sheet">
@@ -416,72 +415,3 @@ function Sitting({
   )
 }
 
-function Instruction({
-  started,
-  deadlineNote,
-  coverageNote,
-  thisWeekLogged,
-  unverified,
-}: {
-  started: boolean
-  deadlineNote: string | null
-  coverageNote: string | null
-  thisWeekLogged: boolean
-  unverified: number
-}) {
-  if (!started) {
-    return (
-      <div className="note note-ink">
-        <span className="label" style={{ paddingTop: 2 }}>Start</span>
-        <span>
-          {FIRST_MESSAGE}{' '}
-          <Link href="/dump" style={{ fontWeight: 500 }}>Log this week →</Link>
-        </span>
-      </div>
-    )
-  }
-  if (deadlineNote) {
-    return (
-      <div className="note note-revision">
-        <span className="label" style={{ paddingTop: 2, color: 'var(--revision-ink)' }}>Overdue</span>
-        <span>{deadlineNote} <Link href="/sheets" style={{ fontWeight: 500 }}>Open the schedule →</Link></span>
-      </div>
-    )
-  }
-  if (unverified > 0) {
-    return (
-      <div className="note note-pending">
-        <span className="label" style={{ paddingTop: 2 }}>Check</span>
-        <span>
-          <strong>{unverified}</strong> {unverified === 1 ? 'entry has' : 'entries have'} not been read
-          by anyone yet. <Link href="/review" style={{ fontWeight: 500 }}>Review →</Link>
-        </span>
-      </div>
-    )
-  }
-  if (!thisWeekLogged) {
-    return (
-      <div className="note note-ink">
-        <span className="label" style={{ paddingTop: 2 }}>Today</span>
-        <span>
-          Nothing logged this week. Two minutes now is an hour saved at the end of the quarter.{' '}
-          <Link href="/dump" style={{ fontWeight: 500 }}>Dump it →</Link>
-        </span>
-      </div>
-    )
-  }
-  if (coverageNote) {
-    return (
-      <div className="note">
-        <span className="label" style={{ paddingTop: 2 }}>Note</span>
-        <span>{coverageNote} <Link href="/coverage" style={{ fontWeight: 500 }}>Coverage →</Link></span>
-      </div>
-    )
-  }
-  return (
-    <div className="note">
-      <span className="label" style={{ paddingTop: 2 }}>Clear</span>
-      <span>Nothing needs you. The record is in good order.</span>
-    </div>
-  )
-}

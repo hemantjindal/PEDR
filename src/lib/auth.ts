@@ -33,6 +33,11 @@ export interface SessionUser {
   calendarToken: string
   experienceStart: string | null
   targetExamDate: string | null
+  part2School: string | null
+  /** 'sole' | 'small' | 'medium' | 'large'. Decides how early coverage warns. */
+  practiceSize: string | null
+  /** Set once setup is finished, so the flow is only shown to people who need it. */
+  onboardedAt: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -88,6 +93,9 @@ export async function getUser(): Promise<SessionUser | null> {
       calendarToken: schema.users.calendarToken,
       experienceStart: schema.users.experienceStart,
       targetExamDate: schema.users.targetExamDate,
+      part2School: schema.users.part2School,
+      practiceSize: schema.users.practiceSize,
+      onboardedAt: schema.users.onboardedAt,
     })
     .from(schema.sessions)
     .innerJoin(schema.users, eq(schema.sessions.userId, schema.users.id))
@@ -109,6 +117,9 @@ export async function getUser(): Promise<SessionUser | null> {
     calendarToken: row.calendarToken,
     experienceStart: row.experienceStart,
     targetExamDate: row.targetExamDate,
+    part2School: row.part2School,
+    practiceSize: row.practiceSize,
+    onboardedAt: row.onboardedAt,
   }
 }
 

@@ -4,8 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { destroySession, requireUser } from '@/lib/auth'
 import {
-  createEmployment, createProject, deleteEntries, updateEntry, updateProject, updateUser,
-  upsertWeekNote,
+  createEmployment, createProject, deleteEntries, getEmployments, getProjects,
+  updateEntry, updateProject, updateUser, upsertWeekNote,
 } from '@/lib/data'
 import type { CriterionId, ExperienceCategory, ExperienceLocation, StageId } from '@/lib/pedr/constants'
 import { isDateKey, isWeekId } from '@/lib/pedr/week'
@@ -154,4 +154,88 @@ export async function saveSettingsAction(formData: FormData) {
 
   revalidatePath('/settings')
   revalidatePath('/dashboard')
+}
+
+/**
+ * Everything the record cannot work without, saved in one go.
+ *
+ * A first-run flow that saves nothing until the end would lose somebody's
+ * twenty minutes to a closed tab, and one that saves per step leaves half-set
+ * records around. This takes the whole thing at once and is idempotent: run it
+ * twice and you get one employment, not two.
+ */
+export async function completeOnboardingAction(formData: FormData) {
+  const user = await requireUser()
+
+  const experienceStart = String(formData.get('experienceStart') ?? '')
+  const targetExamDate = String(formData.get('targetExamDate') ?? '')
+  const employer = String(formData.get('employer') ?? '').trim()
+
+  await updateUser(user.id, {
+    name: String(formData.get('name') ?? '').trim() || undefined,
+    experienceStart: isDateKey(experienceStart) ? experienceStart : null,
+    targetExamDate: isDateKey(targetExamDate) ? targetExamDate : null,
+    part2School: String(formData.get('part2School') ?? '').trim() || null,
+    practiceSize: String(formData.get('practiceSize') ?? '').trim() || null,
+    onboardedAt: new Date().toISOString(),
+  })
+
+  if (employer && isDateKey(experienceStart)) {
+    const existing = await getEmployments(user.id)
+    if (existing.length === 0) {
+      await createEmployment(user.id, {
+        employer,
+        startDate: experienceStart,
+        endDate: null,
+        role: String(formData.get('role') ?? '').trim() || null,
+        officeLocation: String(formData.get('officeLocation') ?? '').trim() || null,
+        location: (String(formData.get('location') ?? 'UK') as ExperienceLocation),
+        category: (String(formData.get('category') ?? 'i') as ExperienceCategory),
+        supervisorName: String(formData.get('supervisorName') ?? '').trim() || null,
+        supervisorRegBody: String(formData.get('supervisorRegBody') ?? 'ARB').trim() || null,
+        supervisorRegNumber: String(formData.get('supervisorRegNumber') ?? '').trim() || null,
+        mentorName: String(formData.get('mentorName') ?? '').trim() || null,
+        mentorEmail: String(formData.get('mentorEmail') ?? '').trim() || null,
+        weeklyHours: Number(formData.get('weeklyHours')) || 37.5,
+      })
+    }
+  }
+
+  // Projects arrive as repeated fields, so a blank row is simply skipped.
+  const codes = formData.getAll('projectCode').map((v) => String(v).trim())
+  const names = formData.getAll('projectName').map((v) => String(v).trim())
+  const existingProjects = await getProjects(user.id)
+  const known = new Set(existingProjects.map((p) => `${p.code}|${p.name}`.toLowerCase()))
+
+  for (let i = 0; i < names.length; i++) {
+    const name = names[i]
+    const code = codes[i] ?? ''
+    if (!name && !code) continue
+    const key = `${code}|${name || code}`.toLowerCase()
+    if (known.has(key)) continue
+    known.add(key)
+    await createProject(user.id, {
+      code,
+      name: name || code,
+      client: null,
+      sector: null,
+      valueGbp: null,
+      procurement: null,
+      contractForm: null,
+      isCaseStudy: false,
+      notes: null,
+      aliases: [],
+    })
+  }
+
+  revalidatePath('/dashboard')
+  revalidatePath('/settings')
+  redirect('/dashboard')
+}
+
+/** Leave setup for later without being asked again on every page load. */
+export async function skipOnboardingAction() {
+  const user = await requireUser()
+  await updateUser(user.id, { onboardedAt: new Date().toISOString() })
+  redirect('/dashboard')
 }

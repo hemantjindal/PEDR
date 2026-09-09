@@ -25,6 +25,19 @@ export const users = sqliteTable(
     experienceStart: text('experience_start'),
     /** Planned Part 3 exam date, for the recency countdown. */
     targetExamDate: text('target_exam_date'),
+    /**
+     * Where they did Part 2. The PSA usually comes from the same school, and
+     * it is the fastest way to answer "who signs this".
+     */
+    part2School: text('part2_school'),
+    /**
+     * How big the practice is. Not curiosity: coverage gaps are a
+     * large-practice problem — specialised teams mean somebody can be three
+     * years in with nothing at Stage 5 — so the warnings fire earlier here.
+     */
+    practiceSize: text('practice_size'),
+    /** When they finished setting up, so the flow is only shown once. */
+    onboardedAt: text('onboarded_at'),
     createdAt: text('created_at').notNull(),
   },
   (t) => [uniqueIndex('users_email_idx').on(t.email)],
@@ -224,6 +237,9 @@ CREATE TABLE IF NOT EXISTS users (
   calendar_token TEXT NOT NULL,
   experience_start TEXT,
   target_exam_date TEXT,
+  part2_school TEXT,
+  practice_size TEXT,
+  onboarded_at TEXT,
   created_at TEXT NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_idx ON users (email);
@@ -378,4 +394,7 @@ export const ADDED_COLUMNS: Array<{ table: string; column: string; definition: s
     column: 'participation',
     definition: "TEXT NOT NULL DEFAULT 'participant'",
   },
+  { table: 'users', column: 'part2_school', definition: 'TEXT' },
+  { table: 'users', column: 'practice_size', definition: 'TEXT' },
+  { table: 'users', column: 'onboarded_at', definition: 'TEXT' },
 ]
