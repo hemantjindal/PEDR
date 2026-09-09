@@ -266,13 +266,24 @@ its SHA-256 is stored, so there is nothing to sign and nothing to rotate.
 
 ### Deploying
 
-Vercel plus a libSQL database (Turso) is the tested path: set `DATABASE_URL`
-and `DATABASE_AUTH_TOKEN`, run `npm run db:push` once against it, and
-`vercel.json` already registers the Friday cron.
+Vercel plus a libSQL database (Turso) is the tested path.
 
-Set `APP_URL` to the real domain before the first deploy. `robots.txt` refuses
-every crawler unless the origin is https *and* `VERCEL_ENV` is `production`, so
-preview builds cannot get indexed and compete with the real pages.
+1. **Connect GitHub to Vercel.** Vercel will not link a repository to an
+   account that has no GitHub login connection — Settings → Authentication →
+   Login Connections, add GitHub. This is the one step nothing else can do for
+   you.
+2. **Import the repository** and let Vercel detect Next.js. `vercel.json`
+   already registers the Friday reminder cron.
+3. **Create a Turso database**, then set `DATABASE_URL` and
+   `DATABASE_AUTH_TOKEN` on the project and run `npm run db:push` once against
+   it. Without them the public pages still work — nothing on `/`, `/guides`,
+   `/what-is-a-pedr` or `/behind` touches the database — but no one can sign up.
+4. **Set `APP_URL`** to the real domain. Leave it unset and it falls back to
+   Vercel's own production domain, which is right but ugly in a share card.
+
+`robots.txt` refuses every crawler unless the origin is https *and* `VERCEL_ENV`
+is `production`, so preview builds cannot get indexed and compete with the real
+pages for their own content.
 
 No email provider is wired in. Forcing everyone who runs their own copy to sign
 up for one is worse than the calendar feed they already have, so the cron
