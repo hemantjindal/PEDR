@@ -132,23 +132,26 @@ one.
 
 ## The design
 
-The record *is* a drawing set, so the interface uses the grammar every
-architect already reads: a title block, sheet references, drafting annotation,
-hairlines instead of borders, and revision marks. Grammar, not skeuomorphism —
-no paper texture, no fake pencil, no drop shadows.
+**Site Notice.** The app has one job — stop you drifting — so it behaves like
+site signage. Hard 2px rules, flat colour blocks, no radius, no shadow, no
+gradient. Archivo Black where something has to read across a room, Archivo
+everywhere else, both self-hosted so there is no third-party font request.
 
-Colour is rationed to make it mean something. The page is ink on paper.
-**Red means one thing — late, missing, wrong** — and appears nowhere else.
-Buttons are ink, because the subject is a document and the action on a document
-is drawn in the same ink. Even the register's density ramp is ink rather than
-blue: on a page that is otherwise entirely hairlines, a blue grid is the only
-saturated thing on screen and it takes the page over.
+Colour does exactly three jobs and nothing else:
 
-Every ramp is validated rather than eyeballed — monotone lightness, adjacent
-step separation, and a light end that clears 2:1 against the surface it
-actually sits on, in both themes. Type is IBM Plex Sans and Mono, self-hosted,
-picked because it was drawn for technical contexts and carries the slightly
-mechanical warmth of drawing-office lettering without being a novelty face.
+| | |
+|---|---|
+| **Signal** yellow | the thing you are working towards |
+| **Alarm** red | late, missing, wrong |
+| **Ink** black | everything else, including every action |
+
+If a fourth colour appears, something has gone wrong. Buttons are ink, not
+yellow, because a yellow button would compete with the one thing yellow is for.
+Dark mode keeps the yellow on black rather than inverting it — that is the
+signage logic, not a departure from it.
+
+The dashboard leads with two bands: the date you can sit the exam, and what is
+overdue. Those are the only two facts that change what you do today.
 
 ## How it is put together
 

@@ -155,13 +155,13 @@ export function Register({
             <span
               key={d}
               aria-hidden="true"
-              style={{ width: 11, height: 11, background: `var(--d${d})`, display: 'block' }}
+              style={{ width: 12, height: 12, background: `var(--d${d})`, display: 'block' }}
             />
           ))}
           <span className="label">full</span>
           <span
             aria-hidden="true"
-            style={{ width: 11, height: 11, border: '1px dashed var(--hair-2)', display: 'block', marginLeft: 6 }}
+            style={{ width: 12, height: 12, border: '2px solid var(--hair)', display: 'block', marginLeft: 8 }}
           />
           <span className="label">none</span>
         </div>

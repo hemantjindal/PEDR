@@ -1,113 +1,83 @@
 @import "tailwindcss";
 
 /* ===========================================================================
-   PEDR — a drawing set.
+   PEDR — Site Notice.
 
-   An architect reads a title block, a sheet number and a revision mark without
-   being taught. That grammar is the design language here: hairlines instead of
-   borders, drafting caps for annotation, sheet numbering, and ink on paper.
+   The app has one job: stop you drifting. So it behaves like site signage.
+   Hard 2px rules, flat colour blocks, no radius, no shadow, no gradient.
+   Type is Archivo Black where it needs to be read across a room and Archivo
+   everywhere else.
 
-   Grammar, not skeuomorphism. No paper texture, no fake pencil, no drop
-   shadows, no rounded cards pretending to be physical objects.
+   Colour does exactly three jobs and nothing else:
+     SIGNAL  yellow — the thing you are working towards
+     ALARM   red    — late, missing, wrong
+     INK     black  — everything else, including every action
 
-   Colour is rationed. Ink is the subject and the action. Red means revision —
-   late, missing, needs attention — and nothing else. The blue ramp appears in
-   exactly one place, the register, where it encodes density and where it was
-   validated for colour-vision deficiency and surface contrast. If everything is
-   coloured, nothing is.
+   If a fourth colour appears, something has gone wrong.
    =========================================================================== */
 
 :root {
   color-scheme: light;
 
-  --paper:      #eceae5;   /* the board */
-  --sheet:      #fbfaf8;   /* a sheet on it */
-  --sheet-2:    #f2f0eb;   /* a recessed field */
-  --sheet-sunk: #e4e1da;
+  --paper:  #f7f5ef;
+  --panel:  #f0ede3;
+  --sunk:   #e2ded0;
+  --white:  #ffffff;
 
-  --ink:        #16150f;
-  --ink-2:      #55534a;
-  --ink-3:      #8a877c;
+  --ink:    #0d0c0a;
+  --ink-2:  #4a463c;
+  --ink-3:  #6f6a5c;
+  --hair:   #c8c3b3;
 
-  --hair:       #d6d3ca;   /* 0.5pt */
-  --hair-2:     #b4b0a4;   /* 1pt */
+  --signal:     #e8b10a;
+  --signal-ink: #0d0c0a;   /* 10:1 on signal */
+  --alarm:      #b3170f;
+  --alarm-ink:  #ffffff;   /* 6.9:1 on alarm */
+  --alarm-text: #a1140d;   /* alarm as type on paper */
+  --done:       #146c14;
 
-  /* The one loud colour. Revision, late, missing, wrong. */
-  --revision:     #d03b3b;
-  --revision-ink: #a12020;
-  --revision-wash:#fbeeee;
-
-  --signed:     #0ca30c;
-  --signed-ink: #086b08;
-  --pending:    #b4741a;
-  --pending-ink:#8a5710;
-
-  /* The register's density ramp is ink, not colour. On a page that is
-     otherwise entirely ink and hairlines, a blue grid is the only saturated
-     thing on screen and it takes over — and it competes with red, which is
-     supposed to be the one colour that means something. Five ordinal steps,
-     validated against this surface: monotone lightness, adjacent ΔL ≥ 0.06,
-     light end clearing 2:1. Monochrome is also trivially colour-blind safe. */
-  --d1: #aca698;
-  --d2: #837d6d;
-  --d3: #5b5648;
-  --d4: #38342b;
-  --d5: #16150f;
-
-  --sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --rule: 2px;
+  --sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --black: 'Archivo Black', 'Archivo', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper:      #0b0b0c;
-    --sheet:      #151517;
-    --sheet-2:    #1d1d20;
-    --sheet-sunk: #0f0f11;
-    --ink:        #f2f1ee;
-    --ink-2:      #a9a79f;
-    --ink-3:      #77746c;
-    --hair:       #2a2a2d;
-    --hair-2:     #3d3d41;
-    --revision:     #e05a5a;
-    --revision-ink: #f08c8c;
-    --revision-wash:#2a1616;
-    --signed:     #2fbc2f;
-    --signed-ink: #62d162;
-    --pending:    #d29a3c;
-    --pending-ink:#e8b463;
-    --d1: #55555c;
-    --d2: #74747d;
-    --d3: #96969f;
-    --d4: #bcbcc4;
-    --d5: #e9e9ee;
+    --paper:  #121110;
+    --panel:  #1c1a17;
+    --sunk:   #0b0a09;
+    --white:  #1c1a17;
+    --ink:    #f7f5ef;
+    --ink-2:  #bab5a6;
+    --ink-3:  #918c7e;
+    --hair:   #38352d;
+    /* Yellow on black is the signage logic, not an inversion of it. */
+    --signal:     #f5c518;
+    --signal-ink: #0d0c0a;
+    --alarm:      #d8342b;
+    --alarm-ink:  #ffffff;
+    --alarm-text: #f08279;
+    --done:       #4ec44e;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper:      #0b0b0c;
-  --sheet:      #151517;
-  --sheet-2:    #1d1d20;
-  --sheet-sunk: #0f0f11;
-  --ink:        #f2f1ee;
-  --ink-2:      #a9a79f;
-  --ink-3:      #77746c;
-  --hair:       #2a2a2d;
-  --hair-2:     #3d3d41;
-  --revision:     #e05a5a;
-  --revision-ink: #f08c8c;
-  --revision-wash:#2a1616;
-  --signed:     #2fbc2f;
-  --signed-ink: #62d162;
-  --pending:    #d29a3c;
-  --pending-ink:#e8b463;
-  --d1: #55555c;
-  --d2: #74747d;
-  --d3: #96969f;
-  --d4: #bcbcc4;
-  --d5: #e9e9ee;
+  --paper:  #121110;
+  --panel:  #1c1a17;
+  --sunk:   #0b0a09;
+  --white:  #1c1a17;
+  --ink:    #f7f5ef;
+  --ink-2:  #bab5a6;
+  --ink-3:  #918c7e;
+  --hair:   #38352d;
+  --signal:     #f5c518;
+  --signal-ink: #0d0c0a;
+  --alarm:      #d8342b;
+  --alarm-ink:  #ffffff;
+  --alarm-text: #f08279;
+  --done:       #4ec44e;
 }
 
 /* --------------------------------------------------------------------------- */
@@ -123,474 +93,382 @@ body {
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: 'ss03';
 }
 
 p { margin: 0; }
 a { color: inherit; }
-::selection { background: var(--ink); color: var(--sheet); }
+::selection { background: var(--signal); color: var(--signal-ink); }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
-:focus-visible { outline: 1.5px solid var(--ink); outline-offset: 2px; }
+/* --- Type ------------------------------------------------------------------ */
 
-/* --- Drafting annotation ---------------------------------------------------
-   Uppercase, letterspaced, small. This is the voice of the chrome: every
-   label, column head and field name on the sheet.
---------------------------------------------------------------------------- */
+h1, h2, h3 { margin: 0; font-family: var(--black); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; }
+h1 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1rem; }
+
+.figure {
+  font-family: var(--black);
+  font-size: clamp(3rem, 7vw, 5.4rem);
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+.figure-sm {
+  font-family: var(--black);
+  font-size: 2.1rem;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
 
 .label {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ink-3);
   line-height: 1.4;
 }
-.label-ink { color: var(--ink-2); }
+.label-ink { color: var(--ink); }
 
-.ref {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-}
-
-/* --- Figures ---------------------------------------------------------------
-   Large numbers are set light and tight. A hero figure at 600 weight looks
-   like marketing; at 250 it looks like a measurement.
---------------------------------------------------------------------------- */
-
-.figure {
-  font-size: clamp(2.6rem, 6vw, 4.2rem);
-  font-weight: 250;
-  letter-spacing: -0.035em;
-  line-height: 0.95;
-  font-variant-numeric: tabular-nums;
-}
-.figure-sm {
-  font-size: 1.75rem;
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-h1 { margin: 0; font-size: 1.35rem; font-weight: 500; letter-spacing: -0.015em; line-height: 1.2; }
-h2 { margin: 0; font-size: 1.02rem; font-weight: 500; letter-spacing: -0.01em; line-height: 1.25; }
-h3 { margin: 0; font-size: 0.92rem; font-weight: 500; line-height: 1.3; }
-
-.dim   { color: var(--ink-2); }
+.ref { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.dim { color: var(--ink-2); }
 .faint { color: var(--ink-3); }
-.small { font-size: 0.85rem; }
-.tiny  { font-size: 0.78rem; }
+.small { font-size: 0.88rem; }
+.tiny  { font-size: 0.8rem; }
 .num   { font-variant-numeric: tabular-nums; }
-.mono  { font-family: var(--mono); }
+.mono  { font-family: var(--sans); font-variant-numeric: tabular-nums; }
 
 /* --- Layout ---------------------------------------------------------------- */
 
 .shell { min-height: 100dvh; display: flex; flex-direction: column; }
+.wrap  { width: 100%; max-width: 1240px; margin-inline: auto; padding: 0 24px; }
 
-.wrap { width: 100%; max-width: 1160px; margin-inline: auto; padding: 0 20px; }
-
-.stack   { display: flex; flex-direction: column; gap: 14px; }
-.stack-s { display: flex; flex-direction: column; gap: 7px; }
-.stack-l { display: flex; flex-direction: column; gap: 26px; }
+.stack   { display: flex; flex-direction: column; gap: 16px; }
+.stack-s { display: flex; flex-direction: column; gap: 8px; }
+.stack-l { display: flex; flex-direction: column; gap: 30px; }
 .row     { display: flex; align-items: center; gap: 10px; }
 .row-wrap{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .spacer  { flex: 1; }
 
-.grid { display: grid; gap: 14px; }
+.grid { display: grid; gap: 16px; }
 .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 @media (max-width: 900px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr); } }
 
-/* --- Sheets ----------------------------------------------------------------
-   A hairline rectangle. No radius to speak of, no shadow, no gradient. It is
-   a sheet of paper on a board, and paper does not glow.
+/* --- Blocks ----------------------------------------------------------------
+   A hard-ruled block. No radius, no shadow — signage is printed, not lit.
 --------------------------------------------------------------------------- */
 
 .sheet {
-  background: var(--sheet);
-  border: 1px solid var(--hair);
-  border-radius: 2px;
-  padding: 18px;
+  background: var(--panel);
+  border: var(--rule) solid var(--ink);
+  padding: 20px;
 }
-.sheet-tight { padding: 12px 14px; }
+.sheet-tight { padding: 14px 16px; }
 .sheet-flush { padding: 0; overflow: hidden; }
 
-/* The head of a sheet: a label, a rule under it. */
 .sheet-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 10px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid var(--hair);
+  gap: 14px;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: var(--rule) solid var(--ink);
 }
 
-.rule { height: 1px; background: var(--hair); border: 0; margin: 0; }
+.rule { height: var(--rule); background: var(--ink); border: 0; margin: 0; }
 
-/* --- Title block -----------------------------------------------------------
-   The strip at the top of the page. Fields divided by hairlines, exactly like
-   the block in the corner of a drawing.
---------------------------------------------------------------------------- */
+/* Full-bleed statement bands. The hero, and nothing else. */
+.band {
+  padding: 30px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.band-signal { background: var(--signal); color: var(--signal-ink); }
+.band-alarm  { background: var(--alarm);  color: var(--alarm-ink); }
+.band-ink    { background: var(--ink);    color: var(--paper); }
+
+/* --- Title block ------------------------------------------------------------ */
 
 .titleblock {
   display: flex;
-  border: 1px solid var(--hair-2);
-  border-radius: 2px;
-  background: var(--sheet);
-  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
 }
 .titleblock > div {
   flex: 1 1 0;
-  padding: 8px 13px;
-  border-right: 1px solid var(--hair);
+  padding: 10px 16px;
+  border-right: 1px solid color-mix(in srgb, var(--paper) 22%, transparent);
   min-width: 0;
 }
 .titleblock > div:last-child { border-right: 0; }
-.titleblock .label {
-  margin-bottom: 2px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.titleblock .label { color: color-mix(in srgb, var(--paper) 62%, transparent); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .titleblock .value {
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 @media (max-width: 860px) {
   .titleblock { flex-wrap: wrap; }
-  .titleblock > div {
-    flex: 1 1 45%;
-    border-bottom: 1px solid var(--hair);
-  }
-  /* The last row's bottom border doubles up with the block's own. */
-  .titleblock > div:last-child { border-right: 1px solid var(--hair); }
+  .titleblock > div { flex: 1 1 45%; border-bottom: 1px solid color-mix(in srgb, var(--paper) 22%, transparent); }
 }
-@media (max-width: 340px) {
-  .titleblock > div { flex: 1 1 100%; border-right: 0; }
-}
+@media (max-width: 380px) { .titleblock > div { flex: 1 1 100%; } }
 
-/* --- Controls --------------------------------------------------------------
-   Buttons are ink. The subject of this app is a document, and the action on a
-   document is drawn in the same ink as the document.
+/* --- Controls ---------------------------------------------------------------
+   Buttons are ink. A yellow button would compete with the one thing yellow
+   is for.
 --------------------------------------------------------------------------- */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 8px 14px;
-  border-radius: 2px;
-  border: 1px solid var(--hair-2);
+  gap: 8px;
+  padding: 10px 18px;
+  border: var(--rule) solid var(--ink);
   background: transparent;
   color: var(--ink);
   font: inherit;
-  font-size: 0.85rem;
-  font-weight: 450;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
-.btn:hover { background: var(--sheet-2); border-color: var(--ink-3); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn-primary:disabled {
-  background: transparent;
-  color: var(--ink-3);
-  border-color: var(--hair-2);
-  opacity: 1;
-}
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn:disabled:hover { background: transparent; color: var(--ink); }
 
-.btn-primary { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: var(--ink); border-color: var(--ink); opacity: 0.86; }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: var(--signal); border-color: var(--ink); color: var(--signal-ink); }
+/* A greyed-out filled block reads as broken. Not-yet-usable is an outline. */
+.btn-primary:disabled,
+.btn-primary:disabled:hover { background: transparent; color: var(--ink-3); border-color: var(--hair); opacity: 1; }
 
-.btn-ghost { border-color: transparent; }
-.btn-ghost:hover { background: var(--sheet-2); border-color: transparent; }
+.btn-ghost { border-color: transparent; padding: 8px 12px; }
+.btn-ghost:hover { background: var(--ink); color: var(--paper); }
 
-.btn-sm { padding: 4px 9px; font-size: 0.78rem; }
+.btn-sm { padding: 5px 10px; font-size: 0.72rem; }
 .btn-block { width: 100%; }
-.btn-danger { color: var(--revision-ink); }
+.btn-danger { border-color: var(--alarm); color: var(--alarm-text); }
+.btn-danger:hover { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
 
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field > label {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-.field > .hint { font-size: 0.78rem; color: var(--ink-3); line-height: 1.45; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.field > .hint { font-size: 0.82rem; color: var(--ink-3); line-height: 1.5; }
 
 input[type="text"], input[type="email"], input[type="password"],
 input[type="date"], input[type="number"], select, textarea {
   width: 100%;
-  padding: 8px 10px;
-  border-radius: 2px;
-  border: 1px solid var(--hair-2);
-  background: var(--sheet);
+  padding: 10px 12px;
+  border: var(--rule) solid var(--ink);
+  border-radius: 0;
+  background: var(--white);
   color: var(--ink);
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
-input[type="date"], input[type="number"] { font-family: var(--mono); font-size: 0.82rem; }
-textarea { resize: vertical; line-height: 1.6; }
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--ink);
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
+textarea { resize: vertical; line-height: 1.7; }
+input:focus, select:focus, textarea:focus { outline: 3px solid var(--signal); outline-offset: -1px; }
 ::placeholder { color: var(--ink-3); opacity: 1; }
 
-/* --- Marks -----------------------------------------------------------------
-   Status is a mark plus a word, never a colour alone.
+/* --- Marks ------------------------------------------------------------------
+   Status carries a word. Colour only ever reinforces it.
 --------------------------------------------------------------------------- */
 
 .mark {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-2);
   white-space: nowrap;
 }
-.mark::before {
-  content: '';
-  width: 6px; height: 6px;
-  border: 1px solid currentColor;
-  flex: none;
-}
-.mark-signed   { color: var(--signed-ink); }
-.mark-signed::before   { background: currentColor; border-radius: 50%; border-color: currentColor; }
-.mark-pending  { color: var(--pending-ink); }
-.mark-pending::before  { border-radius: 50%; }
-.mark-revision { color: var(--revision-ink); }
-.mark-revision::before { transform: rotate(45deg); background: currentColor; }
+.mark::before { content: ''; width: 8px; height: 8px; border: 2px solid currentColor; flex: none; }
+.mark-signed   { color: var(--done); }
+.mark-signed::before { background: currentColor; }
+.mark-pending  { color: var(--ink-2); }
+.mark-revision { color: var(--alarm-text); }
+.mark-revision::before { background: currentColor; }
 .mark-none::before { border-style: dashed; }
 
-/* A boxed reference, like a drawing number. */
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 1px 6px;
-  border: 1px solid var(--hair-2);
-  border-radius: 2px;
-  font-family: var(--mono);
-  font-size: 10px;
+  padding: 3px 8px;
+  border: 2px solid var(--ink);
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink-2);
   white-space: nowrap;
 }
-.chip-ink { border-color: var(--ink); color: var(--ink); }
-.chip-revision { border-color: var(--revision); color: var(--revision-ink); }
+.chip-ink { background: var(--ink); color: var(--paper); }
+.chip-revision { border-color: var(--alarm); background: var(--alarm); color: var(--alarm-ink); }
+.chip-signal { border-color: var(--ink); background: var(--signal); color: var(--signal-ink); }
 
-/* --- Notices ---------------------------------------------------------------
-   A note is a marked-up margin comment, not a coloured alert box.
---------------------------------------------------------------------------- */
+/* --- Notices ---------------------------------------------------------------- */
 
 .note {
   display: flex;
-  gap: 12px;
-  padding: 12px 14px 12px 13px;
-  border: 1px solid var(--hair);
-  border-left: 2px solid var(--ink-3);
-  border-radius: 2px;
-  background: var(--sheet);
-  font-size: 0.88rem;
-  color: var(--ink-2);
+  gap: 16px;
+  padding: 14px 18px;
+  border: var(--rule) solid var(--ink);
+  background: var(--panel);
+  font-size: 0.92rem;
   line-height: 1.55;
+  color: var(--ink-2);
 }
-.note strong { color: var(--ink); font-weight: 500; }
-.note-revision { border-left-color: var(--revision); background: var(--revision-wash); }
-.note-pending  { border-left-color: var(--pending); }
-.note-ink      { border-left-color: var(--ink); }
+.note strong { color: var(--ink); font-weight: 600; }
+.note .label { flex: none; padding-top: 3px; }
+.note-revision { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
+.note-revision strong, .note-revision a { color: var(--alarm-ink); }
+.note-revision .label { color: color-mix(in srgb, var(--alarm-ink) 75%, transparent); }
+.note-pending { background: var(--signal); border-color: var(--ink); color: var(--signal-ink); }
+.note-pending strong, .note-pending a { color: var(--signal-ink); }
+.note-pending .label { color: color-mix(in srgb, var(--signal-ink) 68%, transparent); }
+.note-ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.note-ink strong, .note-ink a { color: var(--signal); }
+.note-ink .label { color: color-mix(in srgb, var(--paper) 62%, transparent); }
 
-/* --- Schedules (tables) ----------------------------------------------------- */
+/* --- Schedules --------------------------------------------------------------- */
 
 .table-scroll { overflow-x: auto; }
-table.schedule { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.schedule { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 table.schedule th {
   text-align: left;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  padding: 7px 12px;
-  border-bottom: 1px solid var(--hair-2);
-  white-space: nowrap;
-}
-table.schedule td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--hair);
-  vertical-align: top;
-}
-table.schedule tr:last-child td { border-bottom: 0; }
-table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 0.8rem; }
-
-/* --- Navigation ------------------------------------------------------------- */
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: color-mix(in srgb, var(--paper) 90%, transparent);
-  backdrop-filter: saturate(140%) blur(8px);
-  border-bottom: 1px solid var(--hair-2);
-}
-.topbar-inner { display: flex; align-items: center; gap: 22px; height: 52px; }
-
-.brand {
-  display: flex; align-items: center; gap: 8px;
-  text-decoration: none;
-  font-family: var(--mono);
-  font-size: 0.82rem;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 9px 14px;
+  border-bottom: var(--rule) solid var(--ink);
+  white-space: nowrap;
+}
+table.schedule td { padding: 11px 14px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+table.schedule tr:last-child td { border-bottom: 0; }
+table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* --- Navigation --------------------------------------------------------------- */
+
+.topbar { position: sticky; top: 0; z-index: 40; background: var(--ink); color: var(--paper); }
+.topbar-inner { display: flex; align-items: center; gap: 24px; height: 58px; }
+
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--black); font-size: 1.05rem; letter-spacing: 0.02em;
+  text-decoration: none; color: var(--paper);
 }
 .brand-mark {
-  width: 20px; height: 20px;
-  border: 1.5px solid var(--ink);
-  display: grid; place-items: center;
-  font-size: 9px; font-weight: 600; letter-spacing: 0;
+  width: 24px; height: 24px; background: var(--signal); color: var(--signal-ink);
+  display: grid; place-items: center; font-size: 12px; font-family: var(--black);
 }
 
 .nav { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
 .nav a {
-  padding: 5px 11px;
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  text-decoration: none;
-  white-space: nowrap;
-  border-bottom: 1.5px solid transparent;
-  margin-bottom: -1px;
+  padding: 6px 12px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--paper) 62%, transparent);
+  text-decoration: none; white-space: nowrap;
 }
-.nav a:hover { color: var(--ink); }
-.nav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ink); }
+.nav a:hover { color: var(--paper); }
+.nav a[aria-current="page"] { color: var(--signal-ink); background: var(--signal); }
 
 .tabbar { display: none; }
 @media (max-width: 760px) {
   .topbar .nav { display: none; }
   .tabbar {
-    display: flex;
-    position: sticky; bottom: 0; z-index: 40;
-    background: color-mix(in srgb, var(--paper) 94%, transparent);
-    backdrop-filter: saturate(140%) blur(8px);
-    border-top: 1px solid var(--hair-2);
+    display: flex; position: sticky; bottom: 0; z-index: 40;
+    background: var(--ink); border-top: var(--rule) solid var(--signal);
     padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
   }
   .tabbar a {
-    flex: 1;
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
-    padding: 7px 0;
-    font-family: var(--mono);
-    font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--ink-3);
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 8px 0; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: color-mix(in srgb, var(--paper) 58%, transparent);
     text-decoration: none;
   }
-  .tabbar a[aria-current="page"] { color: var(--ink); }
-  .tabbar svg { width: 18px; height: 18px; }
+  .tabbar a[aria-current="page"] { color: var(--signal); }
+  .tabbar svg { width: 20px; height: 20px; }
 }
 
-/* --- The register ----------------------------------------------------------
-   The signature component. Weeks in a strip, thirteen to a row, because
-   thirteen weeks is one record sheet — so a row is literally a sheet you owe
-   somebody. Square cells, hairline gridded, no rounding.
+/* --- The register -------------------------------------------------------------
+   Thirteen weeks to a row, because thirteen weeks is one record sheet. A week
+   you missed is outlined. A week that has not happened yet is nothing at all.
 --------------------------------------------------------------------------- */
 
-.register { display: grid; gap: 2px; }
-.reg-cell {
-  aspect-ratio: 1;
-  border: 1px solid transparent;
-  background: var(--sheet-sunk);
-  display: block;
-  min-width: 0;
-  padding: 0;
-  position: relative;
-}
-.reg-cell[data-d="0"] { background: transparent; border-color: var(--hair-2); border-style: dashed; }
+.register { display: grid; gap: 4px; }
+.reg-cell { aspect-ratio: 1; border: 2px solid transparent; background: var(--sunk); display: block; min-width: 0; padding: 0; }
+.reg-cell[data-d="0"] { background: transparent; border-color: var(--hair); }
 .reg-cell[data-d="1"] { background: var(--d1); }
 .reg-cell[data-d="2"] { background: var(--d2); }
 .reg-cell[data-d="3"] { background: var(--d3); }
 .reg-cell[data-d="4"] { background: var(--d4); }
 .reg-cell[data-d="5"] { background: var(--d5); }
-.reg-cell:hover, .reg-cell:focus-visible {
-  outline: 1.5px solid var(--ink);
-  outline-offset: 1px;
-  z-index: 1;
-}
-/* Today gets a crosshair, the way a drawing marks a reference point. */
-.reg-cell[data-now="true"]::after {
-  content: '';
-  position: absolute; inset: -3px;
-  border: 1px solid var(--ink);
-}
+.reg-cell[data-d="-1"] { background: transparent; border-color: transparent; }
+.reg-cell:hover, .reg-cell:focus-visible { outline: 3px solid var(--signal); outline-offset: 1px; z-index: 1; }
+.reg-cell[data-now="true"] { border-color: var(--signal); }
 
-/* --- Scale bar -------------------------------------------------------------
-   Progress drawn as an architect's scale: ticks, a filled run, a labelled end.
---------------------------------------------------------------------------- */
-
-.scale { position: relative; height: 26px; }
-.scale-track {
-  position: absolute; inset: 0 0 12px 0;
-  border: 1px solid var(--hair-2);
-  background: var(--sheet-sunk);
+:root {
+  --d1: #cfc9b8; --d2: #a8a18c; --d3: #7a7462; --d4: #46423a; --d5: #0d0c0a;
 }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --d1: #4b4740; --d2: #6e6a5f; --d3: #948f81; --d4: #c0bbac; --d5: #f7f5ef; }
+}
+:root[data-theme="dark"] { --d1: #4b4740; --d2: #6e6a5f; --d3: #948f81; --d4: #c0bbac; --d5: #f7f5ef; }
+
+/* --- Bars and meters ---------------------------------------------------------- */
+
+.bar-track { height: 12px; background: var(--sunk); border: 2px solid var(--ink); }
+.bar-track-empty { background: transparent; border-style: dashed; }
+.bar-fill { height: 100%; background: var(--ink); }
+
+.scale { position: relative; height: 30px; }
+.scale-track { position: absolute; inset: 0 0 14px 0; border: 2px solid var(--ink); background: var(--sunk); }
 .scale-fill { position: absolute; inset: 0; background: var(--ink); }
-.scale-ticks { position: absolute; inset: auto 0 0 0; height: 12px; }
-.scale-tick {
-  position: absolute; top: 0; width: 1px; height: 4px; background: var(--hair-2);
-}
+.scale-ticks { position: absolute; inset: auto 0 0 0; height: 14px; }
+.scale-tick { position: absolute; top: 0; width: 2px; height: 5px; background: var(--ink); }
 .scale-tick > span {
-  position: absolute; top: 5px; left: 0; transform: translateX(-50%);
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; color: var(--ink-3);
+  position: absolute; top: 6px; left: 0; transform: translateX(-50%);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em; color: var(--ink-3);
 }
 
-/* --- Bars ------------------------------------------------------------------ */
-
-.bar-track { height: 6px; background: var(--sheet-sunk); border: 1px solid var(--hair); }
-.bar-fill { height: 100%; background: var(--ink); min-width: 0; }
-.bar-track-empty { border-style: dashed; background: transparent; }
-
-/* The dump surface is a column of text plus a margin of notes; below the
-   breakpoint the margin drops under it. */
-@media (max-width: 880px) {
-  .dump-layout { grid-template-columns: minmax(0, 1fr) !important; }
+/* A requirement row keeps its value beside its label; on a phone the label
+   takes the full width rather than letting a chip push the number off. */
+.check-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.check-row > .check-value { margin-left: auto; white-space: nowrap; }
+@media (max-width: 480px) {
+  .check-row > .check-label { flex: 1 1 100%; }
+  .check-row > .check-value { margin-left: 0; }
 }
 
-/* --- Print ------------------------------------------------------------------ */
+/* The dump surface is a column of text with a margin of notes beside it. */
+@media (max-width: 880px) { .dump-layout { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* --- Print --------------------------------------------------------------------- */
 
 @media print {
   .topbar, .tabbar, .no-print { display: none !important; }
   body { background: #fff; color: #000; font-size: 10.5pt; }
-  .sheet { border-color: #999; break-inside: avoid; }
+  .sheet { border-color: #000; break-inside: avoid; }
   .wrap { max-width: none; padding: 0; }
   a { text-decoration: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

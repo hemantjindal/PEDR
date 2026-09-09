@@ -122,9 +122,9 @@ export function summariseDeadlines(periods: SheetPeriod[]): DeadlineSummary {
     const worst = lateList.sort((a, b) => b.daysLate - a.daysLate)[0]
     headline =
       `${lateList.length} sheet${lateList.length === 1 ? '' : 's'} past the two-month deadline. ` +
-      `Sheet ${worst.index} is ${worst.daysLate} days late.`
+      `PEDR-${String(worst.index).padStart(2, '0')} is ${worst.daysLate} days late.`
   } else if (nextDue && nextDue.daysUntilDue <= 21 && !nextDue.inProgress) {
-    headline = `Sheet ${nextDue.index} is due in ${nextDue.daysUntilDue} days.`
+    headline = `PEDR-${String(nextDue.index).padStart(2, '0')} is due in ${nextDue.daysUntilDue} days.`
   }
 
   return {

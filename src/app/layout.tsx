@@ -1,13 +1,11 @@
 import type { Metadata, Viewport } from 'next'
-// Self-hosted, so the app has no third-party font request and works offline.
-// Plex was drawn for technical and engineering contexts; it has the slightly
-// mechanical warmth of drawing-office lettering without being a novelty face.
-import '@fontsource/ibm-plex-sans/300.css'
-import '@fontsource/ibm-plex-sans/400.css'
-import '@fontsource/ibm-plex-sans/500.css'
-import '@fontsource/ibm-plex-mono/400.css'
-import '@fontsource/ibm-plex-mono/500.css'
-import '@fontsource/ibm-plex-mono/600.css'
+// Self-hosted, so there is no third-party font request and it works offline.
+// Archivo Black carries the headline weight signage needs; Archivo is the same
+// skeleton at reading weight, so the two never look like different families.
+import '@fontsource/archivo/400.css'
+import '@fontsource/archivo/500.css'
+import '@fontsource/archivo/600.css'
+import '@fontsource/archivo-black/400.css'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -20,8 +18,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#eceae5' },
-    { media: '(prefers-color-scheme: dark)', color: '#0b0b0c' },
+    { media: '(prefers-color-scheme: light)', color: '#0d0c0a' },
+    { media: '(prefers-color-scheme: dark)', color: '#0d0c0a' },
   ],
 }
 

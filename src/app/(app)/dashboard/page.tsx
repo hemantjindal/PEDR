@@ -69,40 +69,72 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* The hero. Not a stat grid — the one date everything else is about. */}
-      <section className="sheet" style={{ padding: '26px 22px' }}>
-        <div className="row-wrap" style={{ gap: 30, alignItems: 'flex-start' }}>
-          <div style={{ flex: '1 1 320px', minWidth: 0 }}>
-            <Sitting progress={d.progress} started={started} />
+      {/* The hero. Two bands: what you are working towards, and what is
+          overdue. Yellow and red are the only two colours in the app and this
+          is the one place both appear. */}
+      <section style={{ display: 'flex', flexWrap: 'wrap', border: '2px solid var(--ink)' }}>
+        <div className="band band-signal" style={{ flex: '1 1 460px' }}>
+          <Sitting progress={d.progress} started={started} />
+        </div>
+        {d.deadlines.lateCount > 0 ? (
+          <div className="band band-alarm" style={{ flex: '0 1 340px', borderLeft: '2px solid var(--ink)' }}>
+            <span className="label" style={{ color: 'rgba(255,255,255,0.78)' }}>Overdue</span>
+            <span className="figure">{d.deadlines.lateCount}</span>
+            <p style={{ marginTop: 10, lineHeight: 1.45 }}>
+              record {d.deadlines.lateCount === 1 ? 'sheet is' : 'sheets are'} past the two-month
+              deadline.{' '}
+              {d.deadlines.periods.filter((p) => p.late).sort((a, b) => b.daysLate - a.daysLate)[0] && (
+                <>
+                  PEDR-
+                  {String(
+                    d.deadlines.periods.filter((p) => p.late).sort((a, b) => b.daysLate - a.daysLate)[0].index,
+                  ).padStart(2, '0')}{' '}
+                  is <strong style={{ color: 'inherit' }}>
+                    {d.deadlines.periods.filter((p) => p.late).sort((a, b) => b.daysLate - a.daysLate)[0].daysLate} days
+                  </strong> late.
+                </>
+              )}
+            </p>
           </div>
+        ) : (
+          <div className="band" style={{ flex: '0 1 340px', borderLeft: '2px solid var(--ink)', background: 'var(--panel)' }}>
+            <span className="label">Months served</span>
+            <span className="figure">{d.progress.monthsLogged}</span>
+            <p className="dim" style={{ marginTop: 10, lineHeight: 1.45 }}>
+              of {REQUIREMENTS.minTotalMonths}. Nothing is overdue.
+            </p>
+          </div>
+        )}
+      </section>
 
-          <div style={{ flex: '1 1 340px', minWidth: 260 }}>
-            <div className="stack-s" style={{ gap: 10 }}>
-              <div className="row" style={{ justifyContent: 'space-between' }}>
-                <span className="label">Months served</span>
-                <span className="ref" style={{ color: 'var(--ink)' }}>
-                  {d.progress.monthsLogged} / {REQUIREMENTS.minTotalMonths}
-                </span>
-              </div>
-              <ScaleBar
-                value={d.progress.monthsLogged}
-                total={REQUIREMENTS.minTotalMonths}
-                ticks={[0, 6, 12, 18, 24]}
-              />
-              <div className="stack-s" style={{ gap: 6, marginTop: 12 }}>
-                {d.progress.checks.map((check) => (
-                  <div key={check.id} className="row" style={{ gap: 9, alignItems: 'baseline' }}>
-                    <span className={`mark ${check.met ? 'mark-signed' : 'mark-none'}`} style={{ flex: 'none' }} />
-                    <span className="small" style={{ color: check.met ? 'var(--ink-2)' : 'var(--ink)' }}>
-                      {check.label}
-                    </span>
-                    {!check.regulatory && <span className="chip">house rule</span>}
-                    <span className="spacer" />
-                    <span className="ref">{check.value}/{check.target}</span>
-                  </div>
-                ))}
-              </div>
+      <section className="sheet">
+        <div className="row-wrap" style={{ gap: 28, alignItems: 'flex-start' }}>
+          <div style={{ flex: '1 1 300px', minWidth: 0 }}>
+            <div className="row" style={{ justifyContent: 'space-between', marginBottom: 10 }}>
+              <span className="label">Months served</span>
+              <span className="ref" style={{ color: 'var(--ink)' }}>
+                {d.progress.monthsLogged} / {REQUIREMENTS.minTotalMonths}
+              </span>
             </div>
+            <ScaleBar
+              value={d.progress.monthsLogged}
+              total={REQUIREMENTS.minTotalMonths}
+              ticks={[0, 6, 12, 18, 24]}
+            />
+          </div>
+          <div style={{ flex: '1 1 320px', minWidth: 260 }} className="stack-s">
+            {d.progress.checks.map((check) => (
+              <div key={check.id} className="check-row">
+                <span className={`mark ${check.met ? 'mark-signed' : 'mark-none'}`} style={{ flex: 'none' }} />
+                <span className="small check-label" style={{ fontWeight: 500 }}>
+                  {check.label}
+                  {!check.regulatory && (
+                    <span className="chip" style={{ marginLeft: 8 }}>house rule</span>
+                  )}
+                </span>
+                <span className="ref check-value">{check.value}/{check.target}</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -110,7 +142,9 @@ export default async function DashboardPage() {
       {/* One instruction, in priority order. */}
       <Instruction
         started={started}
-        deadlineNote={d.deadlines.headline}
+        /* The alarm band above already carries the overdue count, so the bar
+           only speaks when there is nothing overdue and a deadline is near. */
+        deadlineNote={d.deadlines.lateCount > 0 ? null : d.deadlines.headline}
         coverageNote={d.coverageNote}
         thisWeekLogged={(thisWeekScore?.score ?? 0) > 0}
         unverified={d.unverified}
@@ -328,9 +362,9 @@ function Sitting({
   if (!started) {
     return (
       <div className="stack-s">
-        <span className="label">Earliest sitting</span>
-        <span className="figure" style={{ color: 'var(--ink-3)' }}>Not yet known</span>
-        <p className="small dim" style={{ maxWidth: '38ch' }}>
+        <span className="label" style={{ color: 'rgba(13,12,10,0.62)' }}>Earliest sitting</span>
+        <span className="figure">Not yet known</span>
+        <p className="small" style={{ maxWidth: '38ch' }}>
           Log a week and a date appears here. It moves as you go, and it is the only number on this
           page that matters.
         </p>
@@ -341,9 +375,9 @@ function Sitting({
   if (progress.ready) {
     return (
       <div className="stack-s">
-        <span className="label">Earliest sitting</span>
-        <span className="figure" style={{ color: 'var(--signed-ink)' }}>Now</span>
-        <p className="small dim" style={{ maxWidth: '38ch' }}>
+        <span className="label" style={{ color: 'rgba(13,12,10,0.62)' }}>Earliest sitting</span>
+        <span className="figure">Now</span>
+        <p className="small" style={{ maxWidth: '38ch' }}>
           You have served the experience. Keep logging until the exam — the recency rule is
           measured on the day you sit, not today.
         </p>
@@ -354,9 +388,9 @@ function Sitting({
   if (!progress.projectedReadyDate) {
     return (
       <div className="stack-s">
-        <span className="label">Earliest sitting</span>
-        <span className="figure" style={{ color: 'var(--ink-3)' }}>Adrift</span>
-        <p className="small dim" style={{ maxWidth: '38ch' }}>
+        <span className="label" style={{ color: 'rgba(13,12,10,0.62)' }}>Earliest sitting</span>
+        <span className="figure">Adrift</span>
+        <p className="small" style={{ maxWidth: '38ch' }}>
           Nothing logged recently, so there is no rate to project from. Log this week and a date
           comes back.
         </p>
@@ -369,12 +403,12 @@ function Sitting({
 
   return (
     <div className="stack-s">
-      <span className="label">Earliest sitting</span>
+      <span className="label" style={{ color: 'rgba(13,12,10,0.62)' }}>Earliest sitting</span>
       <span className="figure">
         {day} {month}
-        <span style={{ color: 'var(--ink-3)' }}> {year}</span>
+        <span style={{ color: 'rgba(13,12,10,0.48)' }}> {year}</span>
       </span>
-      <p className="small dim" style={{ maxWidth: '40ch' }}>
+      <p className="small" style={{ maxWidth: '40ch' }}>
         {progress.weeksRemaining} more weeks to serve, at the {Math.round(progress.loggingRate * 100)}%
         {' '}logging rate you have kept up over the last quarter. Miss weeks and this date moves.
       </p>
