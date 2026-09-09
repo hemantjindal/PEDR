@@ -6,7 +6,7 @@
  * what the Next app renders. The build only does four things to them — strips
  * the Next runtime, turns routes into hashes, inlines the stylesheet, and
  * mounts the one component that has to actually run (the triage and the
- * calendar recovery on /behind).
+ * calendar recovery).
  *
  * It exists because this session cannot reach vercel.com — the egress policy
  * refuses the host outright — and a content surface nobody can open is not a
@@ -33,13 +33,26 @@ interface Page {
   nav?: string
 }
 
+// /behind and / are the same tool, so the static site carries it once.
 const PAGES: Page[] = [
-  { path: '/', nav: 'Start' },
-  { path: '/behind', nav: 'Am I in trouble?' },
+  { path: '/' },
   { path: '/what-is-a-pedr', nav: 'A real sheet' },
   { path: '/guides', nav: 'Guides' },
   ...GUIDES.map((g) => ({ path: `/guides/${g.slug}` })),
 ]
+
+/** The tool is React; its server markup is the empty state and is no use here. */
+const TOOL_PAGE = `
+<div class="wrap" style="padding-block:34px">
+  <div class="stack-l">
+    <div data-tool></div>
+    <div class="strip">
+      <a href="#/what-is-a-pedr">What a PEDR actually looks like</a>
+      <a href="#/guides">Deadlines, what counts, who signs</a>
+      <a href="#/app">Keep a record</a>
+    </div>
+  </div>
+</div>`
 
 /** Everything between <main> and </main>, which is the page minus the shell. */
 function mainOf(html: string, path: string): string {
@@ -106,7 +119,7 @@ const APP_PAGE = `
       </p>
       <div class="row-wrap">
         <a class="btn btn-primary" href="https://claude.ai/code/artifact/5b9ae995-6d2c-4e1f-869a-fb60aa88e208">Open the working demo</a>
-        <a class="btn" href="#/behind">Back to the triage</a>
+        <a class="btn" href="#/">Back to the tool</a>
       </div>
     </section>
   </div>
@@ -137,10 +150,10 @@ async function main() {
   const pages: Array<{ path: string; nav?: string; html: string }> = []
   for (const page of PAGES) {
     const raw = await fetchPage(page.path)
-    // /behind is rendered by React on the client; its server markup is the
+    // The tool is rendered by React on the client; its server markup is the
     // pre-interaction state and would only have to be thrown away.
-    const html = page.path === '/behind'
-      ? '<div class="wrap" style="padding-block:28px"><div id="behind-root"></div></div>'
+    const html = page.path === '/'
+      ? TOOL_PAGE
       : rewriteLinks(mainOf(raw, page.path))
     pages.push({ ...page, html })
     process.stdout.write(`  ${page.path} — ${(html.length / 1024).toFixed(0)} kB\n`)
@@ -152,7 +165,7 @@ async function main() {
   const siteCss = readFileSync(join(siteDir, 'site.css'), 'utf8')
 
   const nav = pages
-    .filter((p) => p.nav && p.path !== '/')
+    .filter((p) => p.nav)
     .map((p) => `<a href="#${p.path}" data-nav="${p.path}">${p.nav}</a>`)
     .join('')
 
@@ -164,10 +177,9 @@ async function main() {
     '<span class="spacer"></span>',
     '<a class="btn btn-ghost btn-sm" href="#/app">The app</a>',
     '</div></header>',
-    '<p class="site-note"><strong>The whole public site, in one file.</strong> ',
-    'Every page here is rendered by the code that runs the app, and the calendar recovery on ',
-    '<a href="#/behind">Am I in trouble?</a> is the real engine — your calendar is read in this ',
-    'tab and goes nowhere. What this copy cannot do is hold an account.</p>',
+    '<p class="site-note"><strong>The real site, in one file.</strong> ',
+    'The tool is the real engine and your calendar is read in this tab. ',
+    'This copy cannot hold an account.</p>',
     '<div style="flex:1">',
     ...pages.map((p) => `<section class="page" data-page="${p.path}">${p.html}</section>`),
     '</div>',

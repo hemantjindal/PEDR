@@ -38,6 +38,8 @@ export interface Guide {
   description: string
   /** The answer, in one sentence, before any detail. */
   answer: string
+  /** The numbers somebody came for, before any prose. */
+  facts: Array<{ k: string; v: string }>
   /** Rendered as FAQPage structured data as well as on the page. */
   faq: GuideFaq[]
   /** Slugs of guides worth reading next. */
@@ -94,6 +96,12 @@ export const GUIDES: Guide[] = [
       `sheets across ${REQUIREMENTS.minTotalMonths} months, so there are ` +
       `${SHEET_RULES.requiredSheets} of those deadlines, and the first one arrives about five ` +
       'months into your job.',
+    facts: [
+      { k: 'Deadline', v: `${SHEET_RULES.submitWithinMonths} months after the quarter ends` },
+      { k: 'Sheets', v: `${SHEET_RULES.requiredSheets}` },
+      { k: 'Covering', v: `${REQUIREMENTS.minTotalMonths} months` },
+      { k: 'First one lands', v: 'Month 5' },
+    ],
     faq: [
       {
         q: 'When is a PEDR record sheet due?',
@@ -231,6 +239,12 @@ export const GUIDES: Guide[] = [
       'Nothing is lost. The experience counts whether or not you wrote it down at the time, and ' +
       'most of what you did is already recorded — in your calendar, your practice timesheet and ' +
       'your sent mail. You are reconstructing a record, not inventing one.',
+    facts: [
+      { k: 'Late sheets still count', v: 'Yes' },
+      { k: 'What you lose', v: 'PSA feedback' },
+      { k: 'Where the record is', v: 'Calendar, timesheet' },
+      { k: 'Do first', v: 'This week' },
+    ],
     faq: [
       {
         q: 'Is it too late to do my PEDR?',
@@ -373,6 +387,12 @@ export const GUIDES: Guide[] = [
       'Almost everything you are paid to do in an architect’s office counts, as long as somebody ' +
       'is properly supervising you. What decides how much it counts is the category — and most ' +
       'UK practice under an ARB-registered architect is Category i, which counts in full.',
+    facts: [
+      { k: 'Category i', v: 'Counts in full' },
+      { k: 'Category iii', v: 'Limited amounts' },
+      { k: 'CPD and bids', v: 'Count' },
+      { k: 'Holiday', v: 'Recorded, not counted' },
+    ],
     faq: [
       {
         q: 'What is Category i experience?',
@@ -519,6 +539,12 @@ export const GUIDES: Guide[] = [
       '“Be more reflective” is useless advice. A strong entry names something specific enough ' +
       'that somebody could ask you a follow-up question about it; a weak one is true of every ' +
       'week of everybody’s training, which makes it evidence of nothing.',
+    facts: [
+      { k: 'Whole sheet', v: `~${SHEET_RULES.targetPages} pages` },
+      { k: 'What you did', v: 'Bullets' },
+      { k: 'Reflection', v: 'Prose, short' },
+      { k: 'The test', v: 'Could you be asked about it?' },
+    ],
     faq: [
       {
         q: 'How much should I write in a PEDR?',
@@ -612,6 +638,12 @@ export const GUIDES: Guide[] = [
       'Two people, in order: your Employment Mentor — an architect in your practice who actually ' +
       'knows what you have been doing — and then your Professional Studies Advisor at a school of ' +
       'architecture, who gives final approval.',
+    facts: [
+      { k: 'First', v: 'Employment Mentor' },
+      { k: 'Then', v: 'Professional Studies Advisor' },
+      { k: 'Mentor takes', v: `~${SHEET_RULES.mentorTargetDays} days` },
+      { k: 'PSA takes', v: `~${SHEET_RULES.psaTargetDays} days` },
+    ],
     faq: [
       {
         q: 'Who is my Employment Mentor?',
@@ -754,6 +786,12 @@ export const GUIDES: Guide[] = [
       'Hours go against RIBA Plan of Work stages 0 to 7, and every stage has two columns: hours ' +
       'where you did the work, and hours where you watched. Both count. Only recording one of ' +
       'them throws away the most valuable thing your record can show.',
+    facts: [
+      { k: 'Stages', v: '0 to 7' },
+      { k: 'Columns', v: 'Participant, observer' },
+      { k: 'A full week', v: `${REQUIREMENTS.standardWeekHours} hours` },
+      { k: 'Usually missing', v: 'Stages 5, 6, 7' },
+    ],
     faq: [
       {
         q: 'What are the two columns on a PEDR record sheet?',
@@ -877,6 +915,12 @@ export const GUIDES: Guide[] = [
       'Five criteria: professionalism, clients and delivery, the legal framework, practice and ' +
       'management, and building procurement. They are what Part 3 assesses you against, and using ' +
       'them as the frame for your reflection is what turns a diary into a record.',
+    facts: [
+      { k: 'Criteria', v: 'PC1 to PC5' },
+      { k: 'Set by', v: 'ARB' },
+      { k: 'Evidenced by', v: 'Incidents, not assertions' },
+      { k: 'Cannot be fixed later', v: 'An empty one' },
+    ],
     faq: [
       {
         q: 'What are the ARB professional criteria at Part 3?',

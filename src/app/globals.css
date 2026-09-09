@@ -502,6 +502,33 @@ table.schedule-wide { min-width: 520px; }
 }
 :root[data-theme="dark"] { --d1: #4b4740; --d2: #6e6a5f; --d3: #948f81; --d4: #c0bbac; --d5: #f7f5ef; }
 
+/* --- The register as a drawing sheet -------------------------------------------
+   Thirteen cells to a row is one record sheet, so the grid reads as the
+   document it stands for: sheet number on the left like a drawing reference,
+   the count of weeks that survived on the right, the drawing between them.
+--------------------------------------------------------------------------- */
+
+.register-sheet { display: flex; flex-direction: column; gap: 4px; }
+.register-row { display: flex; align-items: center; gap: 12px; }
+.register-ref {
+  width: 58px; flex: none; text-align: right;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-3); white-space: nowrap;
+}
+.register-count {
+  width: 42px; flex: none;
+  font-size: 11px; font-weight: 600; color: var(--ink-3);
+}
+.register-row .register { flex: 1 1 auto; min-width: 0; }
+.register-sheet .reg-cell { transition: background-color 260ms ease, border-color 260ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .register-sheet .reg-cell { transition: none; }
+}
+@media (max-width: 560px) {
+  .register-ref { width: 0; overflow: hidden; }
+  .register-count { width: 34px; font-size: 10px; }
+}
+
 /* --- Bars and meters ---------------------------------------------------------- */
 
 .bar-track { height: 12px; background: var(--sunk); border: 2px solid var(--ink); }
@@ -582,6 +609,132 @@ table.schedule-wide { min-width: 520px; }
 
 /* The dump surface is a column of text with a margin of notes beside it. */
 @media (max-width: 880px) { .dump-layout { grid-template-columns: minmax(0, 1fr) !important; } }
+
+/* --- The public tool -----------------------------------------------------------
+   One screen that does one thing. The register is the hero, the figures are its
+   title block, and the copy is a caption — so the spacing is generous around
+   the drawing and tight everywhere else.
+--------------------------------------------------------------------------- */
+
+.tool { display: flex; flex-direction: column; gap: 26px; max-width: 720px; }
+.tool-head { display: flex; flex-direction: column; gap: 6px; }
+.tool-head h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); text-wrap: balance; max-width: 18ch; }
+
+.tool-ask { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+.tool-ask .field { flex: 1 1 190px; }
+
+/* The title block: figures across the top of the drawing, hairline-separated
+   the way a drawing's information panel is, not four floating cards. */
+.tool-figures {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: var(--rule) solid var(--ink);
+  border-bottom: 1px solid var(--hair);
+}
+.tool-figure {
+  flex: 1 1 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px 14px 0;
+  min-width: 0;
+}
+.tool-figure + .tool-figure { padding-left: 16px; border-left: 1px solid var(--hair); }
+.tool-figure .chip { align-self: flex-start; }
+.tool-of { font-size: 0.5em; color: var(--ink-3); letter-spacing: 0; }
+
+.tool-act { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.tool-act .tiny { flex: 1 1 220px; }
+
+.tool-found { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
+@media (max-width: 620px) { .tool-found { grid-template-columns: minmax(0, 1fr); } }
+
+.found-list { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; list-style: none; }
+.found-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--hair);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.found-list li:last-child { border-bottom: 0; }
+.found-list .ref { flex: none; width: 92px; font-size: 11px; }
+@media (max-width: 460px) {
+  .found-list li { flex-direction: column; gap: 2px; }
+  .found-list .ref { width: auto; }
+}
+
+/* A thin strip of everything else, so the tool is not competing with a menu. */
+.strip { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: baseline; }
+.strip a {
+  font-size: 0.86rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 1px;
+}
+.strip a:hover { border-bottom-color: var(--ink); }
+
+/* --- Guides ---------------------------------------------------------------------
+   A guide exists to hand over one fact. So: the answer at reading-headline
+   size, the numbers as a strip, the questions as a list you open — and the
+   prose behind one disclosure, for the reader in ten who wants the why.
+--------------------------------------------------------------------------- */
+
+.answer {
+  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  line-height: 1.5;
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  border-top: var(--rule) solid var(--ink);
+  border-bottom: 1px solid var(--hair);
+}
+.facts > div {
+  flex: 1 1 150px;
+  min-width: 0;
+  padding: 11px 16px 13px 0;
+}
+.facts > div + div { padding-left: 16px; border-left: 1px solid var(--hair); }
+.facts dt {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.facts dd { margin: 3px 0 0; font-size: 0.94rem; font-weight: 600; line-height: 1.3; }
+
+.qa { border-bottom: 1px solid var(--hair); }
+.qa > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.qa > summary::-webkit-details-marker { display: none; }
+.qa > summary::before { content: '+'; color: var(--ink-3); font-weight: 400; width: 12px; flex: none; }
+.qa[open] > summary::before { content: '–'; }
+.qa > p { padding: 0 0 14px 22px; max-width: 62ch; }
+
+.detail > summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 6px 0;
+}
+.detail > summary::-webkit-details-marker { display: none; }
+.detail > summary::after { content: ' →'; }
+.detail[open] > summary::after { content: ' ↓'; }
+.detail > summary:hover { color: var(--ink); }
 
 /* --- Print --------------------------------------------------------------------- */
 

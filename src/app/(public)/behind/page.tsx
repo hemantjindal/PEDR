@@ -1,23 +1,31 @@
 import type { Metadata } from 'next'
-import { Triage } from '@/components/triage'
+import Link from 'next/link'
+import { CatchUpTool } from '@/components/catch-up-tool'
 import { absolute } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Am I in trouble? · PEDR',
+  title: 'How far behind is your PEDR? · PEDR',
   description:
-    'Three questions and a straight answer about how far behind your PEDR really is, whether the ' +
-    'time is recoverable, and what to do first. No account.',
+    'One date, then drop your calendar in. Your two years drawn as 104 week-squares, and the ' +
+    'ones your calendar can still fill. Read in your browser, never uploaded.',
   alternates: { canonical: absolute('/behind') },
   openGraph: {
     type: 'website',
     url: absolute('/behind'),
-    title: 'How far behind on your PEDR are you, really?',
-    description:
-      'Three questions, about a minute, no account: how many sheets are late, whether the time ' +
-      'is recoverable, and what to do first.',
+    title: 'How far behind is your PEDR?',
+    description: 'Your two years as 104 squares. Drop your calendar in and watch them fill.',
   },
 }
 
 export default function BehindPage() {
-  return <Triage />
+  return (
+    <div className="stack-l">
+      <CatchUpTool />
+      <div className="strip">
+        <Link href="/what-is-a-pedr">What one actually looks like</Link>
+        <Link href="/guides">Answers</Link>
+        <Link href="/sign-up">Keep a record</Link>
+      </div>
+    </div>
+  )
 }

@@ -68,24 +68,36 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       <div className="stack-s">
         <Link href="/guides" className="label label-ink">← All guides</Link>
         <h1>{g.title}</h1>
-        {/* The one-sentence answer, first, before any of the detail. It is what
-            somebody came for and it is what a search result shows. */}
-        <p style={{ fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '60ch' }}>{g.answer}</p>
+        {/* The answer, first and large. Nobody arrived wanting to read; they
+            arrived wanting one fact, and the prose is for whoever stays. */}
+        <p className="answer">{g.answer}</p>
       </div>
 
-      {g.body()}
+      {/* The numbers, before any sentence. */}
+      <dl className="facts">
+        {g.facts.map((f) => (
+          <div key={f.k}>
+            <dt>{f.k}</dt>
+            <dd>{f.v}</dd>
+          </div>
+        ))}
+      </dl>
 
-      <section className="stack">
-        <h2>Common questions</h2>
-        <div className="stack-s">
-          {g.faq.map((f) => (
-            <div className="sheet sheet-tight stack-s" key={f.q}>
-              <h3>{f.q}</h3>
-              <p className="small dim">{f.a}</p>
-            </div>
-          ))}
-        </div>
+      <section className="stack-s">
+        {g.faq.map((f) => (
+          <details className="qa" key={f.q}>
+            <summary>{f.q}</summary>
+            <p className="small dim">{f.a}</p>
+          </details>
+        ))}
       </section>
+
+      {/* Everything above answers the question. This is for the one reader in
+          ten who wants to know why, and it is placed where they will look. */}
+      <details className="detail">
+        <summary>The detail</summary>
+        <div className="stack-l" style={{ marginTop: 22 }}>{g.body()}</div>
+      </details>
 
       <section className="sheet stack">
         <div className="sheet-head">
