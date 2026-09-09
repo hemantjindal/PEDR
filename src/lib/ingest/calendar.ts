@@ -230,7 +230,11 @@ function expand(
 
   if (!event.isRecurring()) {
     const date = dateKeyOf(event.startDate)
-    return date ? [{ date, minutes, allDay }] : []
+    if (!date) return []
+    // A week booked off is one VEVENT spanning five days. Recording it as a
+    // single Monday would leave four days looking unaccounted for.
+    if (allDay) return spanDays(date, dateKeyOf(event.endDate), minutes)
+    return [{ date, minutes, allDay }]
   }
 
   const out: Array<{ date: DateKey; minutes: number; allDay: boolean }> = []
@@ -253,6 +257,34 @@ function expand(
     if (date) out.push({ date, minutes, allDay })
   }
   return out
+}
+
+/**
+ * Every working day an all-day block covers. An .ics end date is exclusive,
+ * and weekends are left out — a Saturday nobody was going to work is not
+ * something to put on a record.
+ */
+function spanDays(
+  start: DateKey,
+  endExclusive: DateKey | null,
+  minutes: number,
+): Array<{ date: DateKey; minutes: number; allDay: boolean }> {
+  const out: Array<{ date: DateKey; minutes: number; allDay: boolean }> = []
+  let cursor = start
+  // 62 days: long enough for a sabbatical, short enough that a calendar with a
+  // decade-long marker in it cannot fill the record.
+  for (let i = 0; i < 62; i++) {
+    if (!isWeekend(cursor)) out.push({ date: cursor, minutes, allDay: true })
+    const next = addDays(cursor, 1)
+    if (!endExclusive || next >= endExclusive) break
+    cursor = next
+  }
+  return out.length > 0 ? out : [{ date: start, minutes, allDay: true }]
+}
+
+function isWeekend(date: DateKey): boolean {
+  const day = new Date(`${date}T00:00:00.000Z`).getUTCDay()
+  return day === 0 || day === 6
 }
 
 /**

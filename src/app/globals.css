@@ -262,6 +262,11 @@ h3 { font-size: 1rem; }
 .btn-block { width: 100%; }
 .btn-danger { border-color: var(--alarm); color: var(--alarm-text); }
 .btn-danger:hover { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
+/* A list of forty rows, each with its own outlined red button, reads as a
+   warning about the list rather than about the button. Ghosted, it waits
+   quietly and turns red under the cursor, where the warning belongs. */
+.btn-ghost.btn-danger { border-color: transparent; color: var(--ink-2); }
+.btn-ghost.btn-danger:hover { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field > label { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
@@ -457,6 +462,22 @@ table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
   .check-row > .check-label { flex: 1 1 100%; }
   .check-row > .check-value { margin-left: 0; }
 }
+
+/* Actions that follow you down a long review. On a phone they have to clear
+   the tab bar, which sticks to the same edge and would otherwise sit on top
+   of the one button the screen exists for. */
+.sticky-actions { position: sticky; bottom: 12px; z-index: 20; }
+@media (max-width: 760px) { .sticky-actions { bottom: 76px; } }
+
+/* The head of a draft entry: date, hours, marks, then the actions pushed
+   right. It wraps rather than squeezing the date input on a phone. */
+.entry-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.entry-head > input[type="date"] { width: auto; flex: 0 1 auto; }
+.entry-head > input[type="number"] { width: 74px; flex: none; }
+
+/* The calendar importer: two ways in, side by side until they cannot be. */
+.import-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 700px) { .import-choices { grid-template-columns: minmax(0, 1fr); } }
 
 /* The dump surface is a column of text with a margin of notes beside it. */
 @media (max-width: 880px) { .dump-layout { grid-template-columns: minmax(0, 1fr) !important; } }

@@ -179,6 +179,43 @@ describe('parseCalendar and all-day events', () => {
     expect(parsed.events[0]).toMatchObject({ leave: true, allDay: true, minutes: 450 })
   })
 
+  it('spreads a week off across its working days', () => {
+    // Monday 10 to Friday 14 August 2026. An .ics end date is exclusive.
+    const parsed = parseCalendar(ics(
+      event({
+        'DTSTART;VALUE=DATE': '20260810', 'DTEND;VALUE=DATE': '20260815',
+        DTSTART: '', DTEND: '', SUMMARY: 'Annual leave',
+      }),
+    ))
+    expect(parsed.events.map((e) => e.date)).toEqual([
+      '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
+    ])
+    expect(parsed.events.every((e) => e.leave && e.minutes === 450)).toBe(true)
+  })
+
+  it('leaves the weekend out of a block that spans one', () => {
+    // Friday 14 August to Tuesday 18 August.
+    const parsed = parseCalendar(ics(
+      event({
+        'DTSTART;VALUE=DATE': '20260814', 'DTEND;VALUE=DATE': '20260819',
+        DTSTART: '', DTEND: '', SUMMARY: 'Annual leave',
+      }),
+    ))
+    expect(parsed.events.map((e) => e.date)).toEqual([
+      '2026-08-14', '2026-08-17', '2026-08-18',
+    ])
+  })
+
+  it('gives each day of a block its own id', () => {
+    const parsed = parseCalendar(ics(
+      event({
+        UID: 'leave-1', 'DTSTART;VALUE=DATE': '20260810', 'DTEND;VALUE=DATE': '20260813',
+        DTSTART: '', DTEND: '', SUMMARY: 'Annual leave',
+      }),
+    ))
+    expect(new Set(parsed.events.map((e) => e.uid)).size).toBe(3)
+  })
+
   it('recognises the ways people write absence', () => {
     const parsed = parseCalendar(ics(
       event({ SUMMARY: 'OOO' }),
@@ -405,6 +442,23 @@ describe('calendarToEntries', () => {
     })))
     const [entry] = calendarToEntries(parsed, opts)
     expect(entry.stage).toBe(3)
+  })
+
+  it('takes people from the invite and never from the title', () => {
+    // "Nine Elms" is a place, and it was being filed as a colleague.
+    const parsed = parseCalendar(ics(event({
+      SUMMARY: 'Site visit Nine Elms 1088', LOCATION: 'Nine Elms, SW8',
+    })))
+    const [entry] = calendarToEntries(parsed, opts)
+    expect(entry.people).toEqual([])
+  })
+
+  it('still uses the location to work out the stage', () => {
+    const parsed = parseCalendar(ics(event({
+      SUMMARY: 'Weekly walkround 1042', LOCATION: 'On site, Battersea Square',
+    })))
+    const [entry] = calendarToEntries(parsed, opts)
+    expect(entry.stage).toBe(5)
   })
 
   it('puts everyone in the room on the record', () => {

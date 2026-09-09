@@ -271,6 +271,12 @@ function calendarEntry(event: CalendarEvent, opts: ParseOptions): DraftEntry {
   const entry = buildEntry({
     text: context,
     activityText: event.summary,
+    // Nothing: a meeting title is full of place names and job names, and
+    // "Site visit Nine Elms 1088" was filing Nine Elms as a colleague. The
+    // invite already lists everyone who was there, exactly, so that is what
+    // gets used — missing a name mentioned only in a title is a far smaller
+    // error than putting a postcode on the record as a person.
+    peopleText: '',
     date: event.date,
     // A calendar date is a record, not an inference.
     dateConfidence: 1,
@@ -282,12 +288,12 @@ function calendarEntry(event: CalendarEvent, opts: ParseOptions): DraftEntry {
     opts,
   })
 
-  // Who was in the room is the part of a calendar no other source can give us,
-  // and it is exactly what a PEDR asks for.
+  // Who was in the room is the part of a calendar no other source can give
+  // us, and it is exactly what a PEDR asks for.
   const invited = [event.organiser, ...event.attendees].filter(
     (name): name is string => Boolean(name),
   )
-  entry.people = [...new Set([...entry.people, ...invited])].slice(0, 12)
+  entry.people = [...new Set(invited)].slice(0, 12)
 
   // Carries the event's own id, so syncing the calendar again next month
   // recognises this meeting rather than adding it a second time.
@@ -309,6 +315,12 @@ function countWords(text: string): number {
 interface BuildArgs {
   text: string
   activityText: string
+  /**
+   * What to read names out of, when that is not the same as the text used for
+   * classification. A calendar event's location helps decide the stage but
+   * must never be mined for people — "Nine Elms" is a place, not a colleague.
+   */
+  peopleText?: string
   date: DateKey
   dateConfidence: number
   minutes: number | null
@@ -328,7 +340,7 @@ function buildEntry(args: BuildArgs): DraftEntry {
 
   const project = matchProject(args.projectText, opts.projects ?? [])
   const classification = classify(text)
-  const { people } = extractPeople(text, opts.knownPeople ?? [])
+  const { people } = extractPeople(args.peopleText ?? text, opts.knownPeople ?? [])
 
   // Strip the mechanics out of the activity line so the sheet reads cleanly.
   const activity = tidy(stripDuration(args.activityText, duration?.matchedText ?? null))

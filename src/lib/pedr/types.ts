@@ -323,3 +323,25 @@ export interface Progress {
   projectedReadyDate: DateKey | null
   loggingRate: number
 }
+
+/**
+ * A linked calendar.
+ *
+ * `url` is a credential — whoever holds a published .ics link can read that
+ * calendar — so it is never rendered in full, only ever as its host and a
+ * truncated path.
+ */
+export interface CalendarFeed {
+  id: string
+  userId: string
+  name: string
+  url: string | null
+  /** Title fragments this person wants ignored, on top of the defaults. */
+  ignore: string[]
+  enabled: boolean
+  lastSyncedAt: string | null
+  lastImported: number
+  lastSkipped: number
+  lastError: string | null
+  createdAt: string
+}

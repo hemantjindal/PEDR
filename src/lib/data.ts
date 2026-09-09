@@ -12,7 +12,7 @@ import {
   bestStreak, currentStreak, findGaps, findThinWeeks, rollUpByMonth, scoreWeeks,
 } from './pedr/scoring'
 import type {
-  DraftEntry, Employment, Entry, EntrySource, Project, Sheet, SheetContent, WeekNote,
+  CalendarFeed, DraftEntry, Employment, Entry, EntrySource, Project, Sheet, SheetContent, WeekNote,
 } from './pedr/types'
 import {
   addMonths, todayKey, weekEndKey, weekIdOf, weekStartKey, type DateKey, type WeekId,
@@ -290,31 +290,45 @@ export async function saveParsedEntries(input: {
   autoVerify?: boolean
 }): Promise<Entry[]> {
   const timestamp = now()
-  const rows = input.entries.map((entry) => ({
-    id: randomUUID(),
-    userId: input.userId,
-    dumpId: input.dumpId,
-    date: entry.date,
-    minutes: Math.max(0, Math.round(entry.minutes)),
-    minutesEstimated: entry.minutesEstimated,
-    projectId: entry.projectId,
-    projectHint: entry.projectHint,
-    stage: entry.stage,
-    officeCategory: entry.officeCategory,
-    activity: entry.activity.slice(0, 2000),
-    detail: entry.detail?.slice(0, 8000) ?? null,
-    people: entry.people,
-    criteria: entry.criteria,
-    wentWrong: entry.wentWrong?.slice(0, 4000) ?? null,
-    learned: entry.learned?.slice(0, 4000) ?? null,
-    confidence: Math.round(Math.max(0, Math.min(1, entry.confidence)) * 100),
-    source: entry.source,
-    verified: input.autoVerify ?? false,
-    provenance: entry.provenance ?? null,
-    externalId: entry.externalId ?? null,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  }))
+
+  // Rows carrying an external id may already be here from an earlier sync.
+  // The unique index would reject them silently, and the count returned from
+  // here becomes "14 meetings saved" on somebody's screen — so it has to be
+  // the number that actually landed, not the number attempted.
+  const externalIds = input.entries
+    .map((e) => e.externalId)
+    .filter((id): id is string => Boolean(id))
+  const present = externalIds.length > 0
+    ? await findImportedExternalIds(input.userId, externalIds)
+    : new Set<string>()
+
+  const rows = input.entries
+    .filter((entry) => !entry.externalId || !present.has(entry.externalId))
+    .map((entry) => ({
+      id: randomUUID(),
+      userId: input.userId,
+      dumpId: input.dumpId,
+      date: entry.date,
+      minutes: Math.max(0, Math.round(entry.minutes)),
+      minutesEstimated: entry.minutesEstimated,
+      projectId: entry.projectId,
+      projectHint: entry.projectHint,
+      stage: entry.stage,
+      officeCategory: entry.officeCategory,
+      activity: entry.activity.slice(0, 2000),
+      detail: entry.detail?.slice(0, 8000) ?? null,
+      people: entry.people,
+      criteria: entry.criteria,
+      wentWrong: entry.wentWrong?.slice(0, 4000) ?? null,
+      learned: entry.learned?.slice(0, 4000) ?? null,
+      confidence: Math.round(Math.max(0, Math.min(1, entry.confidence)) * 100),
+      source: entry.source,
+      verified: input.autoVerify ?? false,
+      provenance: entry.provenance ?? null,
+      externalId: entry.externalId ?? null,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }))
 
   if (rows.length > 0) {
     // Chunked: SQLite has a bound-parameter ceiling and a big paste can exceed it.
@@ -487,4 +501,114 @@ export async function findUserByCalendarToken(token: string) {
     .where(eq(schema.users.calendarToken, token))
     .limit(1)
   return rows[0] ?? null
+}
+
+// ---------------------------------------------------------------------------
+// Linked calendars
+// ---------------------------------------------------------------------------
+
+type FeedRow = typeof schema.calendarFeeds.$inferSelect
+
+function toFeed(row: FeedRow): CalendarFeed {
+  return {
+    id: row.id,
+    userId: row.userId,
+    name: row.name,
+    url: row.url,
+    ignore: row.ignore ?? [],
+    enabled: row.enabled,
+    lastSyncedAt: row.lastSyncedAt,
+    lastImported: row.lastImported,
+    lastSkipped: row.lastSkipped,
+    lastError: row.lastError,
+    createdAt: row.createdAt,
+  }
+}
+
+export async function getCalendarFeeds(userId: string): Promise<CalendarFeed[]> {
+  const rows = await db
+    .select()
+    .from(schema.calendarFeeds)
+    .where(eq(schema.calendarFeeds.userId, userId))
+    .orderBy(asc(schema.calendarFeeds.createdAt))
+  return rows.map(toFeed)
+}
+
+export async function getCalendarFeed(userId: string, id: string): Promise<CalendarFeed | null> {
+  const rows = await db
+    .select()
+    .from(schema.calendarFeeds)
+    .where(and(eq(schema.calendarFeeds.userId, userId), eq(schema.calendarFeeds.id, id)))
+    .limit(1)
+  return rows[0] ? toFeed(rows[0]) : null
+}
+
+export async function createCalendarFeed(input: {
+  userId: string
+  name: string
+  url: string | null
+  ignore?: string[]
+}): Promise<CalendarFeed> {
+  const id = randomUUID()
+  const row = {
+    id,
+    userId: input.userId,
+    name: input.name.slice(0, 120) || 'My calendar',
+    url: input.url,
+    ignore: input.ignore ?? [],
+    enabled: true,
+    lastSyncedAt: null,
+    lastImported: 0,
+    lastSkipped: 0,
+    lastError: null,
+    createdAt: now(),
+  }
+  await db.insert(schema.calendarFeeds).values(row)
+  return toFeed(row)
+}
+
+export async function updateCalendarFeed(
+  userId: string,
+  id: string,
+  patch: Partial<Pick<CalendarFeed,
+    'name' | 'url' | 'ignore' | 'enabled' | 'lastSyncedAt' | 'lastImported' | 'lastSkipped' | 'lastError'
+  >>,
+): Promise<void> {
+  await db
+    .update(schema.calendarFeeds)
+    .set(patch)
+    .where(and(eq(schema.calendarFeeds.userId, userId), eq(schema.calendarFeeds.id, id)))
+}
+
+export async function deleteCalendarFeed(userId: string, id: string): Promise<void> {
+  await db
+    .delete(schema.calendarFeeds)
+    .where(and(eq(schema.calendarFeeds.userId, userId), eq(schema.calendarFeeds.id, id)))
+}
+
+/**
+ * Which of these external ids are already on the record.
+ *
+ * The unique index is what actually guarantees a meeting is never counted
+ * twice; this is so the review screen can say "14 new, 62 already imported"
+ * rather than showing somebody a list they have seen before.
+ */
+export async function findImportedExternalIds(
+  userId: string,
+  ids: string[],
+): Promise<Set<string>> {
+  const found = new Set<string>()
+  for (let i = 0; i < ids.length; i += 200) {
+    const chunk = ids.slice(i, i + 200)
+    if (chunk.length === 0) continue
+    const rows = await db
+      .select({ externalId: schema.entries.externalId })
+      .from(schema.entries)
+      .where(and(
+        eq(schema.entries.userId, userId),
+        inArray(schema.entries.externalId, chunk),
+      ))
+    for (const row of rows) if (row.externalId) found.add(row.externalId)
+  }
+  return found
 }
