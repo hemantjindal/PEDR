@@ -192,9 +192,12 @@ its own:
 npm install && npm run demo      # -> demo/dist/pedr-demo.html
 ```
 
-Open that file on a phone or a laptop. One HTML page, no server, no database:
-the dashboard with its missions, the register, the dump box, calendar import,
-coverage, and a record sheet that **downloads as a real PDF or Word file** —
+Open that file on a phone or a laptop. It opens where the product actually
+starts — **Catch up**: point it at a sample calendar and a sample timesheet and
+watch a year of blank weeks come back, with the ones nothing reached listed
+underneath and what is known about each. Then the dashboard with its missions,
+the register, the viva, the dump box, calendar import, coverage, and a record
+sheet that **downloads as a real PDF or Word file** —
 generated in the tab by the same renderers the server uses, not a promise that
 the app would do it. All of it over a demo record of a Part 2 assistant sixteen
 months in, with the gaps and thin weeks a real record has. What you type stays

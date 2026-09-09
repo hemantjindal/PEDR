@@ -39,5 +39,7 @@ export {
 } from '@/lib/pedr/week'
 export { buildMissions, missionHeadline, rankFor, RANKS } from '@/lib/pedr/missions'
 export { examine } from '@/lib/pedr/examiner'
+export { recover, triage, recoveryWindow } from '@/lib/pedr/recover'
+export { WRITING_GUIDE as WRITING } from '@/lib/pedr/guidance'
 export { buildDemoRecord } from '@/lib/demo-record'
 export { REVIEW_THRESHOLD } from '@/lib/pedr/types'

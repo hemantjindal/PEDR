@@ -15,6 +15,7 @@ const E = PEDR
 const STORE = 'pedr-demo-v1'
 
 const SCREENS = [
+  { id: 'catchup', label: 'Catch up', icon: 'M3 12a9 9 0 1 0 3-6.7M3 4v5h5' },
   { id: 'record', label: 'Record', icon: 'M3 11.5 12 4l9 7.5M6 10v9h12v-9' },
   { id: 'dump', label: 'Write', icon: 'M12 5v14M5 12h14' },
   { id: 'calendar', label: 'Calendar', icon: 'M4 7h16v13H4zM4 11h16M8 3v4M16 3v4' },
@@ -38,7 +39,7 @@ function fresh() {
     employment: record.employment,
     experienceStart: record.experienceStart,
     name: record.name,
-    screen: 'record',
+    screen: 'catchup',
   }
 }
 
@@ -307,6 +308,269 @@ function renderRecord(d) {
       </section>
     </div>
   `)
+}
+
+// --- Catch up ----------------------------------------------------------------
+
+/**
+ * The screen this product is actually for.
+ *
+ * Everything else assumes you are keeping up. Almost nobody is: people put a
+ * PEDR off for a term, then a quarter, and by the time they open it there are
+ * eight months of blank weeks and a streak of zero — which is a shame machine,
+ * not a tool.
+ *
+ * So this one starts from the opposite premise, and its first move is to say
+ * that most of those months are already written down somewhere else.
+ */
+
+/** A quarter of a real-looking practice timesheet, for the demo to chew on. */
+function sampleTimesheet(from) {
+  const rows = ['Date,Project,Hours,Description']
+  const jobs = [
+    ['1042', 'Tender package coordination and drawing register'],
+    ['1042', 'Stage 4 balustrade and handrail details'],
+    ['1088', 'Site progress meeting and inspection notes'],
+    ['1103', 'Building regulations submission drawings'],
+    ['1042', 'Design team meeting on the atrium roof build-up'],
+  ]
+  let cursor = from
+  for (let week = 0; week < 14; week++) {
+    // A deliberate hole in the middle, because a real recovery has one.
+    if (week >= 5 && week < 8) { cursor = E.addDays(cursor, 7); continue }
+    for (let day = 0; day < 3; day++) {
+      const [code, what] = jobs[(week * 3 + day) % jobs.length]
+      const date = E.addDays(cursor, day)
+      const [y, m, d] = date.split('-')
+      rows.push(`${d}/${m}/${y},${code},${[3.5, 7.5, 4][day % 3]},${what}`)
+    }
+    cursor = E.addDays(cursor, 7)
+  }
+  return rows.join('\n')
+}
+
+let recovery = null
+let catchUpInput = { calendar: '', timesheet: '', notes: '' }
+
+function renderCatchUp(d) {
+  if (recovery) return renderRecovery(d)
+
+  const start = state.experienceStart
+  const weeksLogged = d.scores.filter((w) => w.score > 0).length
+  const state_ = E.triage({
+    experienceStart: start,
+    sheetsDone: 0,
+    weeksLogged,
+    today,
+  })
+  const window_ = E.recoveryWindow(start, today)
+  const ready = Object.values(catchUpInput).some((v) => v.trim().length > 0)
+
+  return h(`
+    <div class="stack-s">
+      <span class="label">You do not have to remember it</span>
+      <h1>Months behind? It is already written down.</h1>
+      <p class="dim">
+        Almost nobody keeps a PEDR up to date. The record you are missing is sitting in your
+        Outlook calendar and your practice timesheet — this pulls it back out, week by week, and
+        tells you honestly which weeks it could not reach.
+      </p>
+    </div>
+
+    <div class="band ${state_.trouble === 'serious' ? 'band-alarm' : 'band-signal'}" style="margin-top:16px">
+      <span class="label">Where this record is</span>
+      <strong>${state_.sheetsLate === 0
+        ? `${state_.weeksMissing} weeks blank`
+        : `${state_.sheetsLate} ${state_.sheetsLate === 1 ? 'sheet' : 'sheets'} past the deadline`}</strong>
+      <span class="small">${esc(state_.verdict)}</span>
+    </div>
+
+    <section class="sheet stack" style="margin-top:16px">
+      <div class="sheet-head"><div>
+        <span class="label">${esc(E.formatDate(window_.from))} to ${esc(E.formatDate(today))}</span>
+        <h2 style="margin-top:3px">What have you got?</h2>
+      </div></div>
+      <p class="small dim">
+        Any one of these is enough to start. The calendar recovers the most, and what you
+        remember comes <em>last</em> — it is far easier to remember a week once you can see what
+        was in your calendar that week.
+      </p>
+
+      <div class="stack-s">
+        <div class="row-wrap" style="gap:8px;align-items:baseline">
+          <div style="flex:1 1 200px;min-width:0">
+            <span class="small" style="font-weight:600">Your calendar</span><br>
+            <span class="tiny faint">Every meeting, the right day, the right length, who was in it</span>
+          </div>
+          ${catchUpInput.calendar ? '<span class="mark mark-signed">added</span>' : ''}
+          <button class="btn btn-sm" id="cu-calendar">
+            ${catchUpInput.calendar ? 'Added' : 'Use a sample week'}
+          </button>
+        </div>
+        <div class="row-wrap" style="gap:8px;align-items:baseline">
+          <div style="flex:1 1 200px;min-width:0">
+            <span class="small" style="font-weight:600">Your practice timesheet</span><br>
+            <span class="tiny faint">The hours and the job numbers, exactly</span>
+          </div>
+          ${catchUpInput.timesheet ? '<span class="mark mark-signed">added</span>' : ''}
+          <button class="btn btn-sm" id="cu-timesheet">
+            ${catchUpInput.timesheet ? 'Added' : 'Use a sample quarter'}
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="cu-notes">And anything you remember</label>
+        <textarea id="cu-notes" rows="4" style="font-size:16px"
+          placeholder="w/c 12 Jan — mostly 1042 tender package, site visit on the Thursday…">${esc(catchUpInput.notes)}</textarea>
+        <span class="hint">Last, not first. Badly is fine.</span>
+      </div>
+
+      <button class="btn btn-primary" id="cu-run"${ready ? '' : ' disabled'}>
+        ${ready ? 'Reconstruct the period' : 'Add a source above'}
+      </button>
+    </section>
+
+    <section class="sheet stack-s" style="margin-top:16px">
+      <div class="sheet-head"><div>
+        <span class="label">The one rule</span>
+        <h2 style="margin-top:3px">It recovers, it never invents</h2>
+      </div></div>
+      <p class="small dim">
+        A week nothing reached comes back blank with a prompt, not with a plausible sentence in
+        it. Your mentor signs this and an examiner reads it — a fabricated week is the one failure
+        this whole thing exists to prevent.
+      </p>
+    </section>
+  `)
+}
+
+function renderRecovery() {
+  const r = recovery
+  const pct = r.total > 0 ? Math.round((r.recovered / r.total) * 100) : 0
+
+  return h(`
+    <section class="sheet stack-s">
+      <div class="sheet-head">
+        <div>
+          <span class="label">${esc(E.formatDate(r.from))} to ${esc(E.formatDate(r.to))}</span>
+          <h2 style="margin-top:3px">${r.recovered} of ${r.total} weeks came back</h2>
+        </div>
+        <span class="spacer"></span>
+        <span class="chip chip-signal">${r.monthsRecovered} months</span>
+      </div>
+
+      <p class="small dim">${esc(r.headline)}</p>
+      <span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>
+
+      <div class="register" style="grid-template-columns:repeat(auto-fill,minmax(14px,1fr));margin-top:6px">
+        ${r.weeks.map((w) => `<span class="reg-cell" data-d="${
+          w.blank ? 0 : w.thin ? 2 : 5}" title="${esc(E.formatWeekRange(w.weekId))} — ${
+          w.blank ? 'nothing recovered' : `${w.entries.length} entries`}"></span>`).join('')}
+      </div>
+
+      <div class="row-wrap" style="gap:10px;margin-top:4px">
+        ${r.bySource.map((s) => `<span class="tiny faint">
+          <strong style="color:var(--ink)">${s.kept}</strong> from ${esc(s.label.toLowerCase())}${
+          s.duplicates > 0 ? ` (${s.duplicates} already covered)` : ''}</span>`).join('')}
+      </div>
+    </section>
+
+    ${r.prompts.length > 0 ? `<section class="sheet stack-s" style="margin-top:14px">
+      <div class="sheet-head"><div>
+        <span class="label">Nothing reached these</span>
+        <h2 style="margin-top:3px">${r.prompts.length} ${r.prompts.length === 1 ? 'week' : 'weeks'} still blank</h2>
+      </div></div>
+      <p class="small dim">
+        This is the part that makes them recoverable: not "what did you do in February", but what
+        was happening either side of it.
+      </p>
+      <div style="display:flex;flex-direction:column">
+        ${r.prompts.slice(0, 6).map((prompt, i) => `<div style="padding:9px 0;border-top:${
+          i === 0 ? 'none' : '1px solid var(--hair)'}">
+          <div class="label label-ink">${esc(prompt.label)}</div>
+          <p class="tiny faint" style="margin-top:2px">${esc(prompt.context)}</p>
+          <p class="small" style="margin-top:4px">${esc(prompt.ask)}</p>
+        </div>`).join('')}
+      </div>
+      ${r.prompts.length > 6 ? `<p class="tiny faint">…and ${r.prompts.length - 6} more.</p>` : ''}
+    </section>` : ''}
+
+    <div class="stack-s" style="margin-top:14px">
+      <p class="label">Everything recovered — read it before you keep it</p>
+      ${r.entries.slice(0, 24).map((entry, index) => {
+        const project = state.projects.find((p) => p.id === entry.projectId)
+        return `<div class="sheet sheet-tight stack-s">
+          <div class="entry-head">
+            <span class="ref">${esc(E.formatDate(entry.date, { weekday: true }))}</span>
+            <span class="mono tiny dim">${entry.minutes > 0 ? esc(E.formatDuration(entry.minutes)) : 'no hours'}</span>
+            <span class="spacer"></span>
+            <button class="btn btn-ghost btn-sm btn-danger" data-rec-drop="${index}">Drop</button>
+          </div>
+          <p class="small">${esc(entry.activity)}</p>
+          <div class="row-wrap" style="gap:5px">
+            ${project ? `<span class="chip">${esc(project.code || project.name)}</span>`
+              : entry.projectHint ? `<span class="mark mark-none">“${esc(entry.projectHint)}”</span>`
+              : '<span class="mark mark-none">no project</span>'}
+            ${entry.stage !== null ? `<span class="chip">Stage ${entry.stage}</span>` : ''}
+            <span class="chip">${esc(entry.source)}</span>
+          </div>
+        </div>`
+      }).join('')}
+      ${r.entries.length > 24 ? `<p class="note small">
+        Showing 24 of ${r.entries.length}. Keeping them saves all of them, unverified, so you can
+        work through the rest a week at a time.</p>` : ''}
+    </div>
+
+    <div class="sheet stack-s sticky-actions" style="margin-top:12px">
+      <div class="row-wrap">
+        <button class="btn btn-primary" id="rec-keep"${r.entries.length === 0 ? ' disabled' : ''}>
+          Keep ${r.entries.length} entries
+        </button>
+        <button class="btn" id="rec-back">Start again</button>
+      </div>
+    </div>
+  `)
+}
+
+function runRecovery() {
+  const window_ = E.recoveryWindow(state.experienceStart, today)
+  const sources = []
+  const opts = {
+    reference: today,
+    projects: state.projects,
+    knownPeople: [...new Set(state.entries.flatMap((e) => e.people))],
+    me: state.name,
+  }
+
+  if (catchUpInput.calendar) {
+    const parsed = E.parseCalendar(catchUpInput.calendar, {
+      from: window_.from, to: window_.to, email: 'alex@practice.com', name: state.name,
+    })
+    sources.push({ source: 'calendar', label: 'Your calendar', entries: E.calendarToEntries(parsed, opts) })
+  }
+  if (catchUpInput.timesheet) {
+    sources.push({
+      source: 'timesheet',
+      label: 'Your timesheet',
+      entries: E.parseDump(catchUpInput.timesheet, { ...opts, kind: 'timesheet' }).entries,
+    })
+  }
+  if (catchUpInput.notes.trim()) {
+    sources.push({
+      source: 'memory',
+      label: 'What you remember',
+      entries: E.parseDump(catchUpInput.notes, opts).entries,
+    })
+  }
+
+  recovery = E.recover({
+    from: window_.from,
+    to: window_.to,
+    sources,
+    existing: state.entries,
+  })
+  render()
 }
 
 // --- Write (the dump box) ----------------------------------------------------
@@ -1103,6 +1367,7 @@ function render() {
       ${s.label}</a>`).join('')
 
   const renderers = {
+    catchup: renderCatchUp,
     record: renderRecord,
     dump: renderDump,
     calendar: renderCalendar,
@@ -1145,6 +1410,56 @@ document.addEventListener('click', (event) => {
   if (target.dataset.sample) {
     const box = $('#raw')
     if (box) { box.value = SAMPLES[target.dataset.sample]; box.focus() }
+    return
+  }
+
+  if (target.id === 'cu-calendar') {
+    catchUpInput.calendar = SAMPLE_ICS
+    render()
+    return
+  }
+
+  if (target.id === 'cu-timesheet') {
+    catchUpInput.timesheet = sampleTimesheet(E.recoveryWindow(state.experienceStart, today).from)
+    render()
+    return
+  }
+
+  if (target.id === 'cu-run') {
+    runRecovery()
+    return
+  }
+
+  if (target.id === 'rec-back') {
+    recovery = null
+    render()
+    return
+  }
+
+  if (target.dataset.recDrop !== undefined) {
+    const index = Number(target.dataset.recDrop)
+    recovery.entries = recovery.entries.filter((_, i) => i !== index)
+    render()
+    return
+  }
+
+  if (target.id === 'rec-keep') {
+    const stamp = new Date().toISOString()
+    state.entries = [...state.entries, ...recovery.entries.map((entry, i) => ({
+      ...entry,
+      id: `rec-${Date.now()}-${i}`,
+      userId: 'demo-user',
+      dumpId: null,
+      verified: false,
+      externalId: entry.externalId ?? null,
+      provenance: entry.provenance ?? null,
+      createdAt: stamp,
+      updatedAt: stamp,
+    }))]
+    recovery = null
+    catchUpInput = { calendar: '', timesheet: '', notes: '' }
+    save()
+    go('record')
     return
   }
 
@@ -1273,6 +1588,7 @@ document.addEventListener('click', (event) => {
 // Keep the box's text across a re-render triggered by something else.
 document.addEventListener('input', (event) => {
   if (event.target.id === 'raw') draft.raw = event.target.value
+  if (event.target.id === 'cu-notes') catchUpInput.notes = event.target.value
 })
 
 document.addEventListener('change', async (event) => {
