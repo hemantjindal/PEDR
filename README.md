@@ -256,11 +256,13 @@ npm run build
 |---|---|---|
 | `DATABASE_URL` | yes | `file:./data/pedr.db` locally; a `libsql://` URL in production |
 | `DATABASE_AUTH_TOKEN` | remote DB only | Turso/libSQL auth |
-| `SESSION_SECRET` | yes | Set it to something long and random |
 | `APP_URL` | recommended | Calendar invitations, reminders, and every canonical URL, sitemap entry and share card. On Vercel it falls back to `VERCEL_PROJECT_PRODUCTION_URL` |
 | `ANTHROPIC_API_KEY` | optional | Switches on the model pass. Everything works without it |
 | `CRON_SECRET` | optional | Protects `/api/cron/reminders` |
 | `REMINDER_WEBHOOK_URL` | optional | Where the cron digest is POSTed |
+
+There is no session secret to set. A session token is 32 random bytes and only
+its SHA-256 is stored, so there is nothing to sign and nothing to rotate.
 
 ### Deploying
 
