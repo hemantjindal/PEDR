@@ -1,4 +1,6 @@
-import { CRITERION_IDS, OFFICE_MANAGEMENT_CATEGORIES, STAGE_IDS } from './pedr/constants'
+import {
+  CRITERION_IDS, OFFICE_MANAGEMENT_CATEGORIES, PARTICIPATION_IDS, STAGE_IDS,
+} from './pedr/constants'
 import type { DraftEntry } from './pedr/types'
 import { isDateKey } from './pedr/week'
 
@@ -14,6 +16,7 @@ import { isDateKey } from './pedr/week'
 const OFFICE_IDS = new Set<string>(OFFICE_MANAGEMENT_CATEGORIES.map((c) => c.id))
 const CRITERIA = new Set<string>(CRITERION_IDS)
 const STAGES = new Set<number>(STAGE_IDS)
+const PARTICIPATION = new Set<string>(PARTICIPATION_IDS)
 
 export type SanitiseResult =
   | { ok: true; entries: DraftEntry[] }
@@ -56,6 +59,12 @@ export function sanitiseEntries(
       date: entry.date as DraftEntry['date'],
       minutes: Math.round(minutes),
       minutesEstimated: Boolean(entry.minutesEstimated),
+      // Anything unrecognised is participant: the safe default is the one that
+      // does not quietly demote work somebody actually did.
+      participation:
+        entry.participation && PARTICIPATION.has(entry.participation)
+          ? entry.participation
+          : 'participant',
       projectId: entry.projectId ?? null,
       projectHint: entry.projectId ? null : (entry.projectHint ?? null),
       stage: typeof entry.stage === 'number' && STAGES.has(entry.stage) ? entry.stage : null,

@@ -12,6 +12,7 @@ const entry: DraftEntry = {
   date: '2026-09-07',
   minutes: 240,
   minutesEstimated: false,
+  participation: 'participant',
   projectId: null,
   projectHint: 'Battersea',
   stage: 4,

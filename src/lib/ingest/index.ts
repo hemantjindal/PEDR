@@ -2,7 +2,7 @@ import type { DraftEntry, DumpKind, EntrySource, Project } from '../pedr/types'
 import { REVIEW_THRESHOLD } from '../pedr/types'
 import { todayKey, type DateKey } from '../pedr/week'
 import type { CalendarEvent, CalendarParse } from './calendar'
-import { classify } from './classify'
+import { classify, detectParticipation } from './classify'
 import type { DateContext } from './dates'
 import { allocateDayMinutes, parseDuration, STANDARD_DAY_MINUTES, stripDuration } from './duration'
 import { parseFreeform, type FreeformSegment } from './freeform'
@@ -244,6 +244,7 @@ function calendarEntry(event: CalendarEvent, opts: ParseOptions): DraftEntry {
       date: event.date,
       minutes: event.minutes,
       minutesEstimated: event.allDay,
+      participation: 'participant',
       projectId: null,
       projectHint: null,
       stage: null,
@@ -348,10 +349,13 @@ function buildEntry(args: BuildArgs): DraftEntry {
   const stage =
     args.stageOverride !== null ? (args.stageOverride as DraftEntry['stage']) : classification.stage
 
+  const participation = detectParticipation(text)
+
   return {
     date,
     minutes,
     minutesEstimated: false,
+    participation: participation.participation,
     projectId: project.projectId,
     projectHint: project.projectId ? null : project.hint,
     stage,
@@ -362,12 +366,17 @@ function buildEntry(args: BuildArgs): DraftEntry {
     criteria: classification.criteria,
     wentWrong: classification.wentWrong,
     learned: classification.learned,
-    confidence: combineConfidence({
-      date: dateConfidence,
-      project: project.confidence,
-      stage: args.stageOverride !== null ? 1 : classification.stageConfidence,
-      source,
-    }),
+    // Filing work somebody did as "watched" understates their record to a
+    // PSA, so anything read that way goes past a human first.
+    confidence: Math.min(
+      combineConfidence({
+        date: dateConfidence,
+        project: project.confidence,
+        stage: args.stageOverride !== null ? 1 : classification.stageConfidence,
+        source,
+      }),
+      participation.participation === 'observer' ? 0.5 : 1,
+    ),
     source,
     provenance,
   }

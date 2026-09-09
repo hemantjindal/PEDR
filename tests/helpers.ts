@@ -13,6 +13,7 @@ export function entry(over: Partial<Entry> & { date: DateKey }): Entry {
     dumpId: null,
     minutes: 240,
     minutesEstimated: false,
+    participation: 'participant',
     projectId: 'p1',
     projectHint: null,
     stage: 4 as StageId,

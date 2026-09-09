@@ -79,6 +79,20 @@ const LEARNED = [
   'Learned that building control will accept a performance-based fire strategy but wants the assumptions written down.',
 ]
 
+/**
+ * Whether this entry was watched rather than done.
+ *
+ * Front-loaded on purpose: a real record starts with a lot of sitting in on
+ * things and ends with almost none, and demo data that does not show that
+ * would make the whole participation view look broken.
+ */
+function observed(index: number, i: number, total: number): boolean {
+  const through = total > 1 ? index / (total - 1) : 1
+  // Roughly 45% of entries observed at the start, under 5% by the end.
+  const share = 0.45 * (1 - through) ** 1.6 + 0.03
+  return ((index * 7 + i * 3) % 100) / 100 < share
+}
+
 function pick<T>(list: T[], seed: number): T {
   return list[Math.abs(Math.floor(Math.sin(seed) * 10_000)) % list.length]
 }
@@ -168,6 +182,9 @@ async function main() {
         date,
         minutes: office === 'leave' ? 450 : [120, 180, 240, 450][(index + i) % 4],
         minutesEstimated: (index + i) % 13 === 0,
+        // Observer hours that thin out over the two years: the shape a record
+        // is supposed to have, and the one the coverage page is built to show.
+        participation: observed(index, i, weeks.length) ? 'observer' : 'participant',
         projectId: template.p === null ? null : projectIds[template.p],
         projectHint: null,
         stage: template.s,

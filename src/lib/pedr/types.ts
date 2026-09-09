@@ -1,5 +1,6 @@
 import type {
-  CriterionId, ExperienceCategory, ExperienceLocation, OfficeCategoryId, ScoreBandId, StageId,
+  CriterionId, ExperienceCategory, ExperienceLocation, OfficeCategoryId, ParticipationId,
+  ScoreBandId, StageId,
 } from './constants'
 import type { DateKey, MonthKey, WeekId } from './week'
 
@@ -21,6 +22,12 @@ export interface Entry {
    * these records, so an estimate must always look like an estimate.
    */
   minutesEstimated: boolean
+  /**
+   * Which of the record sheet's two hour columns this belongs in. Defaults to
+   * participant, because most logged work is work you did — and because
+   * quietly filing everything as observer would understate a record.
+   */
+  participation: ParticipationId
   projectId: string | null
   /** Raw project text when we could not match it to a project record yet. */
   projectHint: string | null
@@ -182,8 +189,15 @@ export interface SheetContent {
     hoursWorked: number
   }
   projects: SheetProject[]
-  /** Minutes per RIBA stage across the period. */
+  /** Minutes per RIBA stage across the period, participant plus observer. */
   stageMinutes: Record<string, number>
+  /**
+   * The same, split into the record sheet's two hour columns. The shift from
+   * observer to participant across the stages is what shows development, and
+   * it is invisible in the total alone.
+   */
+  stageParticipation: Record<string, { participant: number; observer: number }>
+  participation: { participant: number; observer: number }
   criteria: Record<string, { entries: number; minutes: number; examples: string[] }>
   reflection: {
     did: string

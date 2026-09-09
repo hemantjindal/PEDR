@@ -86,11 +86,22 @@ export function buildSheet(input: BuildSheetInput): SheetContent {
   // --- Stages -------------------------------------------------------------
 
   const stageMinutes: Record<string, number> = {}
-  for (const s of RIBA_STAGES) stageMinutes[String(s.id)] = 0
+  const stageParticipation: SheetContent['stageParticipation'] = {}
+  for (const s of RIBA_STAGES) {
+    stageMinutes[String(s.id)] = 0
+    stageParticipation[String(s.id)] = { participant: 0, observer: 0 }
+  }
   for (const entry of entries) {
     if (entry.stage === null) continue
-    stageMinutes[String(entry.stage)] += entry.minutes
+    const key = String(entry.stage)
+    stageMinutes[key] += entry.minutes
+    stageParticipation[key][entry.participation] += entry.minutes
   }
+
+  // Across the whole period, not only the entries that carry a stage — the
+  // balance is about the record, and untagged work still counts towards it.
+  const participationTotals = { participant: 0, observer: 0 }
+  for (const entry of countable) participationTotals[entry.participation] += entry.minutes
 
   // --- Criteria -----------------------------------------------------------
 
@@ -121,6 +132,8 @@ export function buildSheet(input: BuildSheetInput): SheetContent {
     },
     projects: sheetProjects,
     stageMinutes,
+    stageParticipation,
+    participation: participationTotals,
     criteria,
     reflection: buildReflection(entries, notes),
   }

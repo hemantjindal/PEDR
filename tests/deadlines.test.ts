@@ -13,7 +13,8 @@ function sheet(over: Partial<Sheet> = {}): Sheet {
     status: 'draft',
     content: {
       general: { employer: '', location: 'UK', category: 'i', supervisorName: '', role: '', daysWorked: 0, hoursWorked: 0 },
-      projects: [], stageMinutes: {}, criteria: {},
+      projects: [], stageMinutes: {}, stageParticipation: {},
+      participation: { participant: 0, observer: 0 }, criteria: {},
       reflection: { did: '', learned: '', wentWell: '', wentWrong: '', next: '' },
     },
     mentorComment: null, mentorSignedAt: null, psaComment: null, psaSignedAt: null,

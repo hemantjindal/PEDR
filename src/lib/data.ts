@@ -2,10 +2,10 @@ import { and, asc, desc, eq, gte, inArray, lte, sql } from 'drizzle-orm'
 import { randomUUID } from 'node:crypto'
 import { db, schema } from './db/client'
 import type {
-  CriterionId, ExperienceCategory, ExperienceLocation, OfficeCategoryId, StageId,
+  CriterionId, ExperienceCategory, ExperienceLocation, OfficeCategoryId, ParticipationId, StageId,
 } from './pedr/constants'
 import { REQUIREMENTS } from './pedr/constants'
-import { computeCoverage, coverageHeadline } from './pedr/coverage'
+import { computeCoverage, coverageHeadline, participationTrend } from './pedr/coverage'
 import { planSheetPeriods, summariseDeadlines } from './pedr/deadlines'
 import { computeProgress } from './pedr/progress'
 import {
@@ -42,6 +42,7 @@ function toEntry(row: EntryRow): Entry {
     date: row.date,
     minutes: row.minutes,
     minutesEstimated: row.minutesEstimated,
+    participation: (row.participation ?? 'participant') as ParticipationId,
     projectId: row.projectId,
     projectHint: row.projectHint,
     stage: (row.stage ?? null) as StageId | null,
@@ -185,6 +186,7 @@ export interface Dashboard {
   thinWeeks: ReturnType<typeof findThinWeeks>
   coverage: ReturnType<typeof computeCoverage>
   coverageNote: string | null
+  participation: ReturnType<typeof participationTrend>
   progress: ReturnType<typeof computeProgress>
   deadlines: ReturnType<typeof summariseDeadlines>
   streak: number
@@ -247,6 +249,7 @@ export async function getDashboard(
     thinWeeks: findThinWeeks(scores),
     coverage,
     coverageNote: coverageHeadline(coverage),
+    participation: participationTrend(entries),
     progress: computeProgress(entries, scores, employments, { today }),
     deadlines: summariseDeadlines(periods),
     streak: currentStreak(scores),
@@ -311,6 +314,7 @@ export async function saveParsedEntries(input: {
       date: entry.date,
       minutes: Math.max(0, Math.round(entry.minutes)),
       minutesEstimated: entry.minutesEstimated,
+      participation: entry.participation ?? 'participant',
       projectId: entry.projectId,
       projectHint: entry.projectHint,
       stage: entry.stage,

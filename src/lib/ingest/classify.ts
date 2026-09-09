@@ -1,4 +1,7 @@
-import { PROFESSIONAL_CRITERIA, RIBA_STAGES, type CriterionId, type StageId } from '../pedr/constants'
+import {
+  PROFESSIONAL_CRITERIA, RIBA_STAGES,
+  type CriterionId, type ParticipationId, type StageId,
+} from '../pedr/constants'
 
 /**
  * Inferring RIBA stage, Professional Criteria and reflection from raw text.
@@ -134,6 +137,11 @@ function findSentence(text: string, triggers: string[]): string | null {
   return null
 }
 
+/** Whole-phrase match, so "watched" does not fire inside "watchedness". */
+function contains(haystack: string, phrase: string): boolean {
+  return new RegExp(`(?<![a-z0-9])${escapeRegExp(phrase)}(?![a-z0-9])`, 'i').test(haystack)
+}
+
 export function splitSentences(text: string): string[] {
   return text
     .split(/(?<=[.!?])\s+|\n+/)
@@ -149,4 +157,59 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-export { FRICTION_TRIGGERS, LEARNING_TRIGGERS }
+/**
+ * Watching, rather than doing.
+ *
+ * People say this plainly without meaning to — "sat in on the valuation",
+ * "shadowed Tom", "was shown how the NBS spec is put together". The record
+ * sheet has a column for exactly that, and almost nobody fills it in, so the
+ * words are worth reading.
+ *
+ * The bar is deliberately high. Filing work somebody actually did as observer
+ * understates their record to a PSA, which is a worse error than missing an
+ * observer hour, so only phrases that can only mean watching are here.
+ */
+const OBSERVER_TRIGGERS = [
+  'sat in on', 'sat in', 'sitting in on', 'shadowed', 'shadowing', 'observed',
+  'observing', 'was shown', 'were shown', 'showed me', 'shown how', 'taught me',
+  'talked me through', 'walked me through', 'ran me through', 'took me through',
+  'watched', 'watching', 'listened in', 'as an observer', 'in an observer',
+  'sat with', 'went along to', 'tagged along', 'came along to',
+  'demonstrated to me', 'explained to me', 'briefed me on',
+]
+
+/**
+ * Doing, said out loud. These beat an observer phrase in the same sentence:
+ * "sat with Tom and produced the schedule" is work, not watching.
+ */
+const PARTICIPANT_TRIGGERS = [
+  'i produced', 'i drew', 'i issued', 'i wrote', 'i ran', 'i chaired', 'i led',
+  'i drafted', 'i submitted', 'i prepared', 'i coordinated', 'i checked',
+  'produced', 'issued', 'drafted', 'chaired', 'submitted', 'prepared',
+  'coordinated', 'wrote up', 'ran the', 'led the', 'set up',
+]
+
+/**
+ * Which hour column this belongs in.
+ *
+ * Participant unless the text says otherwise. Most logged work is work you
+ * did, and defaulting the other way would quietly understate every record.
+ */
+export function detectParticipation(text: string): {
+  participation: ParticipationId
+  confidence: number
+  matched: string | null
+} {
+  const haystack = ` ${text.toLowerCase().replace(/\s+/g, ' ')} `
+
+  const observer = OBSERVER_TRIGGERS.find((phrase) => contains(haystack, phrase))
+  if (!observer) return { participation: 'participant', confidence: 0.6, matched: null }
+
+  // "Sat with Tom and produced the schedule" is doing, not watching.
+  const participant = PARTICIPANT_TRIGGERS.find((phrase) => contains(haystack, phrase))
+  if (participant) return { participation: 'participant', confidence: 0.5, matched: participant }
+
+  return { participation: 'observer', confidence: 0.85, matched: observer }
+}
+
+export { FRICTION_TRIGGERS, LEARNING_TRIGGERS, OBSERVER_TRIGGERS }

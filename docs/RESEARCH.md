@@ -227,6 +227,60 @@ Mapping each pain point to a decision in this codebase.
 5. **Guidance is in the product, not in a PDF.** The people who need it most
    are the ones who have not read the PDF.
 
+## 6. The two hour columns
+
+Every activity on the record sheet is recorded against a RIBA work stage in
+**two columns, not one**: *participant* and *observer*.
+
+- **Participant** is work you did — you produced the drawings, ran the meeting,
+  wrote the specification.
+- **Observer** is work you watched or were taught — sitting in on a valuation,
+  being shown how the NBS spec is put together, shadowing somebody on a site
+  inspection.
+
+Both are real experience and both belong on the record. Nobody disputes that
+sitting in on your first valuation is how you learn what a valuation is.
+
+What makes this the most under-used field on the sheet is what the *balance*
+says. A record still made mostly of observer hours at month twenty is a PSA's
+problem, and by then it is very hard to fix. The reverse — a record that starts
+at half observed and ends almost entirely participant — is precisely the
+"development over time" a Reflective Experience Summary has to demonstrate, and
+it is the single hardest thing to evidence from memory at the end of two years.
+
+Almost nobody fills the column in, because it does not feel like it matters
+while you are filling in the sheet on a Sunday night. It matters at the oral.
+
+**What this means for the product.** Participation is a field on every entry,
+inferred from how people actually write ("sat in on", "shadowed", "was shown"),
+defaulted to participant so nothing is quietly demoted, and held for review
+whenever it is read as observed. It splits through the stage table on the sheet
+and through every export, so the generated sheet fills both columns rather than
+one. And the trend gets its own view: observer share by month, so the shift out
+of watching is visible at month nine, when asking to run something yourself is
+still an easy conversation.
+
+Sources: [pedr.co.uk — completing new quarterly record
+sheets](https://www.pedr.co.uk/Sample/NewRecordSheets); [Aditya Vinod — RIBA
+Part 3: PEDR sheets and how I prepared
+them](https://medium.com/architectonics/riba-part-3-pedr-sheets-and-how-i-prepared-them-b3b3de7e0587).
+
+## 7. Where the record now lives
+
+PEDR has moved off `pedr.co.uk` and onto RIBA's own registration system at
+[register.architecture.com/pedr](https://register.architecture.com/pedr). The
+trap: you have to sign in with **the same email address you used on the old
+system**, or your existing sheets are not there.
+
+Two mechanics of that system shape what this tool is for:
+
+- **The appraisal is not completed online.** RIBA generates a template when you
+  print, or gives you a Word file to complete and upload. So a mentor's half of
+  every quarter happens in an attachment — usually a blank box with no context
+  in it.
+- **Printing a sheet as final locks it.** Which is the strongest possible
+  argument for drafting somewhere else first.
+
 ---
 
 ## Sources

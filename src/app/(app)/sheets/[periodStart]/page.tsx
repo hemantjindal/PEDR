@@ -126,19 +126,38 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
       </section>
 
       <section className="sheet stack">
-        <h2>Record activities — hours by work stage</h2>
+        <div className="sheet-head">
+          <div className="stack-s" style={{ gap: 2 }}>
+            <h2>Record activities — hours by work stage</h2>
+            <p className="tiny faint">
+              The sheet has two hour columns. Participant is work you did; observer is work you
+              watched or were taught. Both count — the shift between them is what shows
+              development.
+            </p>
+          </div>
+        </div>
         <div className="table-scroll">
           <table className="schedule">
             <thead>
-              <tr><th>Stage</th><th></th><th style={{ textAlign: 'right' }}>Hours</th></tr>
+              <tr>
+                <th>Stage</th>
+                <th></th>
+                <th style={{ textAlign: 'right' }}>Participant</th>
+                <th style={{ textAlign: 'right' }}>Observer</th>
+                <th style={{ textAlign: 'right' }}>Total</th>
+              </tr>
             </thead>
             <tbody>
               {RIBA_STAGES.map((s) => {
                 const minutes = content.stageMinutes[String(s.id)] ?? 0
+                const split = content.stageParticipation[String(s.id)]
+                  ?? { participant: 0, observer: 0 }
                 return (
                   <tr key={s.id}>
                     <td className="num">{s.code}</td>
                     <td>{s.name}</td>
+                    <td className="n">{split.participant > 0 ? (split.participant / 60).toFixed(1) : '—'}</td>
+                    <td className="n">{split.observer > 0 ? (split.observer / 60).toFixed(1) : '—'}</td>
                     <td className="n">{minutes > 0 ? (minutes / 60).toFixed(1) : '—'}</td>
                   </tr>
                 )
@@ -146,6 +165,16 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
             </tbody>
           </table>
         </div>
+        {content.participation.observer > 0 && (
+          <p className="small dim">
+            {Math.round(
+              (content.participation.observer /
+                (content.participation.participant + content.participation.observer)) * 100,
+            )}% of this period is observer hours. Worth a sentence in the reflection either way —
+            rising because you are being shown new territory, or falling because you are running
+            the work yourself.
+          </p>
+        )}
       </section>
 
       {office.length > 0 && (

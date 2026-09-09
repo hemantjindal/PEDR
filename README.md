@@ -54,6 +54,17 @@ frictionless week caps at 80.
 RIBA stages 0–7 and PC1–PC5, so a specialised role shows up as a gap at month 6
 when it is a conversation, rather than month 22 when it is a crisis.
 
+**Watching, and then doing.** The record sheet has *two* hour columns against
+every work stage — participant and observer — and almost nobody fills in the
+second one. Both count: sitting in on your first valuation is how you learn
+what a valuation is. What matters is the balance. A record still mostly
+observed at month 20 is a problem; one that starts half observed and ends
+almost entirely participant is exactly the "development over time" the final
+summary has to demonstrate, and it is the hardest thing to evidence from
+memory. So participation is a field on every entry, read from how you write it
+("sat in on", "shadowed", "was shown"), and the shift out of watching gets its
+own view.
+
 **Deadlines.** Every quarter gets a due date, a countdown, and a late count.
 The sign-off chain shows how long a sheet has been sitting with your mentor and
 with your PSA.
@@ -157,7 +168,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 415 tests
+npm test        # 435 tests
 npm run build
 ```
 
@@ -218,7 +229,7 @@ src/lib/ingest/     the parsers — dates, durations, people, classification,
 src/lib/db/         schema and client
 src/app/            Next.js App Router: pages and route handlers
 src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
-tests/              415 tests, mostly against the domain and the parsers
+tests/              435 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:

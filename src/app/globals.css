@@ -463,6 +463,21 @@ table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
   .check-row > .check-value { margin-left: 0; }
 }
 
+/* Observer share, month by month. One column per month, filled from the
+   bottom: a wall that drains left to right is the shape everyone wants. */
+.participation-track {
+  display: flex; align-items: flex-end; gap: 3px; height: 76px;
+  border-bottom: var(--rule) solid var(--ink);
+}
+.participation-month {
+  flex: 1; min-width: 4px; position: relative;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.participation-observer {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--signal); border-top: 1px solid var(--ink);
+}
+
 /* No signal. Loud, because everything on screen behind it is stale and the
    consequence of not noticing is a deadline that looks fine and is not. */
 .offline-banner {

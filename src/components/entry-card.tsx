@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { OFFICE_MANAGEMENT_CATEGORIES, PROFESSIONAL_CRITERIA, RIBA_STAGES } from '@/lib/pedr/constants'
+import {
+  OFFICE_MANAGEMENT_CATEGORIES, PARTICIPATION, PROFESSIONAL_CRITERIA, RIBA_STAGES,
+} from '@/lib/pedr/constants'
 import { REVIEW_THRESHOLD, type DraftEntry, type Project } from '@/lib/pedr/types'
 import { formatDate, formatDuration } from '@/lib/pedr/week'
 
@@ -56,6 +58,23 @@ export function EntryCard({
           }
           aria-label="Hours"
         />
+        {/* The sheet's second hour column. Two words, always visible, because
+            it is the one field nobody knows exists until an examiner asks. */}
+        <span className="row" style={{ gap: 0, flex: 'none' }}>
+          {PARTICIPATION.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={`chip ${entry.participation === p.id ? 'chip-ink' : ''}`}
+              style={{ cursor: 'pointer', marginLeft: -1 }}
+              aria-pressed={entry.participation === p.id}
+              title={p.plainly}
+              onClick={() => onChange({ participation: p.id })}
+            >
+              {p.short}
+            </button>
+          ))}
+        </span>
         {entry.minutesEstimated && (
           <span className="mark mark-pending" title="We filled this in; it was not stated">
             <span aria-hidden="true">≈</span> estimated

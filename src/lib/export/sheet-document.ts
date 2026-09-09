@@ -105,17 +105,39 @@ export function buildSheetDocument(input: SheetDocumentInput): ExportDocument {
   blocks.push({
     kind: 'paragraph',
     tone: 'quiet',
-    text: 'Hours against each RIBA Plan of Work stage.',
+    text:
+      'Hours against each RIBA Plan of Work stage, in the record sheet\u2019s two columns. ' +
+      'Participant is work you did; observer is work you watched or were taught.',
   })
   blocks.push({
     kind: 'table',
-    head: ['Stage', 'Name', 'Hours'],
-    numeric: [2],
+    head: ['Stage', 'Name', 'Participant', 'Observer', 'Total'],
+    numeric: [2, 3, 4],
     rows: RIBA_STAGES.map((s) => {
+      const split = content.stageParticipation?.[String(s.id)] ?? { participant: 0, observer: 0 }
       const minutes = content.stageMinutes[String(s.id)] ?? 0
-      return [s.code, s.name, minutes > 0 ? (minutes / 60).toFixed(1) : '—']
+      return [
+        s.code,
+        s.name,
+        hours(split.participant),
+        hours(split.observer),
+        hours(minutes),
+      ]
     }),
   })
+
+  const totals = content.participation ?? { participant: 0, observer: 0 }
+  if (totals.observer > 0) {
+    const share = Math.round((totals.observer / (totals.participant + totals.observer)) * 100)
+    blocks.push({
+      kind: 'paragraph',
+      tone: 'quiet',
+      text:
+        `${share}% of the hours in this period are observer hours. That is worth a sentence in ` +
+        'the reflection either way \u2014 rising because you are being shown new territory, or ' +
+        'falling because you are running the work yourself.',
+    })
+  }
 
   // --- Office management --------------------------------------------------
 
@@ -253,4 +275,9 @@ function categoryLine(category: string): string {
     : category === 'ii' ? 'ii — in a construction-related field'
     : category === 'iii' ? 'iii — other relevant experience'
     : category
+}
+
+/** A stage with no time against it reads better as a dash than as 0.0. */
+function hours(minutes: number): string {
+  return minutes > 0 ? (minutes / 60).toFixed(1) : '\u2014'
 }

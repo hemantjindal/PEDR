@@ -114,6 +114,8 @@ export const entries = sqliteTable(
     date: text('date').notNull(),
     minutes: integer('minutes').notNull().default(0),
     minutesEstimated: integer('minutes_estimated', { mode: 'boolean' }).notNull().default(false),
+    /** 'participant' or 'observer' — the sheet's two hour columns. */
+    participation: text('participation').notNull().default('participant'),
     projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
     projectHint: text('project_hint'),
     stage: integer('stage'),
@@ -295,6 +297,7 @@ CREATE TABLE IF NOT EXISTS entries (
   date TEXT NOT NULL,
   minutes INTEGER NOT NULL DEFAULT 0,
   minutes_estimated INTEGER NOT NULL DEFAULT 0,
+  participation TEXT NOT NULL DEFAULT 'participant',
   project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
   project_hint TEXT,
   stage INTEGER,
@@ -370,4 +373,9 @@ CREATE INDEX IF NOT EXISTS sheets_user_period_idx ON sheets (user_id, period_sta
  */
 export const ADDED_COLUMNS: Array<{ table: string; column: string; definition: string }> = [
   { table: 'entries', column: 'external_id', definition: 'TEXT' },
+  {
+    table: 'entries',
+    column: 'participation',
+    definition: "TEXT NOT NULL DEFAULT 'participant'",
+  },
 ]

@@ -389,6 +389,66 @@ export const REQUIREMENTS = {
 } as const
 
 // ---------------------------------------------------------------------------
+// Participant or observer.
+// ---------------------------------------------------------------------------
+
+/**
+ * The record sheet has two hour columns against every work stage, and most
+ * people fill in one of them.
+ *
+ * Observer hours are real experience — being taught a detail you have never
+ * drawn, sitting in on a valuation, watching a director handle a difficult
+ * client. They count. What they are not is evidence that you can do the thing
+ * yourself, and a PSA reading a record that is still mostly observer hours at
+ * month twenty is reading a problem.
+ *
+ * The reverse is what everyone is looking for and almost nobody can show on
+ * demand: the shift from watching to doing, over two years, stage by stage.
+ * That is the "development over time" a Reflective Experience Summary has to
+ * demonstrate, and it is invisible unless the two are recorded apart.
+ */
+export const PARTICIPATION = [
+  {
+    id: 'participant',
+    name: 'Participant',
+    short: 'Did it',
+    blurb: 'You did the work.',
+    plainly: 'You produced it, ran it, wrote it or issued it yourself.',
+  },
+  {
+    id: 'observer',
+    name: 'Observer',
+    short: 'Watched',
+    blurb: 'You watched, or were taught.',
+    plainly:
+      'Sitting in on a meeting you were not running, being shown how something is done, ' +
+      'shadowing somebody. It counts, and it is worth recording honestly.',
+  },
+] as const
+
+export type ParticipationId = (typeof PARTICIPATION)[number]['id']
+
+export const PARTICIPATION_IDS = PARTICIPATION.map((p) => p.id)
+
+export function participation(id: string): (typeof PARTICIPATION)[number] | undefined {
+  return PARTICIPATION.find((p) => p.id === id)
+}
+
+/**
+ * A record still mostly made of observer hours this late is worth flagging,
+ * because it is a conversation with a team leader rather than a logging
+ * problem — and one that gets much harder to have at month twenty-two.
+ */
+export const PARTICIPATION_RULES = {
+  /** Above this share of observer hours, late on, something is wrong. */
+  observerConcernShare: 0.4,
+  /** The month from which that starts being worth saying out loud. */
+  observerConcernFromMonth: 9,
+  source: 'RIBA PEDR record sheet; PSA guidance',
+  asOf: '2026-09',
+} as const
+
+// ---------------------------------------------------------------------------
 // Where the official record actually lives.
 // ---------------------------------------------------------------------------
 
