@@ -1,0 +1,40 @@
+/* ---------------------------------------------------------------------------
+   The static site's own furniture.
+
+   Everything else on the page is the app's globals.css, read verbatim by the
+   build, so this file only has to supply what a single-file page needs that a
+   Next app gets for free: the reset Tailwind's preflight was providing, and
+   one-page-at-a-time routing.
+--------------------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ol, ul, fieldset, legend {
+  margin: 0; padding: 0;
+}
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+table { border-collapse: collapse; }
+a { color: inherit; }
+
+/* The .points list rebuilds its own markers, so the reset above must not win. */
+.points { list-style: none; }
+
+.page { display: none; }
+.page[data-active="true"] { display: block; }
+
+/* Says what this is, once. It is the real site, but it is a copy of it that
+   cannot hold an account, and pretending otherwise would be the one dishonest
+   thing on a page whose whole argument is that it does not lie to you. */
+.site-note {
+  background: var(--signal); color: var(--signal-ink);
+  padding: 9px 16px; font-size: 0.8rem; line-height: 1.45;
+  border-bottom: var(--rule) solid var(--ink);
+}
+.site-note strong { color: inherit; }
+.site-note a { color: inherit; text-decoration: underline; }
+
+/* The dump and file inputs have to be 16px or iOS zooms the page on focus. */
+textarea, input[type="date"], input[type="number"] { font-size: 16px; }

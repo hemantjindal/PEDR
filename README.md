@@ -290,6 +290,23 @@ Vercel plus a libSQL database (Turso) is the tested path.
 is `production`, so preview builds cannot get indexed and compete with the real
 pages for their own content.
 
+### The whole public site as one file
+
+```bash
+npm run build && npm run start &   # a production server on :3000
+npm run site                        # → site/dist/pedr-site.html
+```
+
+`scripts/build-site.ts` fetches every public page from a running production
+build and stitches them into a single self-contained HTML file: routes become
+hashes, the Next runtime is stripped, `globals.css` is inlined, and the one
+part that has to actually run — the triage and the calendar recovery on
+`/behind` — is bundled as a React island from the real components, so it cannot
+drift from what the app does. It opens from `file://` with no server.
+
+It exists because a content surface nobody can open is not a content surface.
+Somewhere to put the pages beats waiting for somewhere perfect.
+
 No email provider is wired in. Forcing everyone who runs their own copy to sign
 up for one is worse than the calendar feed they already have, so the cron
 endpoint reports what it found and POSTs to `REMINDER_WEBHOOK_URL` if you set

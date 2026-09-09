@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "db:push": "tsx scripts/db-push.ts",
     "seed": "tsx scripts/seed.ts",
-    "demo": "tsx scripts/build-demo.ts"
+    "demo": "tsx scripts/build-demo.ts",
+    "site": "tsx scripts/build-site.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",

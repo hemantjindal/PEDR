@@ -21,3 +21,4 @@ data/
 .vercel
 coverage/
 demo/dist/
+site/dist/
