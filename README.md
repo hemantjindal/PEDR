@@ -155,7 +155,12 @@ So the front of the site is those answers, no sign-up:
 - `/` — three doors, because three different people arrive: stuck on it,
   afraid of it, never seen one.
 - `/behind` — three questions and a straight answer about how late your sheets
-  actually are and whether the time is recoverable.
+  actually are and whether the time is recoverable. Then drop in your calendar
+  export and the real recovery engine runs **in the browser**: the weeks come
+  back, with your own meetings and your own colleagues' names on them, and the
+  weeks it could not reach are listed honestly. Nothing is uploaded — there is
+  no fetch on that path at all, which is the only reason it is reasonable to
+  ask somebody for their work calendar.
 - `/what-is-a-pedr` — a whole quarterly sheet, filled in, section by section.
 - `/guides` — seven guides answering the questions people actually type.
 
@@ -246,7 +251,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 537 tests
+npm test        # 539 tests
 npm run build
 ```
 
@@ -325,7 +330,7 @@ src/lib/db/         schema and client
 src/lib/content/    the public guides, generated from the same constants
 src/app/            Next.js App Router: pages and route handlers
 src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
-tests/              537 tests, mostly against the domain and the parsers
+tests/              539 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:

@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { triage, type Trouble } from '@/lib/pedr/recover'
+import { recoveryWindow, triage, type Trouble } from '@/lib/pedr/recover'
+import { RecoverPreview } from './recover-preview'
 import { SHEET_RULES } from '@/lib/pedr/constants'
 import { isDateKey } from '@/lib/pedr/week'
 
@@ -59,8 +60,10 @@ export function Triage() {
         <span className="label">Sixty seconds, no account</span>
         <h1>Am I in trouble?</h1>
         <p className="dim">
-          Three questions. You will get a straight answer, including if it is a bad one — but the
-          bad one is almost never as bad as the thing you have been imagining.
+          Three questions and a straight answer, including if it is a bad one — but the bad one is
+          almost never as bad as the thing you have been imagining. Then, if you want, drop your
+          calendar in and watch the missing months come back. It is read in this tab and goes
+          nowhere.
         </p>
       </div>
 
@@ -182,6 +185,10 @@ export function Triage() {
               </span>
             </div>
           )}
+
+          {/* The claim above is the whole product, and until now the next thing
+              this page did was ask for an account. Prove it instead. */}
+          <RecoverPreview {...recoveryWindow(start)} />
 
           <div className="row-wrap">
             <Link href="/sign-up" className="btn btn-primary">Start catching up</Link>

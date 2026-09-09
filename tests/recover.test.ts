@@ -215,6 +215,46 @@ describe('the prompts for weeks nothing reached', () => {
   it('labels the week the way a person says it', () => {
     expect(report.prompts[0].label).toMatch(/Jan/)
   })
+
+  it('never asks the same question twice', () => {
+    // The nearest week with anything in it is, by definition, the same on both
+    // sides of a run of blank weeks. Asking each one separately used to
+    // produce the identical paragraph N times, which reads as a broken page.
+    const long = recover({
+      from: '2026-01-05', to: '2026-03-15',
+      sources: [{
+        source: 'timesheet', label: 'Timesheet',
+        entries: [
+          draft({ date: '2026-01-06', projectId: 'p1', activity: 'Stage 4 balustrade details' }),
+          draft({ date: '2026-03-10', projectId: 'p1', activity: 'Revised setting-out drawings' }),
+        ],
+      }],
+    })
+
+    expect(long.prompts.length).toBeGreaterThan(4)
+    const contexts = long.prompts.map((p) => p.context)
+    expect(new Set(contexts).size).toBe(contexts.length)
+  })
+
+  it('asks about a run of blank weeks as one thing', () => {
+    const long = recover({
+      from: '2026-01-05', to: '2026-03-15',
+      sources: [{
+        source: 'timesheet', label: 'Timesheet',
+        entries: [
+          draft({ date: '2026-01-06', projectId: 'p1', activity: 'Stage 4 balustrade details' }),
+          draft({ date: '2026-03-10', projectId: 'p1', activity: 'Revised setting-out drawings' }),
+        ],
+      }],
+    })
+
+    // The head of the run carries the whole gap and one question that covers
+    // it; the rest only have to say whether they differed.
+    expect(long.prompts[0].context).toMatch(/weeks in a row/)
+    expect(long.prompts[0].ask).toMatch(/leave, a secondment/)
+    expect(long.prompts[1].context).toMatch(/^Week 2 of the \d+-week gap/)
+    expect(long.prompts[1].ask).toMatch(/different/)
+  })
 })
 
 describe('recovering nothing', () => {

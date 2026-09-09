@@ -249,6 +249,14 @@ export function isSameThing(a: DraftEntry, b: DraftEntry): boolean {
  * 1042 the week before and the week after, and your calendar had three
  * meetings that week which were all filtered out as routine" is a handle, and
  * most people can pull the week back with one.
+ *
+ * Runs of blank weeks are handled apart from single ones. The nearest weeks
+ * with anything in them are, by definition, the same on both sides of a run,
+ * so asking each week of a five-week gap separately produced five identical
+ * paragraphs — which reads as broken and is no help to anyone. A run is also
+ * usually one thing: leave, a secondment, a quiet spell between jobs. So the
+ * run gets asked about once, as a run, and the rest of it only has to say
+ * whether it differed.
  */
 function promptsFor(weeks: RecoveredWeek[]): BlankWeekPrompt[] {
   return weeks
@@ -257,6 +265,22 @@ function promptsFor(weeks: RecoveredWeek[]): BlankWeekPrompt[] {
 
       const before = previousWithEntries(weeks, index)
       const after = nextWithEntries(weeks, index)
+      const run = runAround(weeks, index)
+      const position = index - run.start + 1
+
+      // Somewhere in the middle of a gap. The head of the run carries the
+      // context; repeating it here would say nothing new.
+      if (run.length > 1 && position > 1) {
+        return {
+          weekId: week.weekId,
+          label: formatWeekRange(week.weekId),
+          context:
+            `Week ${position} of the ${run.length}-week gap that starts ` +
+            `${formatWeekRange(weeks[run.start].weekId)}.`,
+          ask: 'Same as the rest of that gap, or was this week different?',
+        }
+      }
+
       const projects = [
         ...new Set(
           [...(before?.entries ?? []), ...(after?.entries ?? [])]
@@ -265,25 +289,41 @@ function promptsFor(weeks: RecoveredWeek[]): BlankWeekPrompt[] {
         ),
       ]
 
-      const context = projects.length > 0
-        ? `Either side of this week you were on ${projects.length === 1 ? 'one job' : `${projects.length} jobs`}` +
-          `${before ? `. The week before, ${describe(before)}` : ''}` +
-          `${after ? `. The week after, ${describe(after)}` : ''}.`
-        : before || after
-          ? `Nothing recovered here${before ? `, but the week before ${describe(before)}` : ''}` +
-            `${after ? `, and the week after ${describe(after)}` : ''}.`
-          : 'Nothing recovered here, and nothing either side of it to go on.'
+      const opening = run.length > 1
+        ? `${run.length} weeks in a row with nothing in them at all` +
+          `${before ? `. Before the gap, ${describe(before)}` : ''}` +
+          `${after ? `. After it, ${describe(after)}` : ''}.`
+        : projects.length > 0
+          ? `Either side of this week you were on ${projects.length === 1 ? 'one job' : `${projects.length} jobs`}` +
+            `${before ? `. The week before, ${describe(before)}` : ''}` +
+            `${after ? `. The week after, ${describe(after)}` : ''}.`
+          : before || after
+            ? `Nothing recovered here${before ? `, but the week before ${describe(before)}` : ''}` +
+              `${after ? `, and the week after ${describe(after)}` : ''}.`
+            : 'Nothing recovered here, and nothing either side of it to go on.'
 
       return {
         weekId: week.weekId,
         label: formatWeekRange(week.weekId),
-        context,
-        ask: projects.length > 0
-          ? 'Same job that week, or something else? One line is enough.'
-          : 'What were you on that week? One line is enough — the shape matters more than the detail.',
+        context: opening,
+        ask: run.length > 1
+          ? 'A gap that long is usually one thing — leave, a secondment, or a quiet spell ' +
+            'between jobs. Which was it? One answer covers the whole run.'
+          : projects.length > 0
+            ? 'Same job that week, or something else? One line is enough.'
+            : 'What were you on that week? One line is enough — the shape matters more than the detail.',
       }
     })
     .filter((p): p is BlankWeekPrompt => p !== null)
+}
+
+/** The unbroken run of blank weeks containing `index`. */
+function runAround(weeks: RecoveredWeek[], index: number): { start: number; length: number } {
+  let start = index
+  while (start > 0 && weeks[start - 1].blank) start--
+  let end = index
+  while (end + 1 < weeks.length && weeks[end + 1].blank) end++
+  return { start, length: end - start + 1 }
 }
 
 function previousWithEntries(weeks: RecoveredWeek[], index: number): RecoveredWeek | null {
