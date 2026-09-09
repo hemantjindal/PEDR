@@ -8,11 +8,14 @@ import '@fontsource/archivo/600.css'
 import '@fontsource/archivo-black/400.css'
 import './globals.css'
 import { ServiceWorker } from '@/components/offline'
+import { SITE, origin } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'PEDR',
-  description:
-    'Log your practical experience as it happens, and let the record sheets write themselves.',
+  // Every canonical, OpenGraph and sitemap URL is resolved against this, so it
+  // has to be absolute and it has to be right in production.
+  metadataBase: new URL(origin()),
+  title: SITE.tagline,
+  description: SITE.description,
   manifest: '/manifest.webmanifest',
   applicationName: 'PEDR',
   appleWebApp: {

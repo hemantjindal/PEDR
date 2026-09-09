@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { buildSheet } from '@/lib/pedr/sheet'
 import { buildDemoRecord } from '@/lib/demo-record'
@@ -7,13 +8,27 @@ import {
 } from '@/lib/pedr/constants'
 import { WRITING_GUIDE } from '@/lib/pedr/guidance'
 import { addDays, addMonths, formatDate, formatDuration, todayKey } from '@/lib/pedr/week'
+import { absolute } from '@/lib/site'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'What a PEDR actually looks like · PEDR',
   description:
     'A real quarterly record sheet, filled in, with every section explained and the weak version ' +
     'and the strong version of each box side by side. No account needed.',
+  alternates: { canonical: absolute('/what-is-a-pedr') },
+  openGraph: {
+    type: 'article',
+    url: absolute('/what-is-a-pedr'),
+    title: 'What a PEDR actually looks like',
+    description:
+      'A whole quarterly record sheet, filled in, section by section. Nobody shows you one until ' +
+      'you have to write it.',
+  },
 }
+
+// The worked sheet is dated from today, so it is rebuilt daily rather than
+// frozen at whatever day the site was last deployed.
+export const revalidate = 86400
 
 /**
  * The page nobody gets shown.

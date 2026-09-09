@@ -246,6 +246,8 @@ h3 { font-size: 1rem; }
   text-decoration: none;
 }
 .btn:hover { background: var(--ink); color: var(--paper); }
+/* A button that wraps to two lines has stopped looking like a button. */
+.btn { white-space: nowrap; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn:disabled:hover { background: transparent; color: var(--ink); }
 
@@ -340,6 +342,13 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--signal); ou
 }
 .note strong { color: var(--ink); font-weight: 600; }
 .note .label { flex: none; padding-top: 3px; }
+/* The prose half has to be allowed to shrink, and a bare URL — the one thing
+   in here that never has a break in it — has to be allowed to wrap. */
+.note > * { min-width: 0; }
+.note a { overflow-wrap: anywhere; }
+/* The label is flex: none, so on a phone a label of more than a couple of
+   words leaves the prose beside it about eighty pixels to live in. Stack. */
+@media (max-width: 560px) { .note { flex-direction: column; gap: 8px; } }
 .note-revision { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
 .note-revision strong, .note-revision a { color: var(--alarm-ink); }
 .note-revision .label { color: color-mix(in srgb, var(--alarm-ink) 75%, transparent); }
@@ -352,7 +361,10 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--signal); ou
 
 /* --- Schedules --------------------------------------------------------------- */
 
-.table-scroll { overflow-x: auto; }
+/* min-width: 0 because a flex item defaults to min-width: auto, which refuses
+   to shrink below its content — so a wide table inside a .stack pushes the
+   whole page sideways instead of scrolling inside its own box. */
+.table-scroll { overflow-x: auto; min-width: 0; }
 table.schedule { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 table.schedule th {
   text-align: left;
@@ -372,6 +384,23 @@ table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
    try turns every cell into a five-line column of single words. Given a floor
    it scrolls inside its own container instead, which is the honest answer. */
 table.schedule-wide { min-width: 520px; }
+
+/* --- Prose lists -------------------------------------------------------------- */
+
+/* Preflight strips list markers, and the guides are the one part of this app
+   that is genuinely prose. A square rather than a browser bullet, aligned to
+   the first line rather than floating between two. */
+.points { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.points > li { position: relative; padding-left: 20px; line-height: 1.6; }
+.points > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 7px;
+  height: 7px;
+  background: var(--ink);
+}
 
 /* --- Navigation --------------------------------------------------------------- */
 
@@ -399,9 +428,34 @@ table.schedule-wide { min-width: 520px; }
 .nav a:hover { color: var(--paper); }
 .nav a[aria-current="page"] { color: var(--signal-ink); background: var(--signal); }
 
+/* The top bar is ink, and .btn draws itself in ink for a paper ground — so
+   every action in the bar (sign in, sign out) was rendering ink-on-ink and was
+   invisible. Anything sitting in the bar has to be drawn for a dark ground. */
+.topbar .btn {
+  color: var(--paper);
+  border-color: color-mix(in srgb, var(--paper) 32%, transparent);
+}
+.topbar .btn:hover {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: var(--signal-ink);
+}
+.topbar .btn-ghost {
+  border-color: transparent;
+  color: color-mix(in srgb, var(--paper) 62%, transparent);
+}
+.topbar .btn-ghost:hover { background: var(--signal); color: var(--signal-ink); }
+
 .tabbar { display: none; }
 @media (max-width: 760px) {
   .topbar .nav { display: none; }
+  /* Except on the pages that have no account and therefore no tab bar to fall
+     back on. Theirs stays in the bar and scrolls sideways. */
+  .topbar .nav-public { display: flex; }
+  .topbar-inner:has(.nav-public) { gap: 10px; }
+  .nav-public a { padding: 6px 8px; letter-spacing: 0.08em; }
+  /* Take the room left over and scroll inside it, rather than squashing. */
+  .nav-public { flex: 1 1 auto; min-width: 0; }
   .tabbar {
     display: flex; position: sticky; bottom: 0; z-index: 40;
     background: var(--ink); border-top: var(--rule) solid var(--signal);

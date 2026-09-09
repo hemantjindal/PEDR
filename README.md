@@ -144,6 +144,29 @@ scheduled digest.
 weak-versus-strong writing for each reflective box — because "be more
 reflective" is useless advice and two paragraphs side by side is not.
 
+## The pages you can read without an account
+
+Nobody searches for a PEDR logging tool. They search, at eleven at night, for
+*"when is my pedr due"*, *"what does a pedr look like"*, *"haven't done my pedr
+in a year"* — and land on a RIBA PDF, a 2016 forum thread, or nothing.
+
+So the front of the site is those answers, no sign-up:
+
+- `/` — three doors, because three different people arrive: stuck on it,
+  afraid of it, never seen one.
+- `/behind` — three questions and a straight answer about how late your sheets
+  actually are and whether the time is recoverable.
+- `/what-is-a-pedr` — a whole quarterly sheet, filled in, section by section.
+- `/guides` — seven guides answering the questions people actually type.
+
+Every number on those pages is interpolated from `src/lib/pedr/constants.ts`,
+so a guide cannot quietly disagree with the engine: change the two-month
+deadline in one place and the guide about the two-month deadline changes with
+it. `tests/guides.test.ts` holds the dull properties that decide whether a page
+gets found at all — unique slugs, a description that survives a search result,
+an answer before the detail, no link to a guide that does not exist, and no
+`robots.txt` rule that blocks a page the sitemap advertises.
+
 ## On a phone
 
 It installs to the home screen: its own icon, its own window, no browser bar.
@@ -223,7 +246,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 526 tests
+npm test        # 537 tests
 npm run build
 ```
 
@@ -234,7 +257,7 @@ npm run build
 | `DATABASE_URL` | yes | `file:./data/pedr.db` locally; a `libsql://` URL in production |
 | `DATABASE_AUTH_TOKEN` | remote DB only | Turso/libSQL auth |
 | `SESSION_SECRET` | yes | Set it to something long and random |
-| `APP_URL` | recommended | Used in calendar invitations and reminders |
+| `APP_URL` | recommended | Calendar invitations, reminders, and every canonical URL, sitemap entry and share card. On Vercel it falls back to `VERCEL_PROJECT_PRODUCTION_URL` |
 | `ANTHROPIC_API_KEY` | optional | Switches on the model pass. Everything works without it |
 | `CRON_SECRET` | optional | Protects `/api/cron/reminders` |
 | `REMINDER_WEBHOOK_URL` | optional | Where the cron digest is POSTed |
@@ -244,6 +267,10 @@ npm run build
 Vercel plus a libSQL database (Turso) is the tested path: set `DATABASE_URL`
 and `DATABASE_AUTH_TOKEN`, run `npm run db:push` once against it, and
 `vercel.json` already registers the Friday cron.
+
+Set `APP_URL` to the real domain before the first deploy. `robots.txt` refuses
+every crawler unless the origin is https *and* `VERCEL_ENV` is `production`, so
+preview builds cannot get indexed and compete with the real pages.
 
 No email provider is wired in. Forcing everyone who runs their own copy to sign
 up for one is worse than the calendar feed they already have, so the cron
@@ -282,9 +309,10 @@ src/lib/ingest/     the parsers — dates, durations, people, classification,
                     project matching, Teams, timesheets, calendars, and the
                     optional model pass
 src/lib/db/         schema and client
+src/lib/content/    the public guides, generated from the same constants
 src/app/            Next.js App Router: pages and route handlers
 src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
-tests/              526 tests, mostly against the domain and the parsers
+tests/              537 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:

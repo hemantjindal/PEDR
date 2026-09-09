@@ -1,9 +1,26 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/lib/auth'
 import { REQUIREMENTS, SHEET_RULES } from '@/lib/pedr/constants'
+import { SITE, absolute } from '@/lib/site'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Months behind on your PEDR? · PEDR',
+  description:
+    'Almost nobody keeps a PEDR up to date. The record you are missing is already in your ' +
+    'calendar and your practice timesheet — this pulls it back out, week by week.',
+  alternates: { canonical: absolute('/') },
+  openGraph: {
+    type: 'website',
+    url: absolute('/'),
+    siteName: SITE.name,
+    title: 'Months behind on your PEDR? It is already written down.',
+    description: SITE.description,
+  },
+}
 
 /**
  * The front door.
@@ -53,6 +70,7 @@ export default async function Root() {
           <div className="row-wrap">
             <Link href="/behind" className="btn btn-primary">Find out how bad it is</Link>
             <Link href="/what-is-a-pedr" className="btn">Show me what a PEDR looks like</Link>
+            <Link href="/guides" className="btn btn-ghost">Just answer my question</Link>
           </div>
 
           {/* The three states somebody arrives in. */}
@@ -120,6 +138,7 @@ export default async function Root() {
           <div className="row-wrap">
             <Link href="/sign-up" className="btn btn-primary">Start a record</Link>
             <Link href="/sign-in" className="btn">I already have one</Link>
+            <Link href="/guides" className="btn btn-ghost">Read the guides first</Link>
           </div>
         </div>
       </main>

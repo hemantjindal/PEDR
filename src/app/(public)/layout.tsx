@@ -17,6 +17,11 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <span className="brand-mark">P</span>
             <span>PEDR</span>
           </Link>
+          <nav className="nav nav-public" aria-label="Guides">
+            <Link href="/guides">Guides</Link>
+            <Link href="/what-is-a-pedr">A real sheet</Link>
+            <Link href="/behind">Am I in trouble?</Link>
+          </nav>
           <span className="spacer" />
           <Link href="/sign-in" className="btn btn-ghost btn-sm">Sign in</Link>
         </div>
