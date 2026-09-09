@@ -49,11 +49,17 @@ export interface Entry {
   provenance: string | null
   /** True once a human has looked at it. Machine-made entries start false. */
   verified: boolean
+  /**
+   * The id this had in the system it came from, when there was one — a
+   * calendar event UID and its date. It is what lets the same calendar be
+   * synced every week without a meeting being counted twice.
+   */
+  externalId: string | null
   createdAt: string
   updatedAt: string
 }
 
-export type EntrySource = 'manual' | 'dump' | 'teams' | 'timesheet' | 'import'
+export type EntrySource = 'manual' | 'dump' | 'teams' | 'timesheet' | 'calendar' | 'import'
 
 /** Entries below this confidence are shown for review rather than accepted. */
 export const REVIEW_THRESHOLD = 0.55
@@ -61,9 +67,11 @@ export const REVIEW_THRESHOLD = 0.55
 /** An entry as the parser produces it, before it has an id or an owner. */
 export type DraftEntry = Omit<
   Entry,
-  'id' | 'userId' | 'dumpId' | 'createdAt' | 'updatedAt' | 'verified' | 'provenance'
+  | 'id' | 'userId' | 'dumpId' | 'createdAt' | 'updatedAt' | 'verified'
+  | 'provenance' | 'externalId'
 > & {
   provenance?: string | null
+  externalId?: string | null
 }
 
 /** The reflective writing for one week. Free text, written by you, not derived. */
@@ -135,7 +143,7 @@ export interface Dump {
   processedAt: string | null
 }
 
-export type DumpKind = 'freeform' | 'teams' | 'timesheet' | 'email' | 'unknown'
+export type DumpKind = 'freeform' | 'teams' | 'timesheet' | 'calendar' | 'email' | 'unknown'
 
 /** A quarterly PEDR record sheet, generated then edited then signed off. */
 export interface Sheet {

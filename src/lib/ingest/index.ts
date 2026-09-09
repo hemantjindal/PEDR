@@ -1,6 +1,7 @@
 import type { DraftEntry, DumpKind, EntrySource, Project } from '../pedr/types'
 import { REVIEW_THRESHOLD } from '../pedr/types'
 import { todayKey, type DateKey } from '../pedr/week'
+import type { CalendarEvent, CalendarParse } from './calendar'
 import { classify } from './classify'
 import type { DateContext } from './dates'
 import { allocateDayMinutes, parseDuration, STANDARD_DAY_MINUTES, stripDuration } from './duration'
@@ -215,6 +216,96 @@ function teamsToEntries(
   return entries
 }
 
+/**
+ * Turn calendar events into draft entries.
+ *
+ * The date and the length are facts here, not guesses — that is what makes a
+ * calendar the best source we have. What it does *not* know is what the meeting
+ * was about beyond its title, so everything below the date stays provisional
+ * and the whole batch goes through review before it touches the record.
+ *
+ * The one thing to be honest about: a calendar records meetings, not work. Six
+ * hours of desk time on a package does not appear anywhere in it. So these
+ * entries are a scaffold for a week — the dates, the people, the meetings —
+ * and the deep work still has to be written down.
+ */
+export function calendarToEntries(
+  parse: CalendarParse,
+  opts: ParseOptions = {},
+): DraftEntry[] {
+  return parse.events.map((event) => calendarEntry(event, opts))
+}
+
+function calendarEntry(event: CalendarEvent, opts: ParseOptions): DraftEntry {
+  // Leave is recorded so a mentor can see why a week is light, but it is not
+  // experience and must never be classified as if it were.
+  if (event.leave) {
+    return {
+      date: event.date,
+      minutes: event.minutes,
+      minutesEstimated: event.allDay,
+      projectId: null,
+      projectHint: null,
+      stage: null,
+      officeCategory: 'leave',
+      activity: event.summary,
+      detail: null,
+      people: [],
+      criteria: [],
+      wentWrong: null,
+      learned: null,
+      confidence: 0.85,
+      source: 'calendar',
+      provenance: `calendar: ${event.summary}`,
+      externalId: event.uid,
+    }
+  }
+
+  // The title carries almost all the signal. Location and body are added for
+  // classification only — a room name is often the only clue that something
+  // was a site visit.
+  const context = [event.summary, event.location, event.description]
+    .filter(Boolean)
+    .join('. ')
+
+  const entry = buildEntry({
+    text: context,
+    activityText: event.summary,
+    date: event.date,
+    // A calendar date is a record, not an inference.
+    dateConfidence: 1,
+    minutes: event.minutes,
+    stageOverride: null,
+    projectText: [event.summary, event.location].filter(Boolean).join(' '),
+    provenance: `calendar: ${event.summary}${event.location ? ` (${event.location})` : ''}`,
+    source: 'calendar',
+    opts,
+  })
+
+  // Who was in the room is the part of a calendar no other source can give us,
+  // and it is exactly what a PEDR asks for.
+  const invited = [event.organiser, ...event.attendees].filter(
+    (name): name is string => Boolean(name),
+  )
+  entry.people = [...new Set([...entry.people, ...invited])].slice(0, 12)
+
+  // Carries the event's own id, so syncing the calendar again next month
+  // recognises this meeting rather than adding it a second time.
+  entry.externalId = event.uid
+
+  // A one-word title is not a record of anything. Push it down so review
+  // catches it rather than letting "Catch up" onto a signed sheet.
+  if (countWords(event.summary) < 2) {
+    entry.confidence = Math.min(entry.confidence, 0.4)
+  }
+
+  return entry
+}
+
+function countWords(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length
+}
+
 interface BuildArgs {
   text: string
   activityText: string
@@ -285,7 +376,7 @@ function combineConfidence(parts: {
 }): number {
   const base = parts.date * 0.6 + parts.project * 0.25 + parts.stage * 0.15
   const sourceCeiling: Record<EntrySource, number> = {
-    manual: 1, timesheet: 0.98, import: 0.9, dump: 0.9, teams: 0.6,
+    manual: 1, timesheet: 0.98, calendar: 0.85, import: 0.9, dump: 0.9, teams: 0.6,
   }
   return Math.round(Math.min(base, sourceCeiling[parts.source]) * 100) / 100
 }
@@ -318,4 +409,6 @@ function truncate(text: string, max: number): string {
 }
 
 export { parseFreeform, parseTeams, parseTimesheet, classify, extractPeople, matchProject }
+export { parseCalendar, defaultWindow } from './calendar'
+export type { CalendarEvent, CalendarParse, CalendarOptions, CalendarSkip } from './calendar'
 export { parseDuration, allocateDayMinutes } from './duration'

@@ -128,6 +128,13 @@ export const entries = sqliteTable(
     source: text('source').notNull().default('manual'),
     verified: integer('verified', { mode: 'boolean' }).notNull().default(false),
     provenance: text('provenance'),
+    /**
+     * The id this row had in the system it came from — a calendar event's UID
+     * plus its date. Unique per user, so syncing the same calendar twice
+     * cannot double-count a meeting. NULLs do not collide in SQLite, so
+     * hand-typed entries are unaffected.
+     */
+    externalId: text('external_id'),
     createdAt: text('created_at').notNull(),
     updatedAt: text('updated_at').notNull(),
   },
@@ -135,7 +142,35 @@ export const entries = sqliteTable(
     index('entries_user_date_idx').on(t.userId, t.date),
     index('entries_dump_idx').on(t.dumpId),
     index('entries_verified_idx').on(t.userId, t.verified),
+    uniqueIndex('entries_external_idx').on(t.userId, t.externalId),
   ],
+)
+
+/**
+ * A linked calendar.
+ *
+ * Outlook and Teams both publish a private .ics URL. Storing it is what turns
+ * a one-off import into a sync, and it is a credential — anyone holding the
+ * URL can read the calendar — so it is only ever shown back to its owner.
+ */
+export const calendarFeeds = sqliteTable(
+  'calendar_feeds',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull().default('My calendar'),
+    /** Null for a one-off file upload, which has nothing to come back to. */
+    url: text('url'),
+    /** Title fragments this user wants ignored, on top of the defaults. */
+    ignore: text('ignore', { mode: 'json' }).$type<string[]>().notNull().default([]),
+    enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+    lastSyncedAt: text('last_synced_at'),
+    lastImported: integer('last_imported').notNull().default(0),
+    lastSkipped: integer('last_skipped').notNull().default(0),
+    lastError: text('last_error'),
+    createdAt: text('created_at').notNull(),
+  },
+  (t) => [index('calendar_feeds_user_idx').on(t.userId)],
 )
 
 export const weekNotes = sqliteTable(
@@ -274,12 +309,29 @@ CREATE TABLE IF NOT EXISTS entries (
   source TEXT NOT NULL DEFAULT 'manual',
   verified INTEGER NOT NULL DEFAULT 0,
   provenance TEXT,
+  external_id TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS entries_user_date_idx ON entries (user_id, date);
 CREATE INDEX IF NOT EXISTS entries_dump_idx ON entries (dump_id);
 CREATE INDEX IF NOT EXISTS entries_verified_idx ON entries (user_id, verified);
+CREATE UNIQUE INDEX IF NOT EXISTS entries_external_idx ON entries (user_id, external_id);
+
+CREATE TABLE IF NOT EXISTS calendar_feeds (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL DEFAULT 'My calendar',
+  url TEXT,
+  ignore TEXT NOT NULL DEFAULT '[]',
+  enabled INTEGER NOT NULL DEFAULT 1,
+  last_synced_at TEXT,
+  last_imported INTEGER NOT NULL DEFAULT 0,
+  last_skipped INTEGER NOT NULL DEFAULT 0,
+  last_error TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS calendar_feeds_user_idx ON calendar_feeds (user_id);
 
 CREATE TABLE IF NOT EXISTS week_notes (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -310,3 +362,12 @@ CREATE TABLE IF NOT EXISTS sheets (
 );
 CREATE INDEX IF NOT EXISTS sheets_user_period_idx ON sheets (user_id, period_start);
 `
+
+/**
+ * Columns added after a database may already exist. `CREATE TABLE IF NOT
+ * EXISTS` cannot add these, so they are applied separately and only when
+ * missing — which keeps `npm run db:push` the one command anybody needs.
+ */
+export const ADDED_COLUMNS: Array<{ table: string; column: string; definition: string }> = [
+  { table: 'entries', column: 'external_id', definition: 'TEXT' },
+]

@@ -50,7 +50,29 @@ export async function migrate(client: Client = sqlClient): Promise<void> {
   const statements = schema.DDL.split(';')
     .map((s) => s.trim())
     .filter(Boolean)
+
+  // Columns first: a unique index in the DDL may name a column that an older
+  // database does not have yet.
+  for (const { table, column, definition } of schema.ADDED_COLUMNS) {
+    if (await hasTable(client, table) && !(await hasColumn(client, table, column))) {
+      await client.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`)
+    }
+  }
+
   for (const statement of statements) {
     await client.execute(statement)
   }
+}
+
+async function hasTable(client: Client, table: string): Promise<boolean> {
+  const result = await client.execute({
+    sql: "SELECT 1 FROM sqlite_master WHERE type='table' AND name = ?",
+    args: [table],
+  })
+  return result.rows.length > 0
+}
+
+async function hasColumn(client: Client, table: string, column: string): Promise<boolean> {
+  const result = await client.execute(`PRAGMA table_info(${table})`)
+  return result.rows.some((row) => row.name === column)
 }

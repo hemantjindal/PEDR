@@ -55,6 +55,7 @@ function toEntry(row: EntryRow): Entry {
     confidence: row.confidence / 100,
     source: row.source as EntrySource,
     provenance: row.provenance,
+    externalId: row.externalId ?? null,
     verified: row.verified,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -310,6 +311,7 @@ export async function saveParsedEntries(input: {
     source: entry.source,
     verified: input.autoVerify ?? false,
     provenance: entry.provenance ?? null,
+    externalId: entry.externalId ?? null,
     createdAt: timestamp,
     updatedAt: timestamp,
   }))
@@ -317,7 +319,10 @@ export async function saveParsedEntries(input: {
   if (rows.length > 0) {
     // Chunked: SQLite has a bound-parameter ceiling and a big paste can exceed it.
     for (let i = 0; i < rows.length; i += 50) {
-      await db.insert(schema.entries).values(rows.slice(i, i + 50))
+      // A row carrying an external id may already be here from an earlier sync.
+      // Letting the unique index decide is the only way two syncs racing each
+      // other cannot double-count a meeting.
+      await db.insert(schema.entries).values(rows.slice(i, i + 50)).onConflictDoNothing()
     }
   }
 
