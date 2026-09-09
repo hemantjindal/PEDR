@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildSheet, entriesToCsv, officeSummary, sheetToMarkdown } from '@/lib/pedr/sheet'
+import { buildSheet, entriesToCsv, officeSummary } from '@/lib/pedr/sheet'
 import type { Project } from '@/lib/pedr/types'
 import { employment, entry as baseEntry, note } from './helpers'
 import type { Entry } from '@/lib/pedr/types'
@@ -120,49 +120,6 @@ describe('holiday', () => {
     expect(summary.map((r) => r.id).sort()).toEqual(['cpd', 'leave'])
     expect(summary.find((r) => r.id === 'leave')!.counts).toBe(false)
     expect(summary.find((r) => r.id === 'cpd')!.counts).toBe(true)
-  })
-})
-
-describe('sheetToMarkdown', () => {
-  const sheet = buildSheet({
-    ...base,
-    entries: [entry({ date: '2026-01-05', minutes: 240, stage: 4, activity: 'Produced the stair balustrade details' })],
-    notes: [],
-  })
-  const md = sheetToMarkdown(sheet, {
-    candidateName: 'A. Candidate',
-    periodStart: '2026-01-01',
-    periodEnd: '2026-03-31',
-  })
-
-  it('follows the sections of the real sheet, in order', () => {
-    const order = ['General information', 'Describe projects', 'Record activities', 'Professional criteria', 'Reflect on experience']
-    let cursor = -1
-    for (const heading of order) {
-      const at = md.indexOf(heading)
-      expect(at, heading).toBeGreaterThan(cursor)
-      cursor = at
-    }
-  })
-
-  it('says plainly that it is a draft, not a submission', () => {
-    expect(md).toMatch(/Draft.*pedr\.co\.uk/s)
-  })
-
-  it('lists every stage, including the empty ones', () => {
-    for (const code of ['0', '1', '2', '3', '4', '5', '6', '7']) {
-      expect(md).toMatch(new RegExp(`\\| ${code} \\|`))
-    }
-  })
-
-  it('flags an empty reflective box rather than hiding it', () => {
-    expect(md).toMatch(/Nothing captured/)
-  })
-
-  it('names every criterion even with nothing against it', () => {
-    for (const id of ['PC1', 'PC2', 'PC3', 'PC4', 'PC5']) {
-      expect(md).toContain(id)
-    }
   })
 })
 

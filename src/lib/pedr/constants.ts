@@ -221,7 +221,7 @@ export function criterion(id: string) {
 // Categories of experience.
 // The PEDR system classifies each period of experience i / ii / iii, and the
 // category governs how much of it counts. Category labels were formerly A–K.
-// Source: RIBA PEDR guidance / pedr.co.uk PSA guide, as at 2026-09.
+// Source: RIBA PEDR guidance / PSA guide, as at 2026-09.
 // ---------------------------------------------------------------------------
 
 export const EXPERIENCE_CATEGORIES = [
@@ -384,7 +384,32 @@ export const REQUIREMENTS = {
    * converts to months the same way every time.
    */
   weeksPerMonth: 52.1775 / 12,
-  source: 'RIBA PEDR student guidance; pedr.co.uk practical experience regulations',
+  source: 'RIBA PEDR student guidance; RIBA practical experience regulations',
+  asOf: '2026-09',
+} as const
+
+// ---------------------------------------------------------------------------
+// Where the official record actually lives.
+// ---------------------------------------------------------------------------
+
+/**
+ * PEDR moved off pedr.co.uk and onto RIBA's own registration system. The old
+ * address is the one every guide, every university handbook and every friend
+ * who did this two years ago still says, so the move is worth stating rather
+ * than silently linking past.
+ *
+ * One trap worth repeating: you have to sign in with the same email address
+ * you used on the old system, or your existing sheets are not there.
+ */
+export const PEDR_SYSTEM = {
+  name: 'RIBA PEDR',
+  url: 'https://register.architecture.com/pedr',
+  shortUrl: 'register.architecture.com/pedr',
+  previousShortUrl: 'pedr.co.uk',
+  movedNote:
+    'PEDR has moved from pedr.co.uk to register.architecture.com/pedr. Sign in with the same ' +
+    'email address you used on the old system or your existing sheets will not be there.',
+  source: 'RIBA PEDR guidance',
   asOf: '2026-09',
 } as const
 

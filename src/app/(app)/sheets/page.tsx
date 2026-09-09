@@ -99,7 +99,7 @@ export default async function SheetsPage() {
       </div>
 
       <p className="small faint">
-        These are drafts to check and paste. The record RIBA holds is at pedr.co.uk, and that is
+        These are drafts to check and paste. The record RIBA holds is at register.architecture.com/pedr, and that is
         where your mentor and PSA sign.
       </p>
     </div>

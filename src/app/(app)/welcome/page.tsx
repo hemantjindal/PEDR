@@ -64,7 +64,7 @@ export default async function WelcomePage() {
       </section>
 
       <p className="small faint">
-        This is not the official record. RIBA&rsquo;s system at pedr.co.uk is, and that is where your
+        This is not the official record. RIBA&rsquo;s system at register.architecture.com/pedr is, and that is where your
         mentor and PSA sign. This is the thing that makes filling it in take twenty minutes instead
         of a weekend.
       </p>

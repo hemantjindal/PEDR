@@ -22,7 +22,7 @@ export default function GuidePage() {
           Before you can sit Part 3 and register as an architect you need{' '}
           <strong>{REQUIREMENTS.minTotalMonths} months</strong> of practical experience, recorded in{' '}
           <strong>{SHEET_RULES.requiredSheets} quarterly record sheets</strong> on RIBA&rsquo;s system
-          at pedr.co.uk. Each sheet is written by you, discussed and signed by an{' '}
+          at register.architecture.com/pedr. Each sheet is written by you, discussed and signed by an{' '}
           <strong>Employment Mentor</strong> in your practice, then reviewed and approved by a{' '}
           <strong>Professional Studies Advisor</strong> at a school of architecture. At least{' '}
           {REQUIREMENTS.minRecentMonths} of those months must fall in the{' '}

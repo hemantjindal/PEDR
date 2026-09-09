@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['@libsql/client', 'ical.js'],
+  serverExternalPackages: ['@libsql/client', 'ical.js', 'docx', 'pdf-lib'],
   experimental: {
     // Pasted Teams exports can be large; the dump endpoint accepts up to 4MB.
     serverActions: { bodySizeLimit: '4mb' },

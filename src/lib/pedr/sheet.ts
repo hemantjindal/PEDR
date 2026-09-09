@@ -1,5 +1,5 @@
 import {
-  OFFICE_MANAGEMENT_CATEGORIES, PROFESSIONAL_CRITERIA, RIBA_STAGES, SHEET_RULES,
+  OFFICE_MANAGEMENT_CATEGORIES, PROFESSIONAL_CRITERIA, RIBA_STAGES,
   officeCategory, stage as stageInfo,
   type CriterionId, type StageId,
 } from './constants'
@@ -15,7 +15,7 @@ import { daysBetween, formatDate, formatDuration, weekIdOf, type DateKey } from 
  * The sheet mirrors the sections of the real thing — General Information,
  * Describe Projects, Record Activities with hours against work stages, Office
  * Management, and the reflective boxes. What comes out is a draft to edit and
- * paste, not a submission: RIBA's system at pedr.co.uk is the record, and your
+ * paste, not a submission: RIBA's system at register.architecture.com/pedr is the record, and your
  * mentor and PSA sign there.
  *
  * The house style is short. Examiners are explicit that less is more, with
@@ -193,115 +193,6 @@ function dedupe(lines: string[]): string[] {
 // ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
-
-export interface SheetMeta {
-  candidateName: string
-  periodStart: DateKey
-  periodEnd: DateKey
-}
-
-/**
- * Markdown, laid out in the order of the real sheet's sections so it can be
- * worked through top to bottom with the PEDR form open beside it.
- */
-export function sheetToMarkdown(content: SheetContent, meta: SheetMeta): string {
-  const weeks = Math.round(daysBetween(meta.periodStart, meta.periodEnd) / 7)
-  const lines: string[] = []
-
-  lines.push(`# PEDR record sheet — ${formatDate(meta.periodStart)} to ${formatDate(meta.periodEnd)}`)
-  lines.push('')
-  lines.push(`${meta.candidateName} · ${weeks} weeks`)
-  lines.push('')
-  lines.push('> Draft, generated from a logged record. Check it, then enter it at pedr.co.uk.')
-  lines.push('')
-
-  lines.push('## General information')
-  lines.push('')
-  lines.push(`| | |`)
-  lines.push(`|---|---|`)
-  lines.push(`| Employer | ${content.general.employer || '—'} |`)
-  lines.push(`| Role | ${content.general.role || '—'} |`)
-  lines.push(`| Supervisor | ${content.general.supervisorName || '—'} |`)
-  lines.push(`| Category of experience | ${content.general.category} |`)
-  lines.push(`| Location | ${content.general.location} |`)
-  lines.push(`| Days worked | ${content.general.daysWorked} |`)
-  lines.push(`| Hours recorded | ${content.general.hoursWorked} |`)
-  lines.push('')
-
-  lines.push('## Describe projects')
-  lines.push('')
-  if (content.projects.length === 0) {
-    lines.push('_No project work recorded in this period._')
-  } else {
-    for (const project of content.projects) {
-      const heading = [project.code, project.name].filter(Boolean).join(' · ')
-      lines.push(`### ${heading}`)
-      lines.push('')
-      const facts = [
-        project.client && `Client: ${project.client}`,
-        project.valueGbp && `Value: £${project.valueGbp.toLocaleString('en-GB')}`,
-        project.procurement && `Procurement: ${project.procurement}`,
-        project.stages.length > 0 && `Stages: ${project.stages.join(', ')}`,
-        `Time: ${formatDuration(project.minutes)}`,
-      ].filter(Boolean)
-      lines.push(facts.join(' · '))
-      lines.push('')
-      if (project.summary) {
-        lines.push(project.summary)
-        lines.push('')
-      }
-    }
-  }
-
-  lines.push('## Record activities — hours by RIBA work stage')
-  lines.push('')
-  lines.push('| Stage | | Hours |')
-  lines.push('|---|---|---:|')
-  for (const s of RIBA_STAGES) {
-    const minutes = content.stageMinutes[String(s.id)] ?? 0
-    lines.push(`| ${s.code} | ${s.name} | ${minutes > 0 ? (minutes / 60).toFixed(1) : '—'} |`)
-  }
-  lines.push('')
-
-  lines.push('## Professional criteria')
-  lines.push('')
-  for (const c of PROFESSIONAL_CRITERIA) {
-    const row = content.criteria[c.id]
-    lines.push(`**${c.id} — ${c.name}** · ${row?.entries ?? 0} entries · ${formatDuration(row?.minutes ?? 0)}`)
-    lines.push('')
-    if (row?.examples.length) {
-      for (const example of row.examples) lines.push(`- ${example}`)
-    } else {
-      lines.push('- _Nothing recorded against this criterion in this period._')
-    }
-    lines.push('')
-  }
-
-  lines.push('## Reflect on experience')
-  lines.push('')
-  const boxes: Array<[string, string]> = [
-    ['What did you actually do?', content.reflection.did],
-    ['What did you learn?', content.reflection.learned],
-    ['What went well?', content.reflection.wentWell],
-    ['What went wrong?', content.reflection.wentWrong],
-    ['What next?', content.reflection.next],
-  ]
-  for (const [heading, body] of boxes) {
-    lines.push(`### ${heading}`)
-    lines.push('')
-    lines.push(body.trim() ? body.split('\n').map((l) => `- ${l}`).join('\n') : '_Nothing captured. Worth filling in before you submit._')
-    lines.push('')
-  }
-
-  lines.push('---')
-  lines.push('')
-  lines.push(
-    `Examiners want around ${SHEET_RULES.targetPages} pages. Cut anything here that does not ` +
-    'name a project, a task, a person or a judgement.',
-  )
-
-  return lines.join('\n')
-}
 
 /** A row per entry, for a spreadsheet or for pasting into a timesheet. */
 export function entriesToCsv(entries: Entry[], projects: Project[]): string {

@@ -4,7 +4,9 @@ import { requireUser } from '@/lib/auth'
 import { getEmployments, getEntries, getProjects, getWeekNotes } from '@/lib/data'
 import { PROFESSIONAL_CRITERIA, RIBA_STAGES, SHEET_RULES } from '@/lib/pedr/constants'
 import { employmentForWeek } from '@/lib/pedr/progress'
-import { buildSheet, officeSummary, sheetToMarkdown } from '@/lib/pedr/sheet'
+import { buildSheet, officeSummary } from '@/lib/pedr/sheet'
+import { buildSheetDocument, renderMarkdown } from '@/lib/export'
+import { DownloadPanel } from '@/components/download-panel'
 import { addDays, addMonths, formatDate, formatDuration, isDateKey, weekIdOf } from '@/lib/pedr/week'
 import { CopyBlock } from '@/components/copy-block'
 
@@ -26,11 +28,15 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
 
   const employment = employmentForWeek(weekIdOf(periodStart), employments)
   const content = buildSheet({ periodStart, periodEnd, entries, notes, projects, employment })
-  const markdown = sheetToMarkdown(content, {
-    candidateName: user.name,
+  const markdown = renderMarkdown(buildSheetDocument({
+    content,
     periodStart,
     periodEnd,
-  })
+    candidateName: user.name,
+    employment,
+    entries,
+    projects,
+  }))
   const office = officeSummary(entries)
 
   return (
@@ -43,8 +49,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
           </p>
         </div>
         <div className="row-wrap">
-          <a className="btn" href={`/api/sheets/${periodStart}/export?format=csv`}>Download CSV</a>
-          <a className="btn" href={`/api/sheets/${periodStart}/export?format=md`}>Download Markdown</a>
+          <a className="btn" href={`/api/sheets/${periodStart}/export?format=pdf`}>Download PDF</a>
           <Link href="/sheets" className="btn btn-ghost">Back</Link>
         </div>
       </div>
@@ -53,7 +58,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         <span aria-hidden="true">→</span>
         <span>
           A draft built from what you logged. Read it, fix anything thin, then paste it into
-          pedr.co.uk. Examiners want around {SHEET_RULES.targetPages} pages — cut anything that does
+          register.architecture.com/pedr. Examiners want around {SHEET_RULES.targetPages} pages — cut anything that does
           not name a project, a task, a person or a judgement.
         </span>
       </div>
@@ -230,6 +235,8 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
         </div>
         <CopyBlock text={markdown} />
       </section>
+
+      <DownloadPanel periodStart={periodStart} />
     </div>
   )
 }

@@ -11,7 +11,7 @@
  * drift away from the engine.
  */
 
-import { REQUIREMENTS, SHEET_RULES } from './constants'
+import { PEDR_SYSTEM, REQUIREMENTS, SHEET_RULES } from './constants'
 
 export interface GlossaryEntry {
   term: string
@@ -28,7 +28,7 @@ export const GLOSSARY: GlossaryEntry[] = [
     full:
       'RIBA’s record of the practical experience you need before you can sit Part 3. ' +
       `You need ${REQUIREMENTS.minTotalMonths} months of it, recorded across ` +
-      `${SHEET_RULES.requiredSheets} quarterly sheets. It lives at pedr.co.uk. This tool ` +
+      `${SHEET_RULES.requiredSheets} quarterly sheets. It lives at ${PEDR_SYSTEM.shortUrl}. This tool ` +
       'feeds that system; it does not replace it.',
     see: ['Record sheet', 'PSA', 'Employment Mentor'],
   },
@@ -154,9 +154,9 @@ export const ONBOARDING: OnboardingStep[] = [
     title: 'Get your PEDR account and your PSA',
     why:
       'This is the actual record. Everything here feeds it. If you are not registered on ' +
-      'pedr.co.uk with a PSA attached, nothing you write anywhere counts yet.',
+      `${PEDR_SYSTEM.shortUrl} with a PSA attached, nothing you write anywhere counts yet.`,
     actions: [
-      'Register at pedr.co.uk if you have not already.',
+      `Register at ${PEDR_SYSTEM.shortUrl} if you have not already. ${PEDR_SYSTEM.movedNote}`,
       'Find out who your PSA is. If you do not have one, your school allocates them — ask now, not next quarter.',
       'Ask your practice who your Employment Mentor is, and check they are willing.',
     ],
@@ -372,7 +372,7 @@ export const FAQ: FaqEntry[] = [
   {
     q: 'Is this tool the official record?',
     a:
-      'No. The official record is RIBA’s system at pedr.co.uk, and your PSA and mentor sign ' +
+      `No. The official record is RIBA’s system at ${PEDR_SYSTEM.shortUrl}, and your PSA and mentor sign ` +
       'there. This is the diary that makes filling that in take twenty minutes instead of a ' +
       'weekend, plus the exports to paste across.',
   },
