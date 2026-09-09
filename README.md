@@ -143,16 +143,23 @@ the whole list.
 
 ## Try it without installing anything
 
-The parser is pure, dependency-free code, so it runs in a browser on its own:
+The whole domain is pure, dependency-free code, so the app runs in a browser on
+its own:
 
 ```bash
 npm install && npm run demo      # -> demo/dist/pedr-demo.html
 ```
 
-Open that file. One HTML page, no server, no database, no network — paste a
-rough week and watch it get filed. It bundles the real engine from `src/lib`
-rather than a copy, so the demo cannot drift into being a flattering mock-up of
-the app.
+Open that file on a phone or a laptop. One HTML page, no server, no database:
+the dashboard, the register, the dump box, coverage, and a generated record
+sheet, over a demo record of a Part 2 assistant sixteen months in — with the
+gaps and thin weeks a real record has. What you type stays in the tab.
+
+Nothing in it is a copy. The engine is bundled from `src/lib`, the stylesheet
+is the app's own `globals.css` read verbatim, and the demo record is generated
+by `src/lib/demo-record.ts` — the same function `npm run seed` writes into the
+database. A demo built from its own fixture drifts into being a flattering
+mock-up, which is worse than no demo.
 
 ## Running it
 

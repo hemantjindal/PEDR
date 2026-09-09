@@ -1,0 +1,46 @@
+/* ---------------------------------------------------------------------------
+   Demo-only styling.
+
+   Everything else on this page is the app's own globals.css, inlined verbatim
+   by the build, so this page and the app are one system rather than two things
+   that look similar. What is here is the handful of rules the app gets from
+   Next and Tailwind's reset, plus the demo's own furniture.
+--------------------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd, ol, ul, fieldset, legend {
+  margin: 0; padding: 0;
+}
+ul, ol { list-style: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; }
+img, svg { display: block; max-width: 100%; }
+table { border-collapse: collapse; }
+a { color: inherit; }
+
+/* The demo's own bar. Says what this is, once, without shouting. */
+.demo-note {
+  background: var(--signal); color: var(--signal-ink);
+  padding: 9px 16px; font-size: 0.8rem; line-height: 1.45;
+  border-bottom: var(--rule) solid var(--ink);
+}
+.demo-note strong { color: inherit; }
+
+.screen { display: none; }
+.screen[data-active="true"] { display: block; }
+
+/* On a phone the tab bar is fixed to the bottom of the viewport, because this
+   page has no app shell to sit inside. */
+.tabbar { position: sticky; bottom: 0; }
+
+/* The dump box has to be 16px or iOS zooms the whole page on focus. */
+#raw { font-size: 16px; min-height: 168px; }
+
+/* A quarter's worth of markdown, monospaced, scrollable rather than endless. */
+.preview {
+  background: var(--panel); border: 1px solid var(--hair);
+  padding: 14px; max-height: 460px; overflow: auto;
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.74rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;
+}
