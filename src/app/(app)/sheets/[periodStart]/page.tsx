@@ -137,7 +137,7 @@ export default async function SheetPage({ params }: { params: Promise<{ periodSt
           </div>
         </div>
         <div className="table-scroll">
-          <table className="schedule">
+          <table className="schedule schedule-wide">
             <thead>
               <tr>
                 <th>Stage</th>

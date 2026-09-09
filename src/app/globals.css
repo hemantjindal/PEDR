@@ -368,6 +368,10 @@ table.schedule th {
 table.schedule td { padding: 11px 14px; border-bottom: 1px solid var(--hair); vertical-align: top; }
 table.schedule tr:last-child td { border-bottom: 0; }
 table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
+/* A table with three or more number columns cannot fit a phone, and letting it
+   try turns every cell into a five-line column of single words. Given a floor
+   it scrolls inside its own container instead, which is the honest answer. */
+table.schedule-wide { min-width: 520px; }
 
 /* --- Navigation --------------------------------------------------------------- */
 
@@ -403,8 +407,14 @@ table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
     background: var(--ink); border-top: var(--rule) solid var(--signal);
     padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
   }
+  /* Scrolls rather than squashing. Seven 55px tabs is how you get a row of
+     unreadable stubs; the demo carries more sections than the app and both
+     should behave the same way when they do. */
+  .tabbar { overflow-x: auto; scrollbar-width: none; }
+  .tabbar::-webkit-scrollbar { display: none; }
   .tabbar a {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    flex: 1 0 auto; min-width: 62px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
     padding: 8px 0; font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
     text-transform: uppercase; color: color-mix(in srgb, var(--paper) 58%, transparent);
     text-decoration: none;

@@ -38,5 +38,6 @@ export {
   monthKeyOf, daysBetween,
 } from '@/lib/pedr/week'
 export { buildMissions, missionHeadline, rankFor, RANKS } from '@/lib/pedr/missions'
+export { examine } from '@/lib/pedr/examiner'
 export { buildDemoRecord } from '@/lib/demo-record'
 export { REVIEW_THRESHOLD } from '@/lib/pedr/types'

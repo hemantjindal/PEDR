@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { MissionPanel } from '@/components/missions'
+import { ExamPanel } from '@/components/examiner'
 import { CoverageSchedule, Register, ScaleBar, Stat, Trend } from '@/components/charts'
 import type { RegisterRow } from '@/components/charts'
 import { requireUser } from '@/lib/auth'
@@ -148,6 +149,10 @@ export default async function DashboardPage() {
           alarm band above already carries the overdue count, so nothing here
           repeats it. */}
       <MissionPanel board={d.missions} />
+
+      {/* The viva is the point of the record, so its worst three sit above the
+          register rather than at the end of the page. */}
+      <ExamPanel report={d.exam} limit={3} />
 
       {/* The register — the signature view. */}
       <section className="sheet">

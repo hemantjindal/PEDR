@@ -9,6 +9,7 @@ const ITEMS = [
   { href: '/calendar', label: 'Calendar' },
   { href: '/weeks', label: 'Weeks' },
   { href: '/coverage', label: 'Coverage' },
+  { href: '/exam', label: 'Viva' },
   { href: '/sheets', label: 'Sheets' },
   { href: '/guide', label: 'Guide' },
   { href: '/settings', label: 'Settings' },
@@ -19,8 +20,8 @@ const TABS = [
   { href: '/dashboard', label: 'Home', icon: 'M3 11.5 12 4l9 7.5M6 10v9h12v-9' },
   { href: '/weeks', label: 'Weeks', icon: 'M4 6h16M4 12h16M4 18h10' },
   { href: '/dump', label: 'Dump', icon: 'M12 5v14M5 12h14' },
+  { href: '/exam', label: 'Viva', icon: 'M12 6.5a5 5 0 1 1 3 9v2m-3 3h.01' },
   { href: '/sheets', label: 'Sheets', icon: 'M7 3h7l5 5v13H7zM14 3v5h5' },
-  { href: '/guide', label: 'Guide', icon: 'M12 6.5a5 5 0 1 1 3 9v2m-3 3h.01' },
 ]
 
 function isActive(pathname: string, href: string): boolean {

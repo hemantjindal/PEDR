@@ -15,6 +15,12 @@ filling that in take twenty minutes instead of a weekend.
 
 ---
 
+**The thesis, in one line:** a tool that records is a spreadsheet; a tool that
+interrogates the record the way an examiner will — and turns what you cannot
+answer into what to go and do this month — is a product. The long version, and
+the honest account of why version one *was* a spreadsheet, is in
+[`docs/THESIS.md`](docs/THESIS.md).
+
 ## The problem it solves
 
 Everyone doing Part 3 is told to keep a daily diary. Almost nobody does, because
@@ -42,6 +48,20 @@ and anything that went wrong captured.
 It also reads **Microsoft Teams conversations** (four paste formats plus meeting
 transcripts) and **practice timesheet exports** (CSV/TSV, columns matched by
 name), and works out which it has been given.
+
+**The viva.** Part 3 ends in an oral exam and the examiners have read your
+record — they ask about what is *on the page*. So this generates the questions
+your own record invites, quoting your own entries back, and grades each one:
+**answerable** (specific work you did yourself sits behind it), **thin** (vague,
+watched, or theory rather than a job), or **exposed** — you have claimed it and
+have nothing to back it.
+
+Exposure is the number that matters, and it is the thing no spreadsheet can
+produce. An empty cell in a spreadsheet is a missing value. An empty cell in a
+PEDR is a question with no answer behind it, and a *filled* one on thin evidence
+is worse: it invites the question and answers none of it. So "PC1 is covered"
+becomes "everything tagged PC1 is CPD and a Part 3 lecture — that is knowledge,
+and the question asks for experience", with the thing to go and do underneath.
 
 **What to do next.** The record's real gaps, ranked, with what each is worth.
 Nothing here is invented: a mission's points are the points that thing carries
@@ -191,7 +211,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 461 tests
+npm test        # 496 tests
 npm run build
 ```
 
@@ -252,7 +272,7 @@ src/lib/ingest/     the parsers — dates, durations, people, classification,
 src/lib/db/         schema and client
 src/app/            Next.js App Router: pages and route handlers
 src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
-tests/              461 tests, mostly against the domain and the parsers
+tests/              496 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:

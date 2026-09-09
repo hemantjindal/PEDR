@@ -7,6 +7,7 @@ import type {
 import { REQUIREMENTS } from './pedr/constants'
 import { computeCoverage, coverageHeadline, participationTrend } from './pedr/coverage'
 import { buildMissions } from './pedr/missions'
+import { examine } from './pedr/examiner'
 import { planSheetPeriods, summariseDeadlines } from './pedr/deadlines'
 import { computeProgress } from './pedr/progress'
 import {
@@ -189,6 +190,7 @@ export interface Dashboard {
   coverageNote: string | null
   participation: ReturnType<typeof participationTrend>
   missions: ReturnType<typeof buildMissions>
+  exam: ReturnType<typeof examine>
   progress: ReturnType<typeof computeProgress>
   deadlines: ReturnType<typeof summariseDeadlines>
   streak: number
@@ -259,6 +261,7 @@ export async function getDashboard(
     participation: participationResult,
     progress: progressResult,
     deadlines: deadlineResult,
+    exam: examine({ entries, projects }),
     missions: buildMissions({
       thisWeek: scores[scores.length - 1] ?? null,
       scores,

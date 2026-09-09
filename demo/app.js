@@ -19,6 +19,7 @@ const SCREENS = [
   { id: 'dump', label: 'Write', icon: 'M12 5v14M5 12h14' },
   { id: 'calendar', label: 'Calendar', icon: 'M4 7h16v13H4zM4 11h16M8 3v4M16 3v4' },
   { id: 'coverage', label: 'Coverage', icon: 'M4 18h4V8H4zM10 18h4V4h-4zM16 18h4v-7h-4z' },
+  { id: 'exam', label: 'Viva', icon: 'M12 6.5a5 5 0 1 1 3 9v2m-3 3h.01' },
   { id: 'sheet', label: 'Sheet', icon: 'M7 3h7l5 5v13H7zM14 3v5h5' },
   { id: 'guide', label: 'Guide', icon: 'M12 6.5a5 5 0 1 1 3 9v2m-3 3h.01' },
 ]
@@ -99,6 +100,7 @@ function derive() {
     periods,
     participation,
     coverageNote: E.coverageHeadline(coverage),
+    exam: E.examine({ entries, projects: state.projects }),
     missions: E.buildMissions({
       thisWeek: scores[scores.length - 1] ?? null,
       scores,
@@ -716,6 +718,124 @@ function renderCoverage(d) {
   `)
 }
 
+// --- The viva ----------------------------------------------------------------
+
+const VERDICT = {
+  exposed: ['mark-revision', 'exposed'],
+  thin: ['mark-pending', 'thin'],
+  answerable: ['mark-signed', 'answerable'],
+}
+
+/**
+ * The screen the whole thing is for.
+ *
+ * Everything else in this app records. This one asks — using the record as the
+ * question bank, which is exactly what a Part 3 examiner does with it. The
+ * design job is to make one distinction impossible to miss: a gap you have
+ * declared is fine, and a claim you cannot defend is not.
+ */
+function renderExam(d) {
+  const exam = d.exam
+  const pct = Math.round(exam.readiness * 100)
+
+  return h(`
+    <div class="stack-s">
+      <h1>What they would ask you</h1>
+      <p class="dim">
+        Part 3 ends in an oral exam, and the examiners have read your record. They ask about what
+        is on the page. Nobody fails for a gap they declared — people fail for a claim they cannot
+        defend.
+      </p>
+    </div>
+
+    ${exam.worst ? `<div class="note note-revision" style="margin-top:14px">
+      <span aria-hidden="true">⚠</span>
+      <span><strong>The one to fix first:</strong> ${esc(exam.worst.question)}</span>
+    </div>` : ''}
+
+    <section class="sheet stack-s" style="margin-top:16px">
+      <div class="sheet-head"><div class="stack-s" style="gap:2px">
+        <h2>By criterion</h2>
+        <p class="tiny faint">
+          How a PSA reads it: not how much you have logged, but how much of it you could stand
+          behind in a room.
+        </p>
+      </div></div>
+      <div class="table-scroll">
+        <table class="schedule schedule-wide">
+          <thead><tr><th></th><th></th>
+            <th style="text-align:right">Answerable</th>
+            <th style="text-align:right">Thin</th>
+            <th style="text-align:right">Exposed</th></tr></thead>
+          <tbody>${E.PROFESSIONAL_CRITERIA.map((c) => {
+            const row = exam.byCriterion[c.id] ?? { answerable: 0, thin: 0, exposed: 0 }
+            return `<tr>
+              <td class="num">${c.id}</td>
+              <td>${esc(c.plainly)}</td>
+              <td class="n">${row.answerable || '—'}</td>
+              <td class="n">${row.thin || '—'}</td>
+              <td class="n"${row.exposed > 0 ? ' style="color:var(--alarm-text)"' : ''}>${row.exposed || '—'}</td>
+            </tr>`
+          }).join('')}</tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sheet stack" style="margin-top:16px">
+      <div class="sheet-head">
+        <div>
+          <span class="label">If you sat it tomorrow</span>
+          <h2 style="margin-top:3px">Every question your record invites</h2>
+        </div>
+        <span class="spacer"></span>
+        <span class="chip ${exam.exposed > 0 ? 'chip-revision' : 'chip-ink'}">${pct}% defensible</span>
+      </div>
+
+      <p class="small dim">${esc(exam.headline)}</p>
+
+      ${titleblock([
+        ['Exposed', String(exam.exposed)],
+        ['Thin', String(exam.thin)],
+        ['Answerable', String(exam.answerable)],
+        ['Questions', String(exam.questions.length)],
+      ])}
+
+      <div style="display:flex;flex-direction:column">
+        ${exam.questions.map((q, i) => {
+          const [mark, label] = VERDICT[q.verdict]
+          return `<div style="padding:14px 0;border-top:${i === 0 ? 'none' : '1px solid var(--hair)'}">
+            <div class="row-wrap" style="gap:8px;align-items:baseline;margin-bottom:5px">
+              <span class="mark ${mark}">${label}</span>
+              ${q.criterion ? `<span class="label">${q.criterion}</span>` : ''}
+              ${q.stage !== null ? `<span class="label">Stage ${q.stage}</span>` : ''}
+            </div>
+            <p style="font-weight:600;line-height:1.4">${esc(q.question)}</p>
+            <p class="tiny faint" style="margin-top:5px">${esc(q.because)}</p>
+            ${q.evidence.quote ? `<p class="small" style="margin-top:8px;padding-left:10px;border-left:2px solid var(--hair);color:var(--ink-2)">
+              &ldquo;${esc(q.evidence.quote)}&rdquo;${q.evidence.date
+                ? `<span class="tiny faint"> — your record, ${esc(E.formatDate(q.evidence.date))}</span>` : ''}
+            </p>` : ''}
+            <details style="margin-top:8px">
+              <summary class="small dim" style="cursor:pointer">What a good answer has in it</summary>
+              <ul class="small dim" style="margin:8px 0 0;padding-left:18px;list-style-type:disc">
+                ${q.looksFor.map((point) => `<li>${esc(point)}</li>`).join('')}
+              </ul>
+            </details>
+            ${q.fix ? `<p class="note note-pending small" style="margin-top:10px">
+              <span aria-hidden="true">→</span> <span>${esc(q.fix)}</span></p>` : ''}
+          </div>`
+        }).join('')}
+      </div>
+    </section>
+
+    <p class="tiny faint" style="margin-top:14px">
+      Generated from the entries on this page — the quotes are from the record. A rehearsal, not a
+      prediction: real examiners ask their own questions and they follow up. What this tells you is
+      which of them you have nothing to say to.
+    </p>
+  `)
+}
+
 // --- The sheet ---------------------------------------------------------------
 
 let sheetIndex = null
@@ -987,6 +1107,7 @@ function render() {
     dump: renderDump,
     calendar: renderCalendar,
     coverage: renderCoverage,
+    exam: renderExam,
     sheet: renderSheet,
     guide: renderGuide,
   }
