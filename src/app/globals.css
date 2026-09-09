@@ -463,6 +463,28 @@ table.schedule td.n { text-align: right; font-variant-numeric: tabular-nums; }
   .check-row > .check-value { margin-left: 0; }
 }
 
+/* No signal. Loud, because everything on screen behind it is stale and the
+   consequence of not noticing is a deadline that looks fine and is not. */
+.offline-banner {
+  background: var(--alarm); color: var(--alarm-ink);
+  padding: 10px 16px; font-size: 0.82rem; line-height: 1.45;
+  border-bottom: var(--rule) solid var(--ink);
+}
+.offline-banner strong { color: inherit; }
+
+/* Installed on a phone, the app draws to the edges of the screen, so the
+   notch and the home indicator have to be kept out of the furniture. */
+@media (display-mode: standalone) {
+  .topbar { padding-top: env(safe-area-inset-top); }
+  .wrap {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+}
+
+/* A note waiting on this phone. Held, not lost, and not on the record yet. */
+.queued { border-left: var(--rule) solid var(--signal); padding-left: 10px; }
+
 /* Actions that follow you down a long review. On a phone they have to clear
    the tab bar, which sticks to the same edge and would otherwise sit on top
    of the one button the screen exists for. */

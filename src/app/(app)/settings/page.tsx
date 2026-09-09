@@ -5,6 +5,7 @@ import { getEmployments } from '@/lib/data'
 import { EXPERIENCE_CATEGORIES, EXPERIENCE_LOCATIONS, REQUIREMENTS } from '@/lib/pedr/constants'
 import { isEnrichmentAvailable } from '@/lib/ingest/enrich'
 import { formatDate } from '@/lib/pedr/week'
+import { InstallPanel } from '@/components/install'
 import { CopyBlock } from '@/components/copy-block'
 
 export const metadata = { title: 'Settings · PEDR' }
@@ -170,6 +171,8 @@ export default async function SettingsPage() {
           access to your account.
         </p>
       </section>
+
+      <InstallPanel />
 
       <section className="sheet stack">
         <h2>Projects</h2>

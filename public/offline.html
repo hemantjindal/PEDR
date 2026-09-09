@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>No signal · PEDR</title>
+<!--
+  Deliberately one file with no JavaScript.
+
+  This is what gets shown when the network is gone and the page being asked for
+  has never been opened, so it is the one screen that must not depend on
+  anything else having loaded. An app-framework page would need its own script
+  chunks, which by definition are not in the cache either — the first version
+  of this was exactly that, and it rendered a hydration error instead of a
+  sentence. Hence: inline styles, no fonts, no requests.
+-->
+<style>
+  :root {
+    --paper: #f7f5ef; --panel: #f0ede3; --ink: #0d0c0a; --ink-2: #4a463d;
+    --hair: #d6d1c2; --signal: #e8b10a; --rule: 2px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --panel: #1c1a17; --ink: #f4f1e8; --ink-2: #a9a294; --hair: #33302a; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font: 400 16px/1.55 Archivo, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: max(24px, env(safe-area-inset-top)) 20px 24px;
+    display: flex; align-items: center; justify-content: center; min-height: 100vh;
+  }
+  .sheet {
+    background: var(--panel); border: var(--rule) solid var(--ink);
+    padding: 22px; max-width: 480px; width: 100%;
+  }
+  .label {
+    display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-2); margin-bottom: 6px;
+  }
+  h1 { font-size: 1.5rem; line-height: 1.2; font-weight: 700; margin-bottom: 12px; }
+  p { font-size: 0.92rem; color: var(--ink-2); margin-bottom: 12px; }
+  p.plain { color: var(--ink); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  a.btn {
+    display: inline-block; border: var(--rule) solid var(--ink); background: transparent;
+    color: var(--ink); text-decoration: none; padding: 9px 15px;
+    font-size: 0.76rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  a.btn-primary { background: var(--ink); color: var(--paper); }
+  .mark { display: inline-block; width: 22px; height: 22px; background: var(--signal); }
+</style>
+</head>
+<body>
+  <main class="sheet">
+    <span class="label">No signal</span>
+    <h1>This page needs the network.</h1>
+    <p>
+      You have not opened this one before, so there is no copy on the phone to show you. Pages you
+      have already visited will still open.
+    </p>
+    <p class="plain">
+      The one thing that always works is writing today down. It is kept on this phone and appears
+      on the dump screen the moment you are back.
+    </p>
+    <div class="actions">
+      <a class="btn btn-primary" href="/dump">Write today down</a>
+      <a class="btn" href="/dashboard">Try the dashboard</a>
+    </div>
+  </main>
+</body>
+</html>

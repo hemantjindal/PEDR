@@ -4,9 +4,14 @@ A logging tool for the RIBA Professional Experience and Development Record — t
 record of practical experience you need before you can sit the Part 3 exam and
 register as an architect in the UK.
 
-**This is not the official record.** RIBA's system at [pedr.co.uk](https://www.pedr.co.uk)
-is, and that is where your Employment Mentor and PSA sign. This is the diary
-that makes filling that in take twenty minutes instead of a weekend.
+**This is not the official record.** RIBA's system at
+[register.architecture.com/pedr](https://register.architecture.com/pedr) is, and
+that is where your Employment Mentor and PSA sign. This is the diary that makes
+filling that in take twenty minutes instead of a weekend.
+
+> PEDR moved off `pedr.co.uk` and onto RIBA's own registration system. Sign in
+> with the same email address you used on the old one or your existing sheets
+> will not be there.
 
 ---
 
@@ -53,8 +58,30 @@ when it is a conversation, rather than month 22 when it is a crisis.
 The sign-off chain shows how long a sheet has been sitting with your mentor and
 with your PSA.
 
+**Calendar.** Link your Outlook or Teams calendar — a published `.ics` link
+that syncs, or a one-off file — and a quarter of meetings becomes a quarter of
+dated entries, with the attendees as the people you dealt with. That last part
+is the one thing no timesheet records and nobody reconstructs from memory. The
+import is mostly filtering: cancelled meetings, anything you declined, anything
+marked free, all-day blocks that are not leave, and the standing furniture of a
+week all go, and everything dropped is listed with a reason. Be clear-eyed
+about the limit, which the screen states too: **a calendar records meetings,
+not work.** Six hours on a package appears in no calendar. What comes in is the
+skeleton of a week.
+
 **Sheets.** A draft of each quarterly record sheet, laid out in the order of the
-real one, exportable as Markdown or CSV.
+real one — as **PDF** (what Part 3 uploads want), **Word** (what a mentor
+comments in), **plain text** (easiest to paste into RIBA's form) or **CSV**.
+The choice is yours; guessing on your behalf just means you convert it
+yourself.
+
+**Appraisal templates.** The part of the process nobody warns you about: the
+appraisal is *not* completed online — RIBA generates a template when you print,
+or hands you a Word file to fill in and upload. So a mentor's half of the
+quarter happens in an attachment, usually with no context in it beyond a blank
+box. This generates that file with the quarter printed above the boxes: the
+projects, the hours, the stages covered, the criteria that were *not* touched,
+and your own words. One for your PSA, one for your employment supervisor.
 
 **Reminders.** An iCalendar feed you subscribe to once: a nudge every Friday and
 every sheet deadline, with a fortnight's warning. Plus a cron endpoint for a
@@ -63,6 +90,33 @@ scheduled digest.
 **Guidance.** A glossary, a first-hour checklist, an FAQ, and worked examples of
 weak-versus-strong writing for each reflective box — because "be more
 reflective" is useless advice and two paragraphs side by side is not.
+
+## On a phone
+
+It installs to the home screen: its own icon, its own window, no browser bar.
+Settings has the steps, and on Android and desktop it offers the install
+directly.
+
+Worth being straight about what that is. **It is a web app you install, not an
+App Store download.** There is nothing to search for in the App Store, and
+Apple gives web apps no install prompt at all — on iOS somebody has to go
+through the Share menu themselves, which is why the app tells you how. What you
+get is an icon, a standalone window, and the offline behaviour below. What you
+do not get is anything only a native app can do. For what a PEDR needs, that is
+the whole list.
+
+**With no signal**, which is the actual point:
+
+- Pages you have opened before still open, and a red banner says everything on
+  screen is as old as the last time it loaded — because a dashboard quietly
+  showing last week's figures, with a deadline that has since passed, is worse
+  than no dashboard.
+- The box still takes text. A note written on a site visit is kept on the phone
+  and appears on the dump screen the moment you are back.
+- It is **not** posted to your record automatically. Nothing reaches a record a
+  mentor signs without a human reading it first, and that rule does not get an
+  exception for being offline. A queued note comes back as a note, to be parsed
+  and reviewed like any other.
 
 ## Two rules the code enforces
 
@@ -103,7 +157,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 308 tests
+npm test        # 415 tests
 npm run build
 ```
 
@@ -159,10 +213,12 @@ overdue. Those are the only two facts that change what you do today.
 src/lib/pedr/       the domain — regulatory constants, week maths, scoring,
                     coverage, progress, deadlines, sheet generation, guidance
 src/lib/ingest/     the parsers — dates, durations, people, classification,
-                    project matching, Teams, timesheets, and the optional model pass
+                    project matching, Teams, timesheets, calendars, and the
+                    optional model pass
 src/lib/db/         schema and client
 src/app/            Next.js App Router: pages and route handlers
-tests/              308 tests, mostly against the domain and the parsers
+src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
+tests/              415 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:
@@ -180,4 +236,4 @@ Every regulatory value lives in one file, `src/lib/pedr/constants.ts`, with a
 source and an `asOf` date, and each check is flagged as either a real rule or
 this tool's own opinion so the interface can say which is which. They were
 assembled from RIBA and ARB guidance in September 2026. **Check anything you are
-going to rely on** — the authoritative sources are pedr.co.uk and your own PSA.
+going to rely on** — the authoritative sources are RIBA's own guidance and your own PSA.

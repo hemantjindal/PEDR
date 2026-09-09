@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { TabBar, TopNav } from '@/components/nav'
+import { OfflineBanner } from '@/components/offline'
 import { getUser } from '@/lib/auth'
 import { signOutAction } from './actions'
 
@@ -25,6 +26,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </form>
         </div>
       </header>
+
+      <OfflineBanner />
 
       <main className="wrap" style={{ flex: 1, paddingBlock: 24 }}>
         {children}

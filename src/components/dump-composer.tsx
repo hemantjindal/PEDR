@@ -1,10 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { EntryCard } from './entry-card'
+import * as outbox from '@/lib/outbox'
+import type { QueuedNote } from '@/lib/outbox'
 import type { DraftEntry, DumpKind, Project } from '@/lib/pedr/types'
-import { formatDuration } from '@/lib/pedr/week'
+import { formatDate, formatDuration } from '@/lib/pedr/week'
 
 /**
  * The dump surface.
@@ -15,6 +17,9 @@ import { formatDuration } from '@/lib/pedr/week'
  *
  * Nothing reaches the record without passing through the review step, because
  * a record a mentor signs should never contain something nobody looked at.
+ * That rule holds offline too: a note written on site with no signal is kept
+ * on the phone as a note and comes back here to be read, rather than posting
+ * itself to the record the moment the bars return.
  */
 
 interface PreviewResponse {
@@ -54,6 +59,20 @@ export function DumpComposer({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState<{ count: number } | null>(null)
+  const [queued, setQueued] = useState<QueuedNote[]>([])
+  const [held, setHeld] = useState<QueuedNote | null>(null)
+
+  const refreshQueue = useCallback(() => {
+    outbox.safeList().then(setQueued)
+  }, [])
+
+  useEffect(() => {
+    refreshQueue()
+    // Coming back online is when a queued note becomes actionable, so that is
+    // when the list is worth re-reading.
+    window.addEventListener('online', refreshQueue)
+    return () => window.removeEventListener('online', refreshQueue)
+  }, [refreshQueue])
 
   const projectById = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
@@ -66,23 +85,70 @@ export function DumpComposer({
     return { days, minutes }
   }, [entries])
 
-  async function runPreview() {
+  async function runPreview(source?: QueuedNote) {
+    const text = source?.raw ?? raw
+    const day = source?.reference ?? reference
     setBusy(true)
     setError(null)
     try {
-      const response = await fetch('/api/dumps/preview', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ raw, reference, fillMissingDurations: fillDurations, useModel }),
-      })
+      let response: Response
+      try {
+        response = await fetch('/api/dumps/preview', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            raw: text, reference: day, fillMissingDurations: fillDurations, useModel,
+          }),
+        })
+      } catch {
+        // The server could not be reached at all. The words are the thing
+        // worth saving, so they go on the phone rather than nowhere. A server
+        // that *answered* with a rejection is a different matter — that is a
+        // problem with the request, and queueing it would just defer the same
+        // failure to the next attempt.
+        const note = await keepOnDevice(text, day, navigator.onLine ? 'failed' : 'offline')
+        setError(note
+          ? null
+          : 'No connection, and this browser will not let us keep anything on the phone. ' +
+            'Copy the text somewhere safe.')
+        if (note && !source) setRaw('')
+        return
+      }
+
       const data = await response.json()
-      if (!response.ok) throw new Error(data.error ?? 'Could not read that.')
+      if (!response.ok) {
+        setError(data.error ?? 'Could not read that.')
+        return
+      }
+      if (source) {
+        setRaw(source.raw)
+        setReference(source.reference)
+        setHeld(source)
+      }
       setPreview(data)
       setEntries(data.entries)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Could not read that.')
     } finally {
       setBusy(false)
+    }
+  }
+
+  /**
+   * Hold a note on this phone. Returns null when the browser will not let us —
+   * a private window, site data blocked — in which case the caller has to say
+   * something true rather than pretend it was kept.
+   */
+  async function keepOnDevice(
+    text: string,
+    day: string,
+    reason: QueuedNote['reason'],
+  ): Promise<QueuedNote | null> {
+    if (!outbox.isSupported()) return null
+    try {
+      const note = await outbox.queue({ raw: text, reference: day, reason })
+      refreshQueue()
+      return note
+    } catch {
+      return null
     }
   }
 
@@ -104,6 +170,12 @@ export function DumpComposer({
       const data = await response.json()
       if (!response.ok) throw new Error(data.error ?? 'Could not save that.')
       setSaved({ count: data.saved })
+      // The note this came from has done its job.
+      if (held) {
+        await outbox.remove(held.id).catch(() => undefined)
+        setHeld(null)
+        refreshQueue()
+      }
       setPreview(null)
       setEntries([])
       setRaw('')
@@ -207,6 +279,58 @@ export function DumpComposer({
 
   return (
     <div className="stack">
+      {queued.length > 0 && (
+        <section className="sheet stack-s">
+          <div className="sheet-head">
+            <div>
+              <span className="label">Written with no signal</span>
+              <h2 style={{ marginTop: 3 }}>
+                {queued.length} {queued.length === 1 ? 'note' : 'notes'} waiting on this phone
+              </h2>
+            </div>
+          </div>
+          <p className="small dim">
+            Kept here, not on the record. Read each one through and it goes on properly — the same
+            way anything else does.
+          </p>
+          {queued.map((note) => (
+            <div key={note.id} className="queued row-wrap" style={{ gap: 10, alignItems: 'baseline' }}>
+              <div style={{ flex: '1 1 200px', minWidth: 0 }}>
+                <div className="tiny faint">
+                  {formatDate(note.reference, { weekday: true })}
+                  {note.reason === 'failed' && ' · could not be sent'}
+                </div>
+                <p className="small" style={{ marginTop: 2 }}>
+                  {note.raw.replace(/\s+/g, ' ').slice(0, 120)}
+                  {note.raw.length > 120 ? '…' : ''}
+                </p>
+              </div>
+              <span className="row" style={{ gap: 4, flex: 'none' }}>
+                <button
+                  type="button"
+                  className="btn btn-sm"
+                  disabled={busy}
+                  onClick={() => runPreview(note)}
+                >
+                  Read it
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm btn-danger"
+                  disabled={busy}
+                  onClick={async () => {
+                    await outbox.remove(note.id).catch(() => undefined)
+                    refreshQueue()
+                  }}
+                >
+                  Discard
+                </button>
+              </span>
+            </div>
+          ))}
+        </section>
+      )}
+
       <div className="sheet stack">
         <div className="field">
           <label htmlFor="raw">What happened?</label>
@@ -286,14 +410,27 @@ export function DumpComposer({
           <button
             type="button"
             className="btn btn-primary"
-            onClick={runPreview}
+            onClick={() => runPreview()}
             disabled={busy || raw.trim().length === 0}
           >
             {busy ? 'Reading…' : 'Read it'}
           </button>
-          {raw.trim().length === 0 && (
+          {raw.trim().length === 0 ? (
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => setRaw(EXAMPLE)}>
               Try the example
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              disabled={busy}
+              onClick={async () => {
+                const note = await keepOnDevice(raw, reference, 'offline')
+                if (note) setRaw('')
+                else setError('This browser will not let us keep anything on the phone. Copy the text somewhere safe.')
+              }}
+            >
+              Keep it on the phone
             </button>
           )}
         </div>
