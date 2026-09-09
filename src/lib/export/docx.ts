@@ -56,8 +56,23 @@ export async function renderDocx(doc: ExportDocument): Promise<Uint8Array> {
     ],
   })
 
-  // Buffer in Node, Blob in a browser. This only ever runs on the server.
-  return new Uint8Array(await Packer.toBuffer(document))
+  return pack(document)
+}
+
+/**
+ * Bytes, on whichever platform this is running on.
+ *
+ * `Packer.toBuffer` asks JSZip for a nodebuffer, which throws outright in a
+ * browser — and this renderer runs in one, in the standalone demo, where a
+ * "download Word" button that silently fails is worse than not offering it.
+ * `toBlob` is the browser path and gives the same zip.
+ */
+async function pack(document: Document): Promise<Uint8Array> {
+  if (typeof Buffer !== 'undefined') {
+    return new Uint8Array(await Packer.toBuffer(document))
+  }
+  const blob = await Packer.toBlob(document)
+  return new Uint8Array(await blob.arrayBuffer())
 }
 
 function renderBlock(block: Block): Array<Paragraph | Table> {

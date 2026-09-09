@@ -43,6 +43,19 @@ It also reads **Microsoft Teams conversations** (four paste formats plus meeting
 transcripts) and **practice timesheet exports** (CSV/TSV, columns matched by
 name), and works out which it has been given.
 
+**What to do next.** The record's real gaps, ranked, with what each is worth.
+Nothing here is invented: a mission's points are the points that thing carries
+in the weekly score, and a mission with *no* points is one you cannot type your
+way out of — an empty work stage is a conversation with your team leader, not a
+form to fill in. Ranks are months of qualifying experience, because that is
+what actually gates the exam. The weekly target is 80, not 100: the last 20 is
+the friction box, and demanding it would teach people to invent friction.
+
+**Setting up.** A four-step first run that collects what the app cannot
+compute — when the experience started, who signs it and their ARB number, the
+jobs and their nicknames, the exam target — and says why each one matters while
+it asks. Nothing is required but the start date.
+
 **Score.** Each week is marked out of 100: logging at all is 40, naming a
 project 15, two or more specific activities 15, naming who you dealt with 10,
 and recording something that went wrong 20. That last weighting is the
@@ -151,9 +164,12 @@ npm install && npm run demo      # -> demo/dist/pedr-demo.html
 ```
 
 Open that file on a phone or a laptop. One HTML page, no server, no database:
-the dashboard, the register, the dump box, coverage, and a generated record
-sheet, over a demo record of a Part 2 assistant sixteen months in — with the
-gaps and thin weeks a real record has. What you type stays in the tab.
+the dashboard with its missions, the register, the dump box, calendar import,
+coverage, and a record sheet that **downloads as a real PDF or Word file** —
+generated in the tab by the same renderers the server uses, not a promise that
+the app would do it. All of it over a demo record of a Part 2 assistant sixteen
+months in, with the gaps and thin weeks a real record has. What you type stays
+in the tab.
 
 Nothing in it is a copy. The engine is bundled from `src/lib`, the stylesheet
 is the app's own `globals.css` read verbatim, and the demo record is generated
@@ -175,7 +191,7 @@ Then sign up, or sign in as `demo@pedr.local` / `demo-password-2026` if you
 seeded.
 
 ```bash
-npm test        # 435 tests
+npm test        # 461 tests
 npm run build
 ```
 
@@ -236,7 +252,7 @@ src/lib/ingest/     the parsers — dates, durations, people, classification,
 src/lib/db/         schema and client
 src/app/            Next.js App Router: pages and route handlers
 src/lib/export/     one document model, three renderers (PDF, Word, Markdown)
-tests/              435 tests, mostly against the domain and the parsers
+tests/              461 tests, mostly against the domain and the parsers
 ```
 
 Two decisions worth knowing:

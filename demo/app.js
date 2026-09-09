@@ -17,6 +17,7 @@ const STORE = 'pedr-demo-v1'
 const SCREENS = [
   { id: 'record', label: 'Record', icon: 'M3 11.5 12 4l9 7.5M6 10v9h12v-9' },
   { id: 'dump', label: 'Write', icon: 'M12 5v14M5 12h14' },
+  { id: 'calendar', label: 'Calendar', icon: 'M4 7h16v13H4zM4 11h16M8 3v4M16 3v4' },
   { id: 'coverage', label: 'Coverage', icon: 'M4 18h4V8H4zM10 18h4V4h-4zM16 18h4v-7h-4z' },
   { id: 'sheet', label: 'Sheet', icon: 'M7 3h7l5 5v13H7zM14 3v5h5' },
   { id: 'guide', label: 'Guide', icon: 'M12 6.5a5 5 0 1 1 3 9v2m-3 3h.01' },
@@ -80,6 +81,10 @@ function derive() {
   })
   const periods = E.planSheetPeriods(state.experienceStart, { today, sheets: [] })
 
+  const progress = E.computeProgress(entries, scores, [state.employment], { today })
+  const deadlines = E.summariseDeadlines(periods)
+  const participation = E.participationTrend(entries)
+
   return {
     entries,
     scores,
@@ -89,11 +94,22 @@ function derive() {
     thin: E.findThinWeeks(scores),
     streak: E.currentStreak(scores),
     best: E.bestStreak(scores),
-    progress: E.computeProgress(entries, scores, [state.employment], { today }),
-    deadlines: E.summariseDeadlines(periods),
+    progress,
+    deadlines,
     periods,
-    participation: E.participationTrend(entries),
+    participation,
     coverageNote: E.coverageHeadline(coverage),
+    missions: E.buildMissions({
+      thisWeek: scores[scores.length - 1] ?? null,
+      scores,
+      coverage,
+      deadlines,
+      progress,
+      participation,
+      hasExperienceStart: true,
+      hasEmployment: true,
+      projectCount: state.projects.length,
+    }),
   }
 }
 
@@ -176,6 +192,10 @@ function renderRecord(d) {
   // The single highest-value thing missing from the week in progress.
   const thisWeek = d.scores[d.scores.length - 1] ?? null
   const action = thisWeek?.nextBestAction ?? null
+  const board = d.missions
+  const weekPct = Math.min(100, Math.round((board.weekScore / board.weekTarget) * 100))
+  const URGENCY = { now: ['mark-revision', 'now'], soon: ['mark-pending', 'this week'], whenever: ['mark-none', 'when you can'] }
+  const KIND = { setup: 'Setup', deadline: 'Deadline', week: 'This week', balance: 'Balance', coverage: 'Coverage' }
 
   return h(`
     ${titleblock([
@@ -202,6 +222,54 @@ function renderRecord(d) {
         Thirteen weeks to a row, because thirteen weeks is one sheet. Darker is a better week; a
         hollow cell is a week with nothing in it; a week that has not happened yet is nothing at all.
       </p>
+    </section>
+
+    <section class="sheet stack" style="margin-top:16px">
+      <div class="sheet-head">
+        <div>
+          <span class="label">${board.missions.length === 0
+            ? 'Nothing outstanding'
+            : `${board.missions.length} ${board.missions.length === 1 ? 'thing' : 'things'} to do`}</span>
+          <h2 style="margin-top:3px">Next</h2>
+        </div>
+        <span class="spacer"></span>
+        <span class="chip chip-signal">${esc(board.rank.name)}</span>
+      </div>
+
+      <div class="check-row">
+        <span class="check-label small dim">${board.weekScore >= board.weekTarget
+          ? `This week is <strong style="color:var(--ink)">done</strong> — ${board.weekScore}${
+              board.weekScore < 100 ? ' of a possible 100, and the rest is friction you cannot invent' : ''}`
+          : `This week scores <strong style="color:var(--ink)">${board.weekScore}</strong> of the ${board.weekTarget} that are yours to take${
+              board.availableThisWeek > 0 ? ` · ${board.availableThisWeek} still on the table` : ''}`}</span>
+        <span class="check-value"><span class="ref">${board.streak} week${board.streak === 1 ? '' : 's'} in a row</span></span>
+      </div>
+      <span class="bar-track"><span class="bar-fill" style="width:${weekPct}%"></span></span>
+
+      ${board.missions.length === 0
+        ? '<p class="small dim">Nothing missing from this week, nothing overdue, and no empty stages. Come back on Monday.</p>'
+        : `<div style="display:flex;flex-direction:column">${board.missions.slice(0, 6).map((m, i) => {
+            const [mark, label] = URGENCY[m.urgency]
+            const to = m.href.replace(/^\//, '').split('/')[0]
+            const screen = to === 'weeks' || to === 'dump' ? 'dump'
+              : to === 'sheets' ? 'sheet'
+              : to === 'coverage' ? 'coverage' : 'record'
+            return `<div style="padding:11px 0;border-top:${i === 0 ? 'none' : '1px solid var(--hair)'}">
+              <div class="row-wrap" style="gap:8px;align-items:baseline">
+                <span class="mark ${mark}">${label}</span>
+                <button class="small" data-go="${screen}" style="font-weight:600;flex:1 1 200px;min-width:0;text-align:left;text-decoration:underline;text-underline-offset:3px">${esc(m.title)}</button>
+                ${m.points > 0 ? `<span class="chip" title="What this is worth in this week's score">+${m.points}</span>` : ''}
+                <span class="label" style="flex:none">${KIND[m.kind]}</span>
+              </div>
+              <p class="tiny faint" style="margin-top:3px">${esc(m.why)}</p>
+              ${m.progress ? `<span class="bar-track" style="margin-top:6px"><span class="bar-fill" style="width:${
+                Math.round((m.progress.done / m.progress.target) * 100)}%"></span></span>` : ''}
+            </div>`
+          }).join('')}</div>`}
+
+      ${board.nextRank ? `<p class="tiny faint">${board.monthsToNextRank} more ${
+        board.monthsToNextRank === 1 ? 'month' : 'months'} of logged experience to
+        &ldquo;${esc(board.nextRank.name)}&rdquo; — ${esc(board.nextRank.blurb.toLowerCase())}</p>` : ''}
     </section>
 
     <div class="grid grid-2" style="margin-top:16px">
@@ -381,6 +449,189 @@ function renderReview() {
   `)
 }
 
+// --- Calendar ----------------------------------------------------------------
+
+const SAMPLE_ICS = [
+  'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Outlook//EN',
+  ev('Design team meeting 1042', '0908', '1000', '1100', ['Sarah Chen', 'Tom Reilly'], 'Battersea studio'),
+  ev('1042 Stage 4 technical design review', '0908', '1400', '1600', ['Sarah Chen', 'Priya Nair'], 'Teams'),
+  ev('Site visit Nine Elms 1088', '0909', '0900', '1200', ['Tom Reilly'], 'Nine Elms, SW8'),
+  ev('Lunch', '0909', '1230', '1330', [], ''),
+  ev('Focus time', '0909', '1400', '1600', [], ''),
+  ev('Sat in on the valuation with the QS', '0910', '1000', '1130', ['Dan Okafor'], 'Site'),
+  ev('Planning submission review BSQ', '0910', '1400', '1530', ['Priya Nair'], 'Teams'),
+  ev('Daily standup', '0911', '0900', '0915', [], ''),
+  ev('Building Safety Act CPD', '0911', '1200', '1300', ['Priya Nair'], 'Teams'),
+  'BEGIN:VEVENT', 'UID:cancelled-1', 'DTSTAMP:20260901T090000Z',
+  'DTSTART:20260911T150000Z', 'DTEND:20260911T160000Z',
+  'SUMMARY:Fee proposal workshop', 'STATUS:CANCELLED', 'END:VEVENT',
+  'END:VCALENDAR',
+].join('\r\n')
+
+/** One VEVENT, so the sample calendar reads like a real week rather than a fixture. */
+function ev(summary, day, from, to, people, location) {
+  const lines = [
+    'BEGIN:VEVENT',
+    `UID:${day}-${from}@practice.com`,
+    'DTSTAMP:20260901T090000Z',
+    `DTSTART:2026${day}T${from}00Z`,
+    `DTEND:2026${day}T${to}00Z`,
+    `SUMMARY:${summary}`,
+    'ORGANIZER;CN=Sarah Chen:mailto:sarah.chen@practice.com',
+    'ATTENDEE;CN=Alex Demo;PARTSTAT=ACCEPTED:mailto:alex@practice.com',
+    'ATTENDEE;CUTYPE=ROOM;CN=Meeting Room 3:mailto:room3@practice.com',
+  ]
+  if (location) lines.push(`LOCATION:${location}`)
+  for (const person of people) {
+    lines.push(`ATTENDEE;CN=${person};PARTSTAT=ACCEPTED:mailto:${person.toLowerCase().replace(/ /g, '.')}@practice.com`)
+  }
+  lines.push('END:VEVENT')
+  return lines.join('\r\n')
+}
+
+let calendarResult = null
+
+function renderCalendar() {
+  if (calendarResult) return renderCalendarReview()
+
+  return h(`
+    <div class="stack-s">
+      <h1>Link your calendar</h1>
+      <p class="dim">
+        Your Outlook or Teams calendar already knows what you did every working day, and —
+        uniquely — who was in the room with you. That is the part of a PEDR nobody can reconstruct
+        in a Sunday-night panic.
+      </p>
+    </div>
+
+    <section class="sheet stack" style="margin-top:16px">
+      <div class="sheet-head"><div>
+        <span class="label">Two ways in</span>
+        <h2 style="margin-top:3px">An .ics file, or a published link</h2>
+      </div></div>
+      <p class="small dim">
+        In the app a published link <strong>syncs</strong> — come back next month and it picks up
+        where it left off, and a meeting already on your record is never counted twice. Here, try
+        it with a file or with a week of a real-looking calendar.
+      </p>
+      <div class="row-wrap">
+        <button class="btn btn-primary" id="cal-sample">Try a week of calendar</button>
+        <input type="file" id="cal-file" accept=".ics,text/calendar" style="display:none">
+        <button class="btn" id="cal-choose">Choose an .ics file</button>
+      </div>
+      <p class="tiny faint">
+        Nothing leaves this tab. The file is read in your browser by the same parser the app runs.
+      </p>
+    </section>
+
+    <section class="sheet stack-s" style="margin-top:16px">
+      <div class="sheet-head"><div>
+        <span class="label">Thrown away automatically</span>
+        <h2 style="margin-top:3px">The noise</h2>
+      </div></div>
+      <p class="small dim">
+        Cancelled meetings, anything you declined, anything marked free, all-day blocks that are
+        not leave, and the standing furniture of a week:
+      </p>
+      <div class="row-wrap" style="gap:5px">
+        ${['Lunch', 'Focus time', 'Standup', 'Holds', 'Commute', 'Dentist', 'Birthdays', 'Under 15 min']
+          .map((w) => `<span class="chip">${w}</span>`).join('')}
+      </div>
+      <p class="tiny faint">
+        Every one is listed on the review screen with its reason, so nothing disappears quietly.
+      </p>
+    </section>
+  `)
+}
+
+function renderCalendarReview() {
+  const { entries, parsed } = calendarResult
+  const minutes = entries.reduce((sum, e) => sum + e.minutes, 0)
+  const days = new Set(entries.map((e) => e.date)).size
+  const people = new Set(entries.flatMap((e) => e.people)).size
+
+  return h(`
+    <section class="sheet stack-s">
+      <div class="row-wrap" style="justify-content:space-between;align-items:baseline">
+        <h2>Check this before it goes on the record</h2>
+        <span class="chip">${esc(calendarResult.source)}</span>
+      </div>
+      ${titleblock([
+        ['To import', String(entries.length)],
+        ['Days', String(days)],
+        ['Meeting time', E.formatDuration(minutes)],
+        ['People', String(people)],
+      ])}
+      <p class="note note-pending small">
+        <span aria-hidden="true">⚠</span> A calendar records meetings, not work. The hours here are
+        the meetings only — the desk time still has to go in by hand.
+      </p>
+      ${parsed.skipped.length > 0 ? `<details>
+        <summary class="small dim" style="cursor:pointer">What was left out (${parsed.skipped.length})</summary>
+        <div class="table-scroll" style="margin-top:10px">
+          <table class="schedule">
+            <thead><tr><th>Event</th><th>Date</th><th>Why</th></tr></thead>
+            <tbody>${parsed.skipped.map((sk) => `<tr>
+              <td>${esc(sk.summary)}</td>
+              <td class="mono tiny">${esc(sk.date ?? '—')}</td>
+              <td class="dim">${esc(sk.reason)}</td></tr>`).join('')}</tbody>
+          </table>
+        </div>
+      </details>` : ''}
+    </section>
+
+    <div class="stack-s" style="margin-top:12px">
+      ${entries.map((entry, index) => {
+        const project = state.projects.find((p) => p.id === entry.projectId)
+        return `<div class="sheet sheet-tight stack-s">
+          <div class="entry-head">
+            <span class="ref">${esc(E.formatDate(entry.date, { weekday: true }))}</span>
+            <span class="mono tiny dim">${esc(E.formatDuration(entry.minutes))}</span>
+            <span class="spacer"></span>
+            <button class="btn btn-ghost btn-sm btn-danger" data-cal-drop="${index}">Drop</button>
+          </div>
+          <p class="small">${esc(entry.activity)}</p>
+          <div class="row-wrap" style="gap:5px">
+            ${project ? `<span class="chip">${esc(project.code || project.name)}</span>`
+              : entry.officeCategory ? `<span class="chip">${esc(entry.officeCategory)}</span>`
+              : '<span class="mark mark-none">no project</span>'}
+            ${entry.stage !== null ? `<span class="chip">Stage ${entry.stage}</span>` : ''}
+            <span class="chip${entry.participation === 'observer' ? '' : ' chip-ink'}">${
+              entry.participation === 'observer' ? 'Watched' : 'Did it'}</span>
+          </div>
+          ${entry.people.length ? `<p class="tiny faint">With ${esc(entry.people.join(', '))}</p>` : ''}
+        </div>`
+      }).join('')}
+    </div>
+
+    <div class="sheet stack-s sticky-actions" style="margin-top:12px">
+      <div class="row-wrap">
+        <button class="btn btn-primary" id="cal-commit"${entries.length === 0 ? ' disabled' : ''}>
+          Save ${entries.length} to the record
+        </button>
+        <button class="btn" id="cal-back">Start again</button>
+      </div>
+    </div>
+  `)
+}
+
+function readCalendar(ics, source) {
+  const window_ = E.defaultWindow(today, 12)
+  const parsed = E.parseCalendar(ics, {
+    from: window_.from,
+    to: window_.to,
+    email: 'alex@practice.com',
+    name: state.name,
+  })
+  const entries = E.calendarToEntries(parsed, {
+    reference: today,
+    projects: state.projects,
+    knownPeople: [...new Set(state.entries.flatMap((e) => e.people))],
+  })
+  calendarResult = { parsed, entries, source }
+  render()
+}
+
 // --- Coverage ----------------------------------------------------------------
 
 function renderCoverage(d) {
@@ -468,6 +719,8 @@ function renderCoverage(d) {
 // --- The sheet ---------------------------------------------------------------
 
 let sheetIndex = null
+/** The quarter currently on screen, so the download button has something to render. */
+let lastSheet = null
 
 function renderSheet(d) {
   const periods = d.periods
@@ -496,6 +749,12 @@ function renderSheet(d) {
     projects: state.projects,
   })
   const markdown = E.renderMarkdown(doc)
+  const activeDoc = DOCUMENTS.find((x) => x.id === exportDoc) ?? DOCUMENTS[0]
+  const chosenFormat = exportFormat && activeDoc.formats.includes(exportFormat)
+    ? exportFormat
+    : activeDoc.formats[0]
+
+  lastSheet = { content, period, entries }
 
   const tabs = periods.map((p, i) => `
     <button class="chip${i === index ? ' chip-ink' : ''}" data-period="${i}"
@@ -544,15 +803,122 @@ function renderSheet(d) {
     </section>
 
     <section class="sheet stack" style="margin-top:16px">
+      <div class="sheet-head"><div>
+        <span class="label">Take it away</span>
+        <h2 style="margin-top:3px">Download</h2>
+      </div></div>
+
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="label" style="margin-bottom:8px">Which document</legend>
+        <div class="stack-s">
+          ${DOCUMENTS.map((doc) => `
+            <label class="row" style="gap:8px;align-items:flex-start">
+              <input type="radio" name="doc" value="${doc.id}"${
+                exportDoc === doc.id ? ' checked' : ''} style="width:auto;margin-top:3px">
+              <span>
+                <span class="small" style="font-weight:600">${esc(doc.name)}</span><br>
+                <span class="tiny faint">${esc(doc.blurb)}</span>
+              </span>
+            </label>`).join('')}
+        </div>
+      </fieldset>
+
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="label" style="margin-bottom:8px">Which format</legend>
+        <div class="row-wrap" style="gap:5px">
+          ${activeDoc.formats.map((f) => `<button class="chip${
+            chosenFormat === f ? ' chip-ink' : ''}" data-format="${f}" style="cursor:pointer">${
+            esc(E.FORMAT_LABELS[f].name)}</button>`).join('')}
+        </div>
+        <p class="tiny faint" style="margin-top:8px">${esc(E.FORMAT_LABELS[chosenFormat].note)}</p>
+      </fieldset>
+
+      <div class="row-wrap">
+        <button class="btn btn-primary" id="download">Download the ${
+          esc(E.FORMAT_LABELS[chosenFormat].noun)}</button>
+        <span class="small dim" id="download-state"></span>
+      </div>
+      <p class="tiny faint">
+        Generated here, in this tab, by the same code the app runs on a server. The PDF is drawn
+        page by page; the Word file is a real .docx a mentor can type into.
+      </p>
+    </section>
+
+    <section class="sheet stack" style="margin-top:16px">
       <div class="sheet-head"><div class="stack-s" style="gap:2px">
-        <h2>The sheet itself</h2>
-        <p class="tiny faint">Generated in the order of the real form. Select it and copy.</p>
+        <h2>Or copy it out</h2>
+        <p class="tiny faint">
+          Plain text, in the order of the real form — for pasting section by section into RIBA's
+          own form, which is where the record actually lives.
+        </p>
       </div>
       <span class="spacer"></span>
       <button class="btn btn-sm" id="copy">Copy</button></div>
       <div class="preview">${esc(markdown)}</div>
     </section>
   `)
+}
+
+const DOCUMENTS = [
+  {
+    id: 'sheet',
+    name: 'The record sheet',
+    blurb: 'The quarter, in the order of the real form.',
+    formats: ['pdf', 'docx', 'md'],
+  },
+  {
+    id: 'mentor-appraisal',
+    name: 'PSA appraisal template',
+    blurb: 'The quarter printed above the boxes your advisor fills in.',
+    formats: ['docx', 'pdf'],
+  },
+  {
+    id: 'supervisor-appraisal',
+    name: 'Supervisor appraisal template',
+    blurb: 'The same, for the architect who supervises you at work.',
+    formats: ['docx', 'pdf'],
+  },
+]
+
+let exportDoc = 'sheet'
+let exportFormat = null
+
+/**
+ * Hand the viewer a file.
+ *
+ * Three surfaces, in order of how good the result is. Published on claude.ai
+ * the page asks the host to save it, because a frame there cannot download on
+ * its own. Opened from a file:// URL it is an ordinary blob download. If
+ * neither works there is still the plain-text panel below, which is why that
+ * panel exists rather than being a lesser duplicate of this one.
+ */
+async function offerFile(filename, bytes, mime) {
+  const claude = globalThis.claude
+  if (claude && typeof claude.use === 'function') {
+    try {
+      const downloads = await claude.use('downloads')
+      if (downloads) {
+        await downloads.save({ filename, data: new Blob([bytes], { type: mime }) })
+        return 'saved'
+      }
+    } catch (error) {
+      // "declined" is the viewer saying no, which is an answer, not a failure.
+      return error && error.code === 'declined' ? 'declined' : 'failed'
+    }
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([bytes], { type: mime }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 4000)
+    return 'saved'
+  } catch {
+    return 'failed'
+  }
 }
 
 // --- Guide -------------------------------------------------------------------
@@ -619,6 +985,7 @@ function render() {
   const renderers = {
     record: renderRecord,
     dump: renderDump,
+    calendar: renderCalendar,
     coverage: renderCoverage,
     sheet: renderSheet,
     guide: renderGuide,
@@ -712,6 +1079,58 @@ document.addEventListener('click', (event) => {
     return
   }
 
+  if (target.dataset.format) {
+    exportFormat = target.dataset.format
+    render()
+    return
+  }
+
+  if (target.id === 'cal-choose') {
+    document.getElementById('cal-file')?.click()
+    return
+  }
+
+  if (target.id === 'cal-sample') {
+    readCalendar(SAMPLE_ICS, 'a week of calendar')
+    return
+  }
+
+  if (target.id === 'cal-back') {
+    calendarResult = null
+    render()
+    return
+  }
+
+  if (target.dataset.calDrop !== undefined) {
+    const index = Number(target.dataset.calDrop)
+    calendarResult.entries = calendarResult.entries.filter((_, i) => i !== index)
+    render()
+    return
+  }
+
+  if (target.id === 'cal-commit') {
+    const stamp = new Date().toISOString()
+    state.entries = [...state.entries, ...calendarResult.entries.map((entry, i) => ({
+      ...entry,
+      id: `cal-${Date.now()}-${i}`,
+      userId: 'demo-user',
+      dumpId: null,
+      verified: true,
+      provenance: entry.provenance ?? null,
+      createdAt: stamp,
+      updatedAt: stamp,
+    }))]
+    calendarResult = null
+    save()
+    go('record')
+    return
+  }
+
+  if (target.id === 'download') {
+    downloadCurrent(target)
+    return
+  }
+
   if (target.id === 'copy') {
     const text = $('.preview')?.textContent ?? ''
     navigator.clipboard?.writeText(text).then(
@@ -734,6 +1153,74 @@ document.addEventListener('click', (event) => {
 document.addEventListener('input', (event) => {
   if (event.target.id === 'raw') draft.raw = event.target.value
 })
+
+document.addEventListener('change', async (event) => {
+  if (event.target.name === 'doc') {
+    exportDoc = event.target.value
+    // A format the new document does not offer falls back to its first.
+    exportFormat = null
+    render()
+    return
+  }
+  if (event.target.id === 'cal-file') {
+    const file = event.target.files?.[0]
+    if (!file) return
+    readCalendar(await file.text(), file.name)
+  }
+})
+
+/**
+ * Build whichever document and format is selected, and hand it over.
+ *
+ * Rendering a PDF is a hundred milliseconds of work on a phone, which is long
+ * enough to look broken, so the button says what it is doing.
+ */
+async function downloadCurrent(button) {
+  if (!lastSheet) return
+  const activeDoc = DOCUMENTS.find((x) => x.id === exportDoc) ?? DOCUMENTS[0]
+  const format = exportFormat && activeDoc.formats.includes(exportFormat)
+    ? exportFormat
+    : activeDoc.formats[0]
+  const label = document.getElementById('download-state')
+  const say = (text) => { if (label) label.textContent = text }
+
+  button.disabled = true
+  say('Building it…')
+  try {
+    const shared = {
+      content: lastSheet.content,
+      periodStart: lastSheet.period.periodStart,
+      periodEnd: lastSheet.period.periodEnd,
+      candidateName: state.name,
+      employment: state.employment,
+    }
+    const doc = activeDoc.id === 'sheet'
+      ? E.buildSheetDocument({ ...shared, entries: lastSheet.entries, projects: state.projects })
+      : E.buildAppraisalDocument({
+          ...shared,
+          role: activeDoc.id === 'mentor-appraisal' ? 'mentor' : 'supervisor',
+        })
+
+    const spec = E.FORMAT_LABELS[format]
+    const filename = `${doc.meta.name}.${spec.extension}`
+    const bytes = format === 'pdf' ? await E.renderPdf(doc)
+      : format === 'docx' ? await E.renderDocx(doc)
+      : E.renderMarkdown(doc)
+    const mime = format === 'pdf' ? 'application/pdf'
+      : format === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      : 'text/markdown;charset=utf-8'
+
+    const outcome = await offerFile(filename, bytes, mime)
+    say(outcome === 'saved' ? `${filename} — done.`
+      : outcome === 'declined' ? 'No problem.'
+      : 'This browser would not save it. Copy the text below instead.')
+  } catch (error) {
+    say('Could not build that one. The text below always works.')
+    console.error(error)
+  } finally {
+    button.disabled = false
+  }
+}
 
 if (location.hash) {
   const screen = location.hash.slice(1)

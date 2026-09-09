@@ -17,12 +17,15 @@ export { computeCoverage, coverageHeadline, participationTrend } from '@/lib/ped
 export { computeProgress, employmentForWeek } from '@/lib/pedr/progress'
 export { planSheetPeriods, summariseDeadlines, describeWindow } from '@/lib/pedr/deadlines'
 export { buildSheet, officeSummary, entriesToCsv } from '@/lib/pedr/sheet'
-// The leaf modules, not the index: the index pulls in pdf-lib and docx, which
-// would put a megabyte and a half of PDF machinery into a page whose whole
-// point is that it opens instantly on a phone.
 export { buildSheetDocument } from '@/lib/export/sheet-document'
 export { buildAppraisalDocument } from '@/lib/export/appraisal'
 export { renderMarkdown } from '@/lib/export/markdown'
+// The real renderers. They are the bulk of this bundle, and they earn it: a
+// demo that says "in the app this exports a PDF" is indistinguishable from one
+// that cannot, so this one hands you the actual file.
+export { renderPdf } from '@/lib/export/pdf'
+export { renderDocx } from '@/lib/export/docx'
+export { FORMAT_LABELS, FORMATS } from '@/lib/pedr/formats'
 export {
   RIBA_STAGES, PROFESSIONAL_CRITERIA, OFFICE_MANAGEMENT_CATEGORIES, PARTICIPATION,
   SCORING, REQUIREMENTS, SHEET_RULES, REFLECTION_PROMPTS, PEDR_SYSTEM,
@@ -34,5 +37,6 @@ export {
   weekIdOf, weekStartKey, weekEndKey, weekRange, addWeeks, addDays, addMonths,
   monthKeyOf, daysBetween,
 } from '@/lib/pedr/week'
+export { buildMissions, missionHeadline, rankFor, RANKS } from '@/lib/pedr/missions'
 export { buildDemoRecord } from '@/lib/demo-record'
 export { REVIEW_THRESHOLD } from '@/lib/pedr/types'
