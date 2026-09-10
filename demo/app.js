@@ -368,21 +368,11 @@ function renderCatchUp(d) {
 
   return h(`
     <div class="stack-s">
-      <span class="label">You do not have to remember it</span>
-      <h1>Months behind? It is already written down.</h1>
-      <p class="dim">
-        Almost nobody keeps a PEDR up to date. The record you are missing is sitting in your
-        Outlook calendar and your practice timesheet — this pulls it back out, week by week, and
-        tells you honestly which weeks it could not reach.
+      <h1>Behind on your PEDR?</h1>
+      <p class="lede">
+        So is nearly everyone. Most of what you need is already written down — in your calendar
+        and your timesheet. Bring either one and watch the months come back.
       </p>
-    </div>
-
-    <div class="band ${state_.trouble === 'serious' ? 'band-alarm' : 'band-signal'}" style="margin-top:16px">
-      <span class="label">Where this record is</span>
-      <strong>${state_.sheetsLate === 0
-        ? `${state_.weeksMissing} weeks blank`
-        : `${state_.sheetsLate} ${state_.sheetsLate === 1 ? 'sheet' : 'sheets'} past the deadline`}</strong>
-      <span class="small">${esc(state_.verdict)}</span>
     </div>
 
     <section class="sheet stack" style="margin-top:16px">
