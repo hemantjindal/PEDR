@@ -65,75 +65,50 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
-      <div className="stack-s">
-        <Link href="/guides" className="label label-ink">← All guides</Link>
-        <h1>{g.title}</h1>
-        {/* The answer, first and large. Nobody arrived wanting to read; they
-            arrived wanting one fact, and the prose is for whoever stays. */}
+      <div className="guide">
+        <Link href="/guides" className="back">← All answers</Link>
+        <h1>{g.question}</h1>
         <p className="answer">{g.answer}</p>
-      </div>
 
-      {/* The numbers, before any sentence. */}
-      <dl className="facts">
-        {g.facts.map((f) => (
-          <div key={f.k}>
-            <dt>{f.k}</dt>
-            <dd>{f.v}</dd>
-          </div>
-        ))}
-      </dl>
+        <dl className="facts">
+          {g.facts.map((f) => (
+            <div key={f.k}>
+              <dt>{f.k}</dt>
+              <dd>{f.v}</dd>
+            </div>
+          ))}
+        </dl>
 
-      <section className="stack-s">
-        {g.faq.map((f) => (
-          <details className="qa" key={f.q}>
-            <summary>{f.q}</summary>
-            <p className="small dim">{f.a}</p>
-          </details>
-        ))}
-      </section>
+        <div className="qa-list">
+          {g.faq.map((f) => (
+            <details className="qa" key={f.q}>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))}
+        </div>
 
-      {/* Everything above answers the question. This is for the one reader in
-          ten who wants to know why, and it is placed where they will look. */}
-      <details className="detail">
-        <summary>The detail</summary>
-        <div className="stack-l" style={{ marginTop: 22 }}>{g.body()}</div>
-      </details>
-
-      <section className="sheet stack-s">
-        <h2>Keep a record without keeping a diary</h2>
-        <p className="small dim">
-          Point it at your calendar and your timesheet, and the quarterly sheets build themselves.
-        </p>
         <div className="row-wrap">
           <Link href="/" className="btn btn-primary">See what yours looks like</Link>
-          <Link href="/what-is-a-pedr" className="btn">A finished sheet</Link>
         </div>
-      </section>
 
-      {g.related.length > 0 && (
-        <section className="stack">
-          <h2>Read next</h2>
-          <div className="stack-s">
+        {g.related.length > 0 && (
+          <nav className="read-next" aria-label="Related answers">
             {g.related.map((slug) => {
               const related = guide(slug)
-              const href = related ? `/guides/${related.slug}` : `/${slug}`
-              const title = related?.title ?? 'What a PEDR actually looks like'
-              const question = related?.question ?? 'What does a PEDR actually look like?'
               return (
-                <Link key={slug} href={href} className="sheet sheet-tight stack-s">
-                  <span className="label">{question}</span>
-                  <h3>{title}</h3>
+                <Link key={slug} href={related ? `/guides/${related.slug}` : `/${slug}`}>
+                  {related?.question ?? 'What a PEDR actually is'}
                 </Link>
               )
             })}
-          </div>
-        </section>
-      )}
+          </nav>
+        )}
 
-      <p className="tiny faint">
-        Checked against {PEDR_SYSTEM.name} guidance, {PEDR_SYSTEM.asOf}. Your mentor and PSA sign
-        at <a href={PEDR_SYSTEM.url} rel="noreferrer">{PEDR_SYSTEM.shortUrl}</a>.
-      </p>
+        <p className="tiny faint">
+          Checked against {PEDR_SYSTEM.name} guidance, {PEDR_SYSTEM.asOf}.
+        </p>
+      </div>
     </div>
   )
 }

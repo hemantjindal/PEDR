@@ -36,8 +36,8 @@ interface Page {
 // /behind and / are the same tool, so the static site carries it once.
 const PAGES: Page[] = [
   { path: '/' },
-  { path: '/what-is-a-pedr', nav: 'A real sheet' },
-  { path: '/guides', nav: 'Guides' },
+  { path: '/what-is-a-pedr', nav: 'What a PEDR is' },
+  { path: '/guides', nav: 'Answers' },
   ...GUIDES.map((g) => ({ path: `/guides/${g.slug}` })),
 ]
 
@@ -47,9 +47,8 @@ const TOOL_PAGE = `
   <div class="stack-l">
     <div data-tool></div>
     <div class="strip">
-      <a href="#/what-is-a-pedr">What a PEDR actually looks like</a>
-      <a href="#/guides">Deadlines, what counts, who signs</a>
-      <a href="#/guides/behind-on-your-pedr">What to do about the gaps</a>
+      <a href="#/what-is-a-pedr">What a PEDR actually is</a>
+      <a href="#/guides">Answers</a>
     </div>
   </div>
 </div>`
@@ -141,13 +140,13 @@ async function main() {
     '<a class="brand" href="#/"><span class="brand-mark">P</span><span>PEDR</span></a>',
     `<nav class="nav nav-public" aria-label="Sections">${nav}</nav>`,
     '<span class="spacer"></span>',
-    '<a class="btn btn-ghost btn-sm" href="#/what-is-a-pedr">A real sheet</a>',
+    '<a class="btn btn-ghost btn-sm" href="#/">Check yours</a>',
     '</div></header>',
     '<div style="flex:1">',
     ...pages.map((p) => `<section class="page" data-page="${p.path}">${p.html}</section>`),
     '</div>',
     '<footer class="wrap no-print" style="padding-block:24px">',
-    '<p class="tiny faint">Not the official record. RIBA&rsquo;s system at ',
+    '<p class="tiny faint">Not the official record — RIBA&rsquo;s system at ',
     'register.architecture.com/pedr is, and that is where your mentor and PSA sign.</p>',
     '</footer>',
     '</div>',

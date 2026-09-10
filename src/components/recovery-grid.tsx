@@ -57,37 +57,3 @@ export function RecoveryGrid({
     </div>
   )
 }
-
-/**
- * How far round the year you are.
- *
- * The number in the middle is months served, not percent complete — months are
- * what the regulations count and what somebody actually feels.
- */
-export function Progress({ value, max, label }: { value: number; max: number; label: string }) {
-  const share = max > 0 ? Math.min(1, value / max) : 0
-  const r = 52
-  const circumference = 2 * Math.PI * r
-
-  return (
-    <div className="progress">
-      <svg viewBox="0 0 128 128" width="128" height="128" aria-hidden="true">
-        <circle cx="64" cy="64" r={r} className="progress-track" />
-        <circle
-          cx="64"
-          cy="64"
-          r={r}
-          className="progress-value"
-          style={{
-            strokeDasharray: circumference,
-            strokeDashoffset: circumference * (1 - share),
-          }}
-        />
-      </svg>
-      <div className="progress-mid">
-        <span className="progress-figure">{value}</span>
-        <span className="progress-label">{label}</span>
-      </div>
-    </div>
-  )
-}

@@ -18,9 +18,9 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <span>PEDR</span>
           </Link>
           <nav className="nav nav-public" aria-label="Guides">
-            <Link href="/guides">Guides</Link>
-            <Link href="/what-is-a-pedr">A real sheet</Link>
-            <Link href="/behind">Am I in trouble?</Link>
+            <Link href="/guides">Answers</Link>
+            <Link href="/what-is-a-pedr">What a PEDR is</Link>
+            <Link href="/behind">Check yours</Link>
           </nav>
           <span className="spacer" />
           <Link href="/sign-in" className="btn btn-ghost btn-sm">Sign in</Link>
@@ -31,9 +31,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
       <footer className="wrap no-print" style={{ paddingBlock: 24 }}>
         <p className="tiny faint">
-          Not the official record. RIBA&rsquo;s system at register.architecture.com/pedr is, and
-          that is where your mentor and PSA sign. This is the diary that makes filling it in take
-          twenty minutes instead of a weekend.
+          Not the official record — RIBA&rsquo;s system at register.architecture.com/pedr is, and
+          that is where your mentor and PSA sign.
         </p>
       </footer>
     </div>

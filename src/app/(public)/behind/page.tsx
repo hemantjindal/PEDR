@@ -22,7 +22,7 @@ export default function BehindPage() {
     <div className="stack-l">
       <CatchUpTool />
       <div className="strip" style={{ maxWidth: 620, marginInline: 'auto' }}>
-        <Link href="/what-is-a-pedr">What one actually looks like</Link>
+        <Link href="/what-is-a-pedr">What a PEDR actually is</Link>
         <Link href="/guides">Answers</Link>
         <Link href="/sign-up">Keep a record</Link>
       </div>

@@ -51,8 +51,8 @@ export default async function Root() {
         <div className="stack-l">
           <CatchUpTool />
           <div className="strip" style={{ maxWidth: 620, marginInline: 'auto' }}>
-            <Link href="/what-is-a-pedr">What a PEDR actually looks like</Link>
-            <Link href="/guides">Deadlines, what counts, who signs</Link>
+            <Link href="/what-is-a-pedr">What a PEDR actually is</Link>
+            <Link href="/guides">Answers</Link>
             <Link href="/sign-up">Keep a record</Link>
           </div>
         </div>
@@ -60,7 +60,7 @@ export default async function Root() {
 
       <footer className="wrap no-print" style={{ paddingBlock: 24 }}>
         <p className="tiny faint">
-          Not the official record. RIBA&rsquo;s system at register.architecture.com/pedr is, and
+          Not the official record — RIBA&rsquo;s system at register.architecture.com/pedr is, and
           that is where your mentor and PSA sign.
         </p>
       </footer>

@@ -18,25 +18,25 @@
 :root {
   color-scheme: light;
 
-  --paper:  #f6f7f4;   /* the ground: a neutral pulled very slightly green */
+  --paper:  #f1f2ec;   /* warm chalk, pulled green */
   --panel:  #ffffff;   /* cards sit above it */
-  --sunk:   #edf1ea;
+  --sunk:   #e3e6dc;
   --white:  #ffffff;
 
-  --ink:    #17201a;
-  --ink-2:  #4e5c52;
-  --ink-3:  #7b887f;
-  --hair:   #e3e8de;
-  --edge:   #dbe2d6;   /* the default border: a line, not a rule */
+  --ink:    #12211a;   /* near-black, but green — nothing here is neutral */
+  --ink-2:  #47564d;
+  --ink-3:  #77857b;
+  --hair:   #dde1d5;
+  --edge:   #d2d8ca;   /* the default border: a line, not a rule */
 
-  --signal:     #2e7d51;   /* progress, time served, everything good */
+  --signal:     #14724b;   /* progress, time served, everything good */
   --signal-ink: #ffffff;   /* 5.3:1 on signal */
-  --signal-soft:#dcefe3;
+  --signal-soft:#d9ebdf;
   --alarm:      #a9662b;   /* attention, never failure */
   --alarm-ink:  #ffffff;
   --alarm-text: #8c5220;
   --alarm-soft: #f7ebdd;
-  --done:       #2e7d51;
+  --done:       #14724b;
 
   --rule: 1px;
   --r:    14px;
@@ -115,16 +115,17 @@ a { color: inherit; }
 
 /* --- Type ------------------------------------------------------------------ */
 
-h1, h2, h3 { margin: 0; font-family: var(--black); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; }
-h1 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
-h2 { font-size: 1.25rem; }
+h1, h2, h3 { margin: 0; font-family: var(--black); font-weight: 600; line-height: 1.04; letter-spacing: -0.035em; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); }
+h2 { font-size: 1.35rem; }
 h3 { font-size: 1rem; }
 
 .figure {
   font-family: var(--black);
-  font-size: clamp(3rem, 7vw, 5.4rem);
-  line-height: 0.88;
-  letter-spacing: -0.035em;
+  font-weight: 600;
+  font-size: clamp(3.6rem, 12vw, 7rem);
+  line-height: 0.84;
+  letter-spacing: -0.05em;
   font-variant-numeric: tabular-nums;
 }
 .figure-sm {
@@ -540,34 +541,6 @@ table.schedule-wide { min-width: 520px; }
 .week[data-now="true"] { box-shadow: inset 0 0 0 2px var(--ink-3); }
 @media (prefers-reduced-motion: reduce) { .week { transition: none; } }
 
-/* --- Progress ---------------------------------------------------------------- */
-
-.progress { position: relative; width: 128px; height: 128px; flex: none; }
-.progress svg { transform: rotate(-90deg); }
-.progress-track { fill: none; stroke: var(--sunk); stroke-width: 12; }
-.progress-value {
-  fill: none;
-  stroke: var(--signal);
-  stroke-width: 12;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-@media (prefers-reduced-motion: reduce) { .progress-value { transition: none; } }
-.progress-mid {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 1px;
-}
-.progress-figure {
-  font-family: var(--black);
-  font-size: 1.9rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.progress-label { font-size: 0.74rem; color: var(--ink-3); }
-
 /* --- Bars and meters ---------------------------------------------------------- */
 
 .bar-track { height: 12px; background: var(--sunk); border: var(--rule) solid var(--edge); }
@@ -694,9 +667,42 @@ table.schedule-wide { min-width: 520px; }
 
 .soft-error { font-size: 0.9rem; color: var(--alarm-text); }
 
-.result { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-.result-said { flex: 1 1 240px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.result-said h1 { max-width: 15ch; }
+
+/* The moment. One number, big enough to feel, on the colour that means time
+   served. Everything else on the screen is quieter than this on purpose. */
+.moment {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 34px 32px 30px;
+  border-radius: var(--r);
+  background: var(--signal);
+  color: #fff;
+}
+.moment .figure { color: #fff; }
+.moment-unit {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin-top: 10px;
+}
+.moment-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  margin: 16px 0 12px;
+  overflow: hidden;
+}
+.moment-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) { .moment-bar > span { transition: none; } }
+.moment-note { font-size: 0.95rem; color: rgba(255, 255, 255, 0.82); }
+@media (max-width: 480px) { .moment { padding: 26px 22px 24px; } }
 
 .next { display: flex; flex-direction: column; gap: 11px; }
 .next p { font-size: 0.98rem; line-height: 1.55; color: var(--ink-2); display: flex; gap: 11px; margin: 0; align-items: baseline; }
@@ -746,61 +752,135 @@ table.schedule-wide { min-width: 520px; }
 }
 .strip a:hover { color: var(--ink); border-bottom-color: var(--ink-3); }
 
-/* --- Guides ---------------------------------------------------------------------
-   A guide exists to hand over one fact. So: the answer at reading-headline
-   size, the numbers as a strip, the questions as a list you open — and the
-   prose behind one disclosure, for the reader in ten who wants the why.
+/* --- Answers --------------------------------------------------------------------
+   A guide exists to hand over one fact and let somebody leave. The question is
+   the headline, the answer is the page, and the rest is optional.
 --------------------------------------------------------------------------- */
 
+.guide { display: flex; flex-direction: column; gap: 24px; max-width: 620px; margin-inline: auto; }
+.guide h1 { font-size: clamp(1.8rem, 4.4vw, 2.5rem); max-width: 18ch; text-wrap: balance; }
+
+.back { font-size: 0.9rem; color: var(--ink-3); text-decoration: none; }
+.back:hover { color: var(--ink); }
+
 .answer {
-  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
-  line-height: 1.5;
-  max-width: 46ch;
+  font-size: 1.16rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 44ch;
   text-wrap: pretty;
 }
 
 .facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
-  gap: 0 28px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px 26px;
   margin: 0;
-  border-top: var(--rule) solid var(--hair);
-  border-bottom: 1px solid var(--hair);
+  padding: 20px 22px;
+  border-radius: var(--r);
+  background: var(--sunk);
 }
-.facts > div { min-width: 0; padding: 11px 0 13px; }
-.facts dt {
-  font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--ink-3);
-}
-.facts dd { margin: 3px 0 0; font-size: 0.94rem; font-weight: 600; line-height: 1.3; }
+.facts > div { min-width: 0; }
+.facts dt { font-size: 0.82rem; color: var(--ink-3); }
+.facts dd { margin: 3px 0 0; font-size: 1rem; font-weight: 600; line-height: 1.3; }
 
+.qa-list { display: flex; flex-direction: column; }
 .qa { border-bottom: 1px solid var(--hair); }
+.qa:first-child { border-top: 1px solid var(--hair); }
 .qa > summary {
   list-style: none;
   cursor: pointer;
-  padding: 12px 0;
-  font-size: 0.95rem;
+  padding: 15px 0;
+  font-size: 1rem;
   font-weight: 600;
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
 }
 .qa > summary::-webkit-details-marker { display: none; }
-.qa > summary::before { content: '+'; color: var(--ink-3); font-weight: 400; width: 12px; flex: none; }
+.qa > summary::before { content: '+'; color: var(--signal); font-weight: 600; width: 12px; flex: none; }
 .qa[open] > summary::before { content: '–'; }
-.qa > p { padding: 0 0 14px 22px; max-width: 62ch; }
-
-.detail > summary {
-  list-style: none;
-  cursor: pointer;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--ink-3);
-  padding: 6px 0;
+/* A question list. Big enough to hit, quiet enough to scan, no answers on it. */
+.questions { display: flex; flex-direction: column; }
+.questions a {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--hair);
+  text-decoration: none;
+  font-size: 1.06rem;
+  font-weight: 500;
+  color: var(--ink);
+  transition: color 140ms ease;
 }
-.detail > summary::-webkit-details-marker { display: none; }
-.detail > summary::after { content: ' →'; }
-.detail[open] > summary::after { content: ' ↓'; }
-.detail > summary:hover { color: var(--ink); }
+.questions a:first-child { border-top: 1px solid var(--hair); }
+.questions a::after { content: '→'; color: var(--ink-3); flex: none; transition: transform 160ms ease; }
+.questions a:hover { color: var(--signal); }
+.questions a:hover::after { color: var(--signal); transform: translateX(3px); }
+
+.read-next { display: flex; flex-direction: column; gap: 0; }
+.read-next a {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hair);
+  text-decoration: none;
+  font-size: 1rem;
+  color: var(--ink-2);
+  display: flex; justify-content: space-between; gap: 14px;
+}
+.read-next a:first-child { border-top: 1px solid var(--hair); }
+.read-next a::after { content: '→'; color: var(--ink-3); flex: none; }
+.read-next a:hover { color: var(--ink); }
+
+.qa > p { margin: 0; padding: 0 0 16px 24px; max-width: 58ch; color: var(--ink-2); line-height: 1.6; }
+
+/* --- The explainer ---------------------------------------------------------- */
+
+.explain { display: flex; flex-direction: column; gap: 22px; max-width: 620px; margin-inline: auto; }
+.explain-head { display: flex; flex-direction: column; gap: 12px; }
+.explain h1 { font-size: clamp(1.9rem, 4.6vw, 2.6rem); max-width: 16ch; text-wrap: balance; }
+
+/* Eight small things is a manageable number. Eight pages is not, so this shows
+   the first shape and never the second. */
+.sheets { display: flex; gap: 8px; flex-wrap: wrap; }
+.sheet-chip {
+  width: 46px;
+  height: 60px;
+  border-radius: 8px;
+  border: 1px solid var(--edge);
+  background: var(--panel);
+  display: grid;
+  place-items: center;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.sheet-chip[data-first="true"] {
+  background: var(--signal);
+  border-color: var(--signal);
+  color: #fff;
+}
+
+.explain-parts { display: flex; flex-direction: column; gap: 14px; }
+.parts { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.parts > li {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.parts > li:last-child { border-bottom: 0; }
+.parts-n {
+  flex: none;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--signal-soft);
+  color: var(--signal);
+  display: grid; place-items: center;
+  font-size: 0.82rem; font-weight: 700;
+}
+.parts-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.parts-body strong { font-size: 1.02rem; font-weight: 600; }
+.parts-what { font-size: 0.96rem; line-height: 1.5; color: var(--ink-2); }
+.parts-time { font-size: 0.86rem; color: var(--ink-3); }
 
 /* --- Print --------------------------------------------------------------------- */
 
