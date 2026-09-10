@@ -1,96 +1,103 @@
 @import "tailwindcss";
 
 /* ===========================================================================
-   PEDR
+   PEDR — trace over graph paper.
 
-   This is for someone who has been avoiding a piece of paperwork for months
-   and is quietly ashamed of it. So the page must not look like the paperwork.
-   No hard black rules, no uppercase officialdom, no red.
+   Architecture has its own grammar and none of it is a rounded card. Drawings
+   are annotated: dimension lines with tick ends, extension lines, hatching,
+   everything labelled in a precise mono. That grammar is where this gets its
+   character, so the page is a sheet of trace on a faintly gridded board, and
+   the record is dimensioned — two years is a length, and how far you have got
+   is a measurement taken on it.
 
-   Colour carries one idea: green is time you have already served. It fills as
-   the record fills, which is the only feedback anyone here needs. Amber marks
-   what still needs a minute of attention — never red, because nothing here is
-   an error and nobody needs telling off.
-
-   Soft edges, real breathing room, one warm neutral ground.
+   Warm trace, graphite, and the blue of a technical pen. One accent doing one
+   job: this is what you have done, and this is what you can do next. Nothing
+   is red. Nothing shouts.
    =========================================================================== */
 
 :root {
   color-scheme: light;
 
-  --paper:  #f1f2ec;   /* warm chalk, pulled green */
-  --panel:  #ffffff;   /* cards sit above it */
-  --sunk:   #e3e6dc;
+  --paper:  #f2efe6;   /* trace, warm */
+  --panel:  #fcfaf5;   /* a lighter sheet laid over it */
+  --sunk:   #e8e3d6;
   --white:  #ffffff;
 
-  --ink:    #12211a;   /* near-black, but green — nothing here is neutral */
-  --ink-2:  #47564d;
-  --ink-3:  #77857b;
-  --hair:   #dde1d5;
-  --edge:   #d2d8ca;   /* the default border: a line, not a rule */
+  --ink:    #232019;   /* graphite: warm, never pure black */
+  --ink-2:  #565042;
+  --ink-3:  #8a8271;
+  --hair:   #ddd7c8;
+  --edge:   #cec7b4;
 
-  --signal:     #14724b;   /* progress, time served, everything good */
-  --signal-ink: #ffffff;   /* 5.3:1 on signal */
-  --signal-soft:#d9ebdf;
-  --alarm:      #a9662b;   /* attention, never failure */
+  --signal:     #1b4d7e;   /* the pen */
+  --signal-ink: #ffffff;
+  --signal-soft:#dde7f1;
+  --alarm:      #9a5b2b;   /* attention, never failure */
   --alarm-ink:  #ffffff;
-  --alarm-text: #8c5220;
-  --alarm-soft: #f7ebdd;
-  --done:       #14724b;
+  --alarm-text: #854d22;
+  --alarm-soft: #f3e7d9;
+  --done:       #1b4d7e;
+
+  /* The board under the trace. Faint enough to be felt, not read. */
+  --grid: rgba(35, 32, 25, 0.045);
+  --grid-size: 26px;
 
   --rule: 1px;
-  --r:    14px;
-  --r-sm: 10px;
-  --shadow: 0 1px 2px rgba(23, 32, 26, 0.04), 0 10px 30px -16px rgba(23, 32, 26, 0.16);
+  --r:    3px;    /* drawings are not rounded; nothing here is sharp either */
+  --r-sm: 2px;
+  --shadow: 0 1px 1px rgba(35, 32, 25, 0.03), 0 12px 28px -20px rgba(35, 32, 25, 0.35);
 
   --sans:  'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --black: 'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
+  --black: 'Familjen Grotesk', 'Figtree', system-ui, sans-serif;
+  --mono:  'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper:  #101410;
-    --panel:  #181d19;
-    --sunk:   #1d241f;
-    --white:  #181d19;
-    --ink:    #e9efe9;
-    --ink-2:  #a8b5ab;
-    --ink-3:  #7c8a80;
-    --hair:   #262e28;
-    --edge:   #2c352e;
-    --signal:     #4fae76;
-    --signal-ink: #08120c;
-    --signal-soft:#1a2b21;
-    --alarm:      #d09a5c;
+    --paper:  #16150f;
+    --panel:  #1e1c15;
+    --sunk:   #23231d;
+    --white:  #1e1c15;
+    --ink:    #f0ece0;
+    --ink-2:  #b5ad99;
+    --ink-3:  #857e6c;
+    --hair:   #322e23;
+    --edge:   #3d382b;
+    --signal:     #79aede;
+    --signal-ink: #0d1620;
+    --signal-soft:#1b2a38;
+    --alarm:      #cd8b52;
     --alarm-ink:  #17110a;
-    --alarm-text: #e0ac70;
-    --alarm-soft: #2a2116;
-    --done:       #4fae76;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -16px rgba(0, 0, 0, 0.6);
+    --alarm-text: #dda06a;
+    --alarm-soft: #2b2116;
+    --done:       #79aede;
+    --grid: rgba(240, 236, 224, 0.04);
+    --shadow: 0 1px 1px rgba(0, 0, 0, 0.4), 0 12px 28px -20px rgba(0, 0, 0, 0.8);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper:  #101410;
-  --panel:  #181d19;
-  --sunk:   #1d241f;
-  --white:  #181d19;
-  --ink:    #e9efe9;
-  --ink-2:  #a8b5ab;
-  --ink-3:  #7c8a80;
-  --hair:   #262e28;
-  --edge:   #2c352e;
-  --signal:     #4fae76;
-  --signal-ink: #08120c;
-  --signal-soft:#1a2b21;
-  --alarm:      #d09a5c;
+  --paper:  #16150f;
+  --panel:  #1e1c15;
+  --sunk:   #23231d;
+  --white:  #1e1c15;
+  --ink:    #f0ece0;
+  --ink-2:  #b5ad99;
+  --ink-3:  #857e6c;
+  --hair:   #322e23;
+  --edge:   #3d382b;
+  --signal:     #79aede;
+  --signal-ink: #0d1620;
+  --signal-soft:#1b2a38;
+  --alarm:      #cd8b52;
   --alarm-ink:  #17110a;
-  --alarm-text: #e0ac70;
-  --alarm-soft: #2a2116;
-  --done:       #4fae76;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -16px rgba(0, 0, 0, 0.6);
+  --alarm-text: #dda06a;
+  --alarm-soft: #2b2116;
+  --done:       #79aede;
+  --grid: rgba(240, 236, 224, 0.04);
+  --shadow: 0 1px 1px rgba(0, 0, 0, 0.4), 0 12px 28px -20px rgba(0, 0, 0, 0.8);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -100,11 +107,16 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--paper);
+  background-color: var(--paper);
+  /* A drawing board under the sheet. Felt, not read. */
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 15.5px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -115,17 +127,17 @@ a { color: inherit; }
 
 /* --- Type ------------------------------------------------------------------ */
 
-h1, h2, h3 { margin: 0; font-family: var(--black); font-weight: 600; line-height: 1.04; letter-spacing: -0.035em; }
+h1, h2, h3 { margin: 0; font-family: var(--black); font-weight: 600; line-height: 1.05; letter-spacing: -0.025em; }
 h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1rem; }
 
 .figure {
-  font-family: var(--black);
-  font-weight: 600;
-  font-size: clamp(3.6rem, 12vw, 7rem);
-  line-height: 0.84;
-  letter-spacing: -0.05em;
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: clamp(3.2rem, 10vw, 5.6rem);
+  line-height: 0.92;
+  letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
 }
 .figure-sm {
@@ -138,22 +150,22 @@ h3 { font-size: 1rem; }
 
 .label {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--ink-3);
   line-height: 1.4;
 }
 .label-ink { color: var(--ink); }
 
-.ref { font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.ref { font-family: var(--mono); font-size: 0.76rem; font-weight: 400; color: var(--ink-2); }
 .dim { color: var(--ink-2); }
 .faint { color: var(--ink-3); }
 .small { font-size: 0.88rem; }
 .tiny  { font-size: 0.8rem; }
 .num   { font-variant-numeric: tabular-nums; }
-.mono  { font-family: var(--sans); font-variant-numeric: tabular-nums; }
+.mono  { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
 /* --- Layout ---------------------------------------------------------------- */
 
@@ -183,7 +195,7 @@ h3 { font-size: 1rem; }
   border: var(--rule) solid var(--edge);
   border-radius: var(--r);
   box-shadow: var(--shadow);
-  padding: 22px 24px;
+  padding: 24px 26px;
 }
 .sheet-tight { padding: 16px 18px; }
 .sheet-flush { padding: 0; overflow: hidden; }
@@ -249,7 +261,7 @@ h3 { font-size: 1rem; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 20px;
+  padding: 12px 20px;
   border: var(--rule) solid var(--edge);
   border-radius: var(--r-sm);
   background: var(--panel);
@@ -257,20 +269,21 @@ h3 { font-size: 1rem; }
   font: inherit;
   font-size: 0.94rem;
   font-weight: 600;
+  letter-spacing: -0.005em;
   letter-spacing: 0;
   text-transform: none;
   cursor: pointer;
   text-decoration: none;
   transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
-.btn:hover { background: var(--sunk); border-color: var(--ink-3); }
+.btn:hover { background: var(--sunk); border-color: var(--ink-2); }
 /* A button that wraps to two lines has stopped looking like a button. */
 .btn { white-space: nowrap; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn:disabled:hover { background: transparent; color: var(--ink); }
 
 .btn-primary { background: var(--signal); border-color: var(--signal); color: var(--signal-ink); }
-.btn-primary:hover { filter: brightness(0.94); }
+.btn-primary:hover { filter: brightness(1.12); }
 /* A greyed-out filled block reads as broken. Not-yet-usable is an outline. */
 .btn-primary:disabled,
 .btn-primary:disabled:hover { background: transparent; color: var(--ink-3); border-color: var(--hair); opacity: 1; }
@@ -289,7 +302,7 @@ h3 { font-size: 1rem; }
 .btn-ghost.btn-danger:hover { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field > label { font-size: 0.85rem; font-weight: 600; color: var(--ink-2); }
+.field > label { font-family: var(--mono); font-size: 0.76rem; font-weight: 500; letter-spacing: 0.03em; color: var(--ink-2); }
 .field > .hint { font-size: 0.82rem; color: var(--ink-3); line-height: 1.5; }
 
 /* input:not([type]) matters: an <input> with no type attribute is a text
@@ -301,6 +314,7 @@ input[type="date"], input[type="number"], select, textarea {
   padding: 12px 14px;
   border: var(--rule) solid var(--edge);
   border-radius: var(--r-sm);
+  font-family: var(--mono);
   background: var(--white);
   color: var(--ink);
   font: inherit;
@@ -311,7 +325,7 @@ textarea { resize: vertical; line-height: 1.7; }
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--signal);
-  box-shadow: 0 0 0 3px var(--signal-soft);
+  box-shadow: 0 0 0 2px var(--signal-soft);
 }
 ::placeholder { color: var(--ink-3); opacity: 1; }
 
@@ -342,14 +356,14 @@ input:focus, select:focus, textarea:focus {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 11px;
+  padding: 4px 9px;
   border: var(--rule) solid var(--edge);
-  border-radius: 999px;
+  border-radius: var(--r-sm);
   background: var(--panel);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 .chip-ink { background: var(--ink); color: var(--paper); }
@@ -435,8 +449,8 @@ table.schedule-wide { min-width: 520px; }
 
 .topbar {
   position: sticky; top: 0; z-index: 40;
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: saturate(1.4) blur(10px);
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter: saturate(1.2) blur(8px);
   border-bottom: 1px solid var(--hair);
   color: var(--ink);
 }
@@ -444,20 +458,20 @@ table.schedule-wide { min-width: 520px; }
 
 .brand {
   display: flex; align-items: center; gap: 9px;
-  font-family: var(--black); font-size: 1.08rem; font-weight: 600; letter-spacing: -0.01em;
+  font-family: var(--mono); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.06em;
   text-decoration: none; color: var(--ink);
 }
 .brand-mark {
-  width: 26px; height: 26px; border-radius: 8px;
+  width: 24px; height: 24px; border-radius: var(--r-sm);
   background: var(--signal); color: var(--signal-ink);
-  display: grid; place-items: center; font-size: 13px; font-weight: 700; font-family: var(--black);
+  display: grid; place-items: center; font-size: 12px; font-weight: 600; font-family: var(--mono);
 }
 
 .nav { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
 .nav a {
-  padding: 7px 12px;
-  border-radius: 999px;
+  padding: 7px 11px;
+  border-radius: var(--r-sm);
   font-size: 0.9rem; font-weight: 500; letter-spacing: 0;
   color: var(--ink-2);
   text-decoration: none; white-space: nowrap;
@@ -522,23 +536,81 @@ table.schedule-wide { min-width: 520px; }
 }
 :root[data-theme="dark"] { --d1: #4b4740; --d2: #6e6a5f; --d3: #948f81; --d4: #c0bbac; --d5: #f7f5ef; }
 
-/* --- Weeks -----------------------------------------------------------------
-   Thirteen squares to a row, which is one record sheet, though nothing says so
-   out loud. The point is the colour arriving, not the accounting.
+/* --- The dimension line --------------------------------------------------------
+   Extension lines at the ends, ticks on the diagonal, the reading below the
+   run. Drawn with borders and transforms rather than SVG so it takes the
+   theme's colours without being told twice.
 --------------------------------------------------------------------------- */
 
-.weeks { display: flex; flex-direction: column; gap: 6px; }
-.weeks-row { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 6px; }
+.dim-line { display: flex; flex-direction: column; gap: 4px; }
+.dim-run { position: relative; height: 15px; }
+
+/* The full run: how long two years is. */
+.dim-track {
+  position: absolute;
+  left: 0; right: 0; top: 7px;
+  height: 1px;
+  background: var(--edge);
+}
+/* Witness lines, where a drawing would take the measurement from. */
+.dim-ext {
+  position: absolute;
+  left: 0; top: 0;
+  width: 1px; height: 15px;
+  background: var(--edge);
+}
+.dim-ext-end { left: auto; right: 0; }
+
+/* The part that has been measured off. */
+.dim-measured {
+  position: absolute;
+  left: 0; top: 7px;
+  height: 1.5px;
+  background: var(--signal);
+  transition-property: width;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+.dim-tick {
+  position: absolute;
+  left: 0; top: 50%;
+  width: 1.5px; height: 13px;
+  background: var(--signal);
+  transform: translateY(-50%) rotate(45deg);
+}
+.dim-tick-end { left: auto; right: 0; }
+@media (prefers-reduced-motion: reduce) { .dim-measured { transition: none; } }
+
+.dim-read { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.dim-value {
+  font-family: var(--mono);
+  font-size: clamp(2.6rem, 8vw, 4rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.dim-label { font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+.dim-of { font-family: var(--mono); font-size: 0.82rem; color: var(--ink-3); }
+
+/* --- Weeks -----------------------------------------------------------------
+   Thirteen to a row, which is one record sheet. Drawn, not chipped: square
+   corners, tight gutters, and a wash where nothing has been filled in yet.
+--------------------------------------------------------------------------- */
+
+.weeks { display: flex; flex-direction: column; gap: 4px; }
+.weeks-row { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 4px; }
 .week {
   aspect-ratio: 1;
-  border-radius: 5px;
+  border-radius: var(--r-sm);
   background: var(--sunk);
-  transition: background-color 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background-color 380ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.week[data-state="some"] { background: color-mix(in srgb, var(--signal) 42%, var(--sunk)); }
+.week[data-state="some"] { background: color-mix(in srgb, var(--signal) 38%, var(--sunk)); }
 .week[data-state="full"] { background: var(--signal); }
 .week[data-state="none"] { background: transparent; }
-.week[data-now="true"] { box-shadow: inset 0 0 0 2px var(--ink-3); }
+/* Where the pencil is now. */
+.week[data-now="true"] { box-shadow: inset 0 0 0 1.5px var(--ink); }
 @media (prefers-reduced-motion: reduce) { .week { transition: none; } }
 
 /* --- Bars and meters ---------------------------------------------------------- */
@@ -628,7 +700,9 @@ table.schedule-wide { min-width: 520px; }
    a patient person, not like opening a form.
 --------------------------------------------------------------------------- */
 
-.tool { max-width: 620px; margin-inline: auto; }
+/* Everything on a page sits on the same measured column. */
+.column { width: 100%; max-width: 620px; margin-inline: auto; }
+.tool { width: 100%; }
 .step { display: flex; flex-direction: column; gap: 22px; animation: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .step { animation: none; } }
@@ -668,48 +742,17 @@ table.schedule-wide { min-width: 520px; }
 .soft-error { font-size: 0.9rem; color: var(--alarm-text); }
 
 
-/* The moment. One number, big enough to feel, on the colour that means time
-   served. Everything else on the screen is quieter than this on purpose. */
-.moment {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 34px 32px 30px;
-  border-radius: var(--r);
-  background: var(--signal);
-  color: #fff;
-}
-.moment .figure { color: #fff; }
-.moment-unit {
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  margin-top: 10px;
-}
-.moment-bar {
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
-  margin: 16px 0 12px;
-  overflow: hidden;
-}
-.moment-bar > span {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: #fff;
-  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-@media (prefers-reduced-motion: reduce) { .moment-bar > span { transition: none; } }
-.moment-note { font-size: 0.95rem; color: rgba(255, 255, 255, 0.82); }
-@media (max-width: 480px) { .moment { padding: 26px 22px 24px; } }
+/* The reading. A measurement taken on the trace, not a coloured slab. */
+.measured { display: flex; flex-direction: column; gap: 14px; }
+.measured-note { font-size: 1rem; line-height: 1.6; color: var(--ink-2); max-width: 46ch; }
 
 .next { display: flex; flex-direction: column; gap: 11px; }
 .next p { font-size: 0.98rem; line-height: 1.55; color: var(--ink-2); display: flex; gap: 11px; margin: 0; align-items: baseline; }
 .next strong { color: var(--ink); font-weight: 600; }
 .next .dot {
-  width: 7px; height: 7px; border-radius: 50%; background: var(--signal);
-  flex: none; margin-top: 8px;
+  width: 15px; height: 1.5px;
+  background: var(--signal);
+  flex: none; margin-top: 12px;
 }
 
 .or { font-size: 0.94rem; color: var(--ink-3); }
@@ -769,7 +812,7 @@ table.schedule-wide { min-width: 520px; }
    the headline, the answer is the page, and the rest is optional.
 --------------------------------------------------------------------------- */
 
-.guide { display: flex; flex-direction: column; gap: 24px; max-width: 620px; margin-inline: auto; }
+.guide { display: flex; flex-direction: column; gap: 24px; width: 100%; }
 .guide h1 { font-size: clamp(1.8rem, 4.4vw, 2.5rem); max-width: 18ch; text-wrap: balance; }
 
 .back { font-size: 0.9rem; color: var(--ink-3); text-decoration: none; }
@@ -788,12 +831,13 @@ table.schedule-wide { min-width: 520px; }
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 18px 26px;
   margin: 0;
-  padding: 20px 22px;
+  padding: 18px 20px;
   border-radius: var(--r);
-  background: var(--sunk);
+  border: 1px solid var(--hair);
+  background: var(--panel);
 }
 .facts > div { min-width: 0; }
-.facts dt { font-size: 0.82rem; color: var(--ink-3); }
+.facts dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.03em; color: var(--ink-3); }
 .facts dd { margin: 3px 0 0; font-size: 1rem; font-weight: 600; line-height: 1.3; }
 
 .qa-list { display: flex; flex-direction: column; }
@@ -810,7 +854,7 @@ table.schedule-wide { min-width: 520px; }
   gap: 12px;
 }
 .qa > summary::-webkit-details-marker { display: none; }
-.qa > summary::before { content: '+'; color: var(--signal); font-weight: 600; width: 12px; flex: none; }
+.qa > summary::before { content: '+'; font-family: var(--mono); color: var(--signal); font-weight: 500; width: 12px; flex: none; }
 .qa[open] > summary::before { content: '–'; }
 /* A question list. Big enough to hit, quiet enough to scan, no answers on it. */
 .questions { display: flex; flex-direction: column; }
@@ -825,7 +869,7 @@ table.schedule-wide { min-width: 520px; }
   transition: color 140ms ease;
 }
 .questions a:first-child { border-top: 1px solid var(--hair); }
-.questions a::after { content: '→'; color: var(--ink-3); flex: none; transition: transform 160ms ease; }
+.questions a::after { content: '→'; font-family: var(--mono); color: var(--ink-3); flex: none; transition: transform 160ms ease; }
 .questions a:hover { color: var(--signal); }
 .questions a:hover::after { color: var(--signal); transform: translateX(3px); }
 
@@ -846,7 +890,7 @@ table.schedule-wide { min-width: 520px; }
 
 /* --- The explainer ---------------------------------------------------------- */
 
-.explain { display: flex; flex-direction: column; gap: 22px; max-width: 620px; margin-inline: auto; }
+.explain { display: flex; flex-direction: column; gap: 22px; width: 100%; }
 .explain-head { display: flex; flex-direction: column; gap: 12px; }
 .explain h1 { font-size: clamp(1.9rem, 4.6vw, 2.6rem); max-width: 16ch; text-wrap: balance; }
 
@@ -854,15 +898,16 @@ table.schedule-wide { min-width: 520px; }
    the first shape and never the second. */
 .sheets { display: flex; gap: 8px; flex-wrap: wrap; }
 .sheet-chip {
-  width: 46px;
-  height: 60px;
-  border-radius: 8px;
+  width: 44px;
+  height: 58px;
+  border-radius: var(--r-sm);
   border: 1px solid var(--edge);
   background: var(--panel);
   display: grid;
   place-items: center;
-  font-size: 0.86rem;
-  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--ink-3);
 }
 .sheet-chip[data-first="true"] {
@@ -882,12 +927,14 @@ table.schedule-wide { min-width: 520px; }
 .parts > li:last-child { border-bottom: 0; }
 .parts-n {
   flex: none;
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: var(--signal-soft);
+  width: 24px; height: 24px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--edge);
+  background: var(--panel);
   color: var(--signal);
   display: grid; place-items: center;
-  font-size: 0.82rem; font-weight: 700;
+  font-family: var(--mono);
+  font-size: 0.78rem; font-weight: 500;
 }
 .parts-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .parts-body strong { font-size: 1.02rem; font-weight: 600; }

@@ -48,9 +48,9 @@ export default async function Root() {
       </header>
 
       <main className="wrap" style={{ flex: 1, paddingBlock: 34 }}>
-        <div className="stack-l">
+        <div className="column stack-l">
           <CatchUpTool />
-          <div className="strip" style={{ maxWidth: 620, marginInline: 'auto' }}>
+          <div className="strip">
             <Link href="/what-is-a-pedr">What a PEDR actually is</Link>
             <Link href="/guides">Answers</Link>
             <Link href="/sign-up">Keep a record</Link>

@@ -27,7 +27,7 @@ export const metadata: Metadata = {
  */
 export default function GuidesIndex() {
   return (
-    <div className="guide">
+    <div className="column guide">
       <h1>Answers</h1>
       <p className="answer">Everything about the PEDR, one question at a time.</p>
 

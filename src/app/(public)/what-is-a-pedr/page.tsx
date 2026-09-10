@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { REQUIREMENTS, SHEET_RULES } from '@/lib/pedr/constants'
+import { Dimension } from '@/components/dimension'
 import { absolute } from '@/lib/site'
 
 export const metadata: Metadata = {
@@ -55,7 +56,7 @@ const PARTS = [
 
 export default function WhatIsAPedrPage() {
   return (
-    <div className="explain">
+    <div className="column explain">
       <div className="explain-head">
         <h1>What a PEDR actually is</h1>
         <p className="answer">
@@ -72,6 +73,11 @@ export default function WhatIsAPedrPage() {
           </span>
         ))}
       </div>
+      {/* The same measurement the tool takes, so the device means one thing
+          wherever it appears: this is the length of the whole thing. */}
+      <Dimension value={REQUIREMENTS.minTotalMonths} max={REQUIREMENTS.minTotalMonths}
+        label="months, end to end" animate={false} />
+
       <p className="hint">
         One sheet every {SHEET_RULES.maxPeriodMonths} months. Each is due{' '}
         {SHEET_RULES.submitWithinMonths} months after the quarter it covers.

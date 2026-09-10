@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { RecoveryGrid } from './recovery-grid'
+import { Dimension } from './dimension'
 import { recoveryWindow, triage, type RecoveryReport } from '@/lib/pedr/recover'
 import { SHEET_RULES } from '@/lib/pedr/constants'
 import { formatDate, isDateKey, weekIdOf, weekRange, type WeekId } from '@/lib/pedr/week'
@@ -178,15 +179,13 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
 
       {step === 3 && range && done && (
         <div className="step">
-          <div className="moment">
-            <span className="figure">{done.monthsRecovered}</span>
-            <span className="moment-unit">months you already have</span>
-            <div className="moment-bar" aria-hidden="true">
-              <span style={{ width: `${Math.min(100, (done.monthsRecovered / 24) * 100)}%` }} />
-            </div>
-            <span className="moment-note">
-              {done.recovered} of your {total} weeks, out of work you had already done
-            </span>
+          <div className="measured">
+            <span className="label">Already served</span>
+            <Dimension value={done.monthsRecovered} max={24} label="months" />
+            <p className="measured-note">
+              {done.recovered} of your {total} weeks have something in them, and every one of
+              them came out of work you had already done.
+            </p>
           </div>
 
           <RecoveryGrid {...range} recovered={recovered} />

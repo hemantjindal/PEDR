@@ -1,13 +1,16 @@
 import type { Metadata, Viewport } from 'next'
 // Self-hosted, so there is no third-party font request and it works offline.
-// Bricolage Grotesque is warm and contemporary where something has to carry a
-// headline; Figtree is open and friendly at reading size. Neither reads as
-// officialdom, which is the point.
+// Familjen Grotesk carries the headlines: narrow, confident, a face with an
+// opinion. Figtree reads warmly underneath it. IBM Plex Mono does every label,
+// figure and dimension — it is what makes the interface read as annotated
+// rather than typed, and it is the character in the whole thing.
 import '@fontsource/figtree/400.css'
 import '@fontsource/figtree/500.css'
 import '@fontsource/figtree/600.css'
-import '@fontsource/bricolage-grotesque/500.css'
-import '@fontsource/bricolage-grotesque/600.css'
+import '@fontsource/familjen-grotesk/500.css'
+import '@fontsource/familjen-grotesk/600.css'
+import '@fontsource/ibm-plex-mono/400.css'
+import '@fontsource/ibm-plex-mono/500.css'
 import './globals.css'
 import { ServiceWorker } from '@/components/offline'
 import { SITE, origin } from '@/lib/site'
@@ -46,8 +49,8 @@ export const viewport: Viewport = {
   // notch and the home indicator have to be accounted for in CSS instead.
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f6f7f4' },
-    { media: '(prefers-color-scheme: dark)', color: '#101410' },
+    { media: '(prefers-color-scheme: light)', color: '#f2efe6' },
+    { media: '(prefers-color-scheme: dark)', color: '#16150f' },
   ],
 }
 

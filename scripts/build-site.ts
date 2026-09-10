@@ -178,7 +178,7 @@ async function main() {
       'rebuilds the months you never wrote down from your calendar. No account.">',
     '<link rel="preconnect" href="https://fonts.googleapis.com">',
     '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
-    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Figtree:wght@400;500;600&display=swap">',
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600&family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">',
   ].join('\n')
 
   const fragment = [

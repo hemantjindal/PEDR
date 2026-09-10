@@ -32,10 +32,10 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          background: OG_INK,
-          color: OG_PAPER,
+          background: OG_PAPER,
+          color: OG_INK,
           padding: 72,
-          fontFamily: 'Archivo',
+          fontFamily: 'IBM Plex Mono',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -44,26 +44,26 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               width: 44,
               height: 44,
               background: OG_SIGNAL,
-              color: OG_INK,
+              color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'Archivo Black',
+              fontFamily: 'Familjen Grotesk',
               fontSize: 28,
             }}
           >
             P
           </div>
-          <div style={{ fontSize: 26, letterSpacing: 6, textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 24, letterSpacing: 5 }}>
             {SITE.name}
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div style={{ fontSize: 30, color: OG_SIGNAL, letterSpacing: 1 }}>{question}</div>
+          <div style={{ fontSize: 28, color: OG_SIGNAL, letterSpacing: 1, fontFamily: 'IBM Plex Mono' }}>{question}</div>
           <div
             style={{
-              fontFamily: 'Archivo Black',
+              fontFamily: 'Familjen Grotesk',
               fontSize: title.length > 40 ? 68 : 84,
               lineHeight: 1.02,
               letterSpacing: -2,
@@ -73,7 +73,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 24, opacity: 0.7 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 24, opacity: 0.6 }}>
           <div style={{ width: 120, height: 4, background: OG_SIGNAL }} />
           <div>No account needed</div>
         </div>

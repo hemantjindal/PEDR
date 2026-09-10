@@ -18,10 +18,10 @@ export default async function Image() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          background: OG_INK,
-          color: OG_PAPER,
+          background: OG_PAPER,
+          color: OG_INK,
           padding: 72,
-          fontFamily: 'Archivo',
+          fontFamily: 'IBM Plex Mono',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -30,24 +30,24 @@ export default async function Image() {
               width: 44,
               height: 44,
               background: OG_SIGNAL,
-              color: OG_INK,
+              color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontFamily: 'Archivo Black',
+              fontFamily: 'Familjen Grotesk',
               fontSize: 28,
             }}
           >
             P
           </div>
-          <div style={{ fontSize: 26, letterSpacing: 6, textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 24, letterSpacing: 5 }}>
             {SITE.name}
           </div>
         </div>
 
         <div
           style={{
-            fontFamily: 'Archivo Black',
+            fontFamily: 'Familjen Grotesk',
             fontSize: 88,
             lineHeight: 1.02,
             letterSpacing: -2,
@@ -60,7 +60,7 @@ export default async function Image() {
           <div style={{ color: OG_SIGNAL }}>It is already written down.</div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 24, opacity: 0.7 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, fontSize: 24, opacity: 0.6 }}>
           <div style={{ width: 120, height: 4, background: OG_SIGNAL }} />
           <div>Rebuilt from your calendar and your timesheet</div>
         </div>

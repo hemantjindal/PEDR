@@ -58,14 +58,14 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   }
 
   return (
-    <div className="stack-l" style={{ maxWidth: 780 }}>
+    <div className="stack-l">
       <script
         type="application/ld+json"
         // Generated from our own constants; there is no user input in it.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
 
-      <div className="guide">
+      <div className="column guide">
         <Link href="/guides" className="back">← All answers</Link>
         <h1>{g.question}</h1>
         <p className="answer">{g.answer}</p>
