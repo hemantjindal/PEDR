@@ -27,7 +27,9 @@ export function FirstImport() {
 
     const pending = readPending()
     if (!pending) return
-    setState({ at: 'saving', count: pending.entries.length })
+    // A date on its own still has to reach the account, but there is nothing
+    // worth narrating about it.
+    if (pending.entries.length > 0) setState({ at: 'saving', count: pending.entries.length })
 
     void (async () => {
       try {
@@ -45,7 +47,7 @@ export function FirstImport() {
           return
         }
         clearPending()
-        setState({ at: 'saved', saved: body.saved })
+        setState(body.saved > 0 ? { at: 'saved', saved: body.saved } : { at: 'none' })
         router.refresh()
       } catch {
         setState({ at: 'failed', message: 'Those entries could not be saved. Try the import again.' })

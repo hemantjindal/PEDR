@@ -53,9 +53,13 @@ export default async function DashboardPage() {
           <span className="value">{employer}</span>
         </div>
         <div>
-          <span className="label">Record from</span>
+          <span className="label">Started</span>
+          {/* The first logged week once there is one, otherwise the date they
+              told us they started. A dash on a fresh account reads as broken. */}
           <span className="value">
-            {d.progress.firstDate ? formatDate(d.progress.firstDate) : '—'}
+            {d.progress.firstDate || user.experienceStart
+              ? formatDate(d.progress.firstDate ?? user.experienceStart!)
+              : '—'}
           </span>
         </div>
         <div>

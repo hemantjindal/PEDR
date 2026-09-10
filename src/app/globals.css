@@ -712,6 +712,18 @@ table.schedule-wide { min-width: 520px; }
   flex: none; margin-top: 8px;
 }
 
+.or { font-size: 0.94rem; color: var(--ink-3); }
+.linkish {
+  font: inherit;
+  color: var(--signal);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 0;
+}
+.linkish:hover { color: var(--ink); }
+
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 /* A button is inline-flex, but a flex column stretches its children — so a
    lone button in a step would run the full width and stop reading as one. */

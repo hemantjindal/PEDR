@@ -20,6 +20,7 @@ const MAX_ENTRIES = 2000
 
 export interface PendingImport {
   experienceStart: DateKey
+  /** May be empty: the calendar is a shortcut, not a requirement. */
   entries: DraftEntry[]
   /** Shown before the account exists, so the form has a reason to be filled in. */
   weeks: number
@@ -28,7 +29,7 @@ export interface PendingImport {
 
 export function stashPending(pending: PendingImport): boolean {
   if (typeof window === 'undefined') return false
-  if (pending.entries.length === 0) return false
+  if (!pending.experienceStart) return false
   try {
     window.sessionStorage.setItem(
       KEY,
@@ -48,7 +49,7 @@ export function readPending(): PendingImport | null {
     const raw = window.sessionStorage.getItem(KEY)
     if (!raw) return null
     const value = JSON.parse(raw) as PendingImport
-    if (!Array.isArray(value.entries) || value.entries.length === 0) return null
+    if (!Array.isArray(value.entries)) return null
     return value
   } catch {
     return null

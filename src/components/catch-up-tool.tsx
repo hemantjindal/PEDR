@@ -58,6 +58,13 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
     return map
   }, [phase])
 
+  function keep(entries: RecoveryReport['entries'], weeks: number, months: number) {
+    stashPending({ experienceStart: start, entries, weeks, months })
+    // A full navigation, not a router push: this component also runs outside a
+    // Next app, where there is no router to push.
+    window.location.assign('/sign-up')
+  }
+
   async function read(file: File | undefined) {
     if (!file || !range) return
     if (file.size > MAX_BYTES) {
@@ -152,6 +159,17 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
 
           {phase.at === 'error' && <p className="soft-error">{phase.message}</p>}
 
+          {/* The calendar saves an evening. It is not the price of entry, and
+              somebody without an export to hand must not be stuck here. */}
+          <p className="or">
+            Not got one to hand?{' '}
+            {onKeep === 'account'
+              ? <button type="button" className="linkish" onClick={() => keep([], 0, 0)}>
+                  Start without it
+                </button>
+              : <span className="faint">You can add it any time.</span>}
+          </p>
+
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStart('')}>
             ← Change the date
           </button>
@@ -202,17 +220,7 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => {
-                  stashPending({
-                    experienceStart: start,
-                    entries: done.entries,
-                    weeks: done.recovered,
-                    months: done.monthsRecovered,
-                  })
-                  // A full navigation, not a router push: this component also
-                  // runs outside a Next app, where there is no router to push.
-                  window.location.assign('/sign-up')
-                }}
+                onClick={() => keep(done.entries, done.recovered, done.monthsRecovered)}
               >
                 Keep this
               </button>

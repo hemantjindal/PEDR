@@ -13,7 +13,7 @@ export function PendingSummary() {
   const [pending, setPending] = useState<PendingImport | null>(null)
   useEffect(() => setPending(readPending()), [])
 
-  if (!pending) return null
+  if (!pending || pending.entries.length === 0) return null
 
   return (
     <dl className="facts">
