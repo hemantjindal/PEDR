@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { RecoveryGrid } from './recovery-grid'
 import { recoveryWindow, triage, type RecoveryReport, type Trouble } from '@/lib/pedr/recover'
 import { SHEET_RULES } from '@/lib/pedr/constants'
@@ -37,6 +37,14 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
   const [start, setStart] = useState('')
   const [sheets, setSheets] = useState(0)
   const [phase, setPhase] = useState<Phase>({ at: 'idle' })
+  const [canSave, setCanSave] = useState(true)
+
+  useEffect(() => {
+    const mediated = host()
+    if (!mediated) return
+    // A host that mediates downloads may also refuse them; ask once.
+    void mediated.use('downloads').then((d) => setCanSave(Boolean(d)))
+  }, [])
 
   const range = useMemo(() => (isDateKey(start) ? recoveryWindow(start) : null), [start])
 
@@ -193,11 +201,11 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
               </button>
             )}
 
-            {done && (
+            {done && canSave && (
               <button
                 type="button"
                 className={onKeep === 'export' ? 'btn btn-primary' : 'btn'}
-                onClick={() => download(done)}
+                onClick={() => { void download(done) }}
               >
                 Download a spreadsheet
               </button>
@@ -221,7 +229,7 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
 
 const CSV_HEAD = ['Date', 'Hours', 'Activity', 'People', 'Project']
 
-function download(report: RecoveryReport) {
+function toCsv(report: RecoveryReport): string {
   const cell = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v)
   const rows = report.entries.map((e) =>
     [
@@ -232,13 +240,44 @@ function download(report: RecoveryReport) {
       e.projectHint ?? '',
     ].map(cell).join(','),
   )
-  const blob = new Blob([[CSV_HEAD.join(','), ...rows].join('\r\n')], {
-    type: 'text/csv;charset=utf-8',
-  })
-  const url = URL.createObjectURL(blob)
+  return [CSV_HEAD.join(','), ...rows].join('\r\n')
+}
+
+/**
+ * Some hosts do not let a page start a download of its own; they mediate it
+ * and ask the viewer first. Where that is the case the file has to be handed
+ * over rather than linked to, or the button does nothing at all.
+ */
+interface DownloadHost {
+  use(name: 'downloads'): Promise<{
+    save(request: { filename: string; data: string }): Promise<unknown>
+  } | null>
+}
+
+function host(): DownloadHost | null {
+  const value = (globalThis as { claude?: unknown }).claude
+  return value && typeof (value as DownloadHost).use === 'function'
+    ? (value as DownloadHost)
+    : null
+}
+
+async function download(report: RecoveryReport) {
+  const filename = `pedr-recovered-${report.from}-to-${report.to}.csv`
+  const csv = toCsv(report)
+
+  const mediated = host()
+  if (mediated) {
+    const downloads = await mediated.use('downloads')
+    // The viewer is asked, and may decline. Declining is an answer, not a
+    // failure, so there is nothing to report and nothing to retry.
+    if (downloads) await downloads.save({ filename, data: csv }).catch(() => {})
+    return
+  }
+
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }))
   const a = document.createElement('a')
   a.href = url
-  a.download = `pedr-recovered-${report.from}-to-${report.to}.csv`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
 }
