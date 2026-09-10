@@ -1,83 +1,96 @@
 @import "tailwindcss";
 
 /* ===========================================================================
-   PEDR — Site Notice.
+   PEDR
 
-   The app has one job: stop you drifting. So it behaves like site signage.
-   Hard 2px rules, flat colour blocks, no radius, no shadow, no gradient.
-   Type is Archivo Black where it needs to be read across a room and Archivo
-   everywhere else.
+   This is for someone who has been avoiding a piece of paperwork for months
+   and is quietly ashamed of it. So the page must not look like the paperwork.
+   No hard black rules, no uppercase officialdom, no red.
 
-   Colour does exactly three jobs and nothing else:
-     SIGNAL  yellow — the thing you are working towards
-     ALARM   red    — late, missing, wrong
-     INK     black  — everything else, including every action
+   Colour carries one idea: green is time you have already served. It fills as
+   the record fills, which is the only feedback anyone here needs. Amber marks
+   what still needs a minute of attention — never red, because nothing here is
+   an error and nobody needs telling off.
 
-   If a fourth colour appears, something has gone wrong.
+   Soft edges, real breathing room, one warm neutral ground.
    =========================================================================== */
 
 :root {
   color-scheme: light;
 
-  --paper:  #f7f5ef;
-  --panel:  #f0ede3;
-  --sunk:   #e2ded0;
+  --paper:  #f6f7f4;   /* the ground: a neutral pulled very slightly green */
+  --panel:  #ffffff;   /* cards sit above it */
+  --sunk:   #edf1ea;
   --white:  #ffffff;
 
-  --ink:    #0d0c0a;
-  --ink-2:  #4a463c;
-  --ink-3:  #6f6a5c;
-  --hair:   #c8c3b3;
+  --ink:    #17201a;
+  --ink-2:  #4e5c52;
+  --ink-3:  #7b887f;
+  --hair:   #e3e8de;
+  --edge:   #dbe2d6;   /* the default border: a line, not a rule */
 
-  --signal:     #e8b10a;
-  --signal-ink: #0d0c0a;   /* 10:1 on signal */
-  --alarm:      #b3170f;
-  --alarm-ink:  #ffffff;   /* 6.9:1 on alarm */
-  --alarm-text: #a1140d;   /* alarm as type on paper */
-  --done:       #146c14;
+  --signal:     #2e7d51;   /* progress, time served, everything good */
+  --signal-ink: #ffffff;   /* 5.3:1 on signal */
+  --signal-soft:#dcefe3;
+  --alarm:      #a9662b;   /* attention, never failure */
+  --alarm-ink:  #ffffff;
+  --alarm-text: #8c5220;
+  --alarm-soft: #f7ebdd;
+  --done:       #2e7d51;
 
-  --rule: 2px;
-  --sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --black: 'Archivo Black', 'Archivo', system-ui, sans-serif;
+  --rule: 1px;
+  --r:    14px;
+  --r-sm: 10px;
+  --shadow: 0 1px 2px rgba(23, 32, 26, 0.04), 0 10px 30px -16px rgba(23, 32, 26, 0.16);
+
+  --sans:  'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --black: 'Bricolage Grotesque', 'Figtree', system-ui, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --paper:  #121110;
-    --panel:  #1c1a17;
-    --sunk:   #0b0a09;
-    --white:  #1c1a17;
-    --ink:    #f7f5ef;
-    --ink-2:  #bab5a6;
-    --ink-3:  #918c7e;
-    --hair:   #38352d;
-    /* Yellow on black is the signage logic, not an inversion of it. */
-    --signal:     #f5c518;
-    --signal-ink: #0d0c0a;
-    --alarm:      #d8342b;
-    --alarm-ink:  #ffffff;
-    --alarm-text: #f08279;
-    --done:       #4ec44e;
+    --paper:  #101410;
+    --panel:  #181d19;
+    --sunk:   #1d241f;
+    --white:  #181d19;
+    --ink:    #e9efe9;
+    --ink-2:  #a8b5ab;
+    --ink-3:  #7c8a80;
+    --hair:   #262e28;
+    --edge:   #2c352e;
+    --signal:     #4fae76;
+    --signal-ink: #08120c;
+    --signal-soft:#1a2b21;
+    --alarm:      #d09a5c;
+    --alarm-ink:  #17110a;
+    --alarm-text: #e0ac70;
+    --alarm-soft: #2a2116;
+    --done:       #4fae76;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -16px rgba(0, 0, 0, 0.6);
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper:  #121110;
-  --panel:  #1c1a17;
-  --sunk:   #0b0a09;
-  --white:  #1c1a17;
-  --ink:    #f7f5ef;
-  --ink-2:  #bab5a6;
-  --ink-3:  #918c7e;
-  --hair:   #38352d;
-  --signal:     #f5c518;
-  --signal-ink: #0d0c0a;
-  --alarm:      #d8342b;
-  --alarm-ink:  #ffffff;
-  --alarm-text: #f08279;
-  --done:       #4ec44e;
+  --paper:  #101410;
+  --panel:  #181d19;
+  --sunk:   #1d241f;
+  --white:  #181d19;
+  --ink:    #e9efe9;
+  --ink-2:  #a8b5ab;
+  --ink-3:  #7c8a80;
+  --hair:   #262e28;
+  --edge:   #2c352e;
+  --signal:     #4fae76;
+  --signal-ink: #08120c;
+  --signal-soft:#1a2b21;
+  --alarm:      #d09a5c;
+  --alarm-ink:  #17110a;
+  --alarm-text: #e0ac70;
+  --alarm-soft: #2a2116;
+  --done:       #4fae76;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px -16px rgba(0, 0, 0, 0.6);
 }
 
 /* --------------------------------------------------------------------------- */
@@ -98,7 +111,7 @@ body {
 p { margin: 0; }
 a { color: inherit; }
 ::selection { background: var(--signal); color: var(--signal-ink); }
-:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 4px; }
 
 /* --- Type ------------------------------------------------------------------ */
 
@@ -124,10 +137,10 @@ h3 { font-size: 1rem; }
 
 .label {
   display: block;
-  font-size: 11px;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink-3);
   line-height: 1.4;
 }
@@ -166,10 +179,12 @@ h3 { font-size: 1rem; }
 
 .sheet {
   background: var(--panel);
-  border: var(--rule) solid var(--ink);
-  padding: 20px;
+  border: var(--rule) solid var(--edge);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 22px 24px;
 }
-.sheet-tight { padding: 14px 16px; }
+.sheet-tight { padding: 16px 18px; }
 .sheet-flush { padding: 0; overflow: hidden; }
 
 .sheet-head {
@@ -179,7 +194,7 @@ h3 { font-size: 1rem; }
   gap: 14px;
   padding-bottom: 12px;
   margin-bottom: 16px;
-  border-bottom: var(--rule) solid var(--ink);
+  border-bottom: var(--rule) solid var(--hair);
 }
 
 .rule { height: var(--rule); background: var(--ink); border: 0; margin: 0; }
@@ -233,34 +248,36 @@ h3 { font-size: 1rem; }
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 18px;
-  border: var(--rule) solid var(--ink);
-  background: transparent;
+  padding: 11px 20px;
+  border: var(--rule) solid var(--edge);
+  border-radius: var(--r-sm);
+  background: var(--panel);
   color: var(--ink);
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.94rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
   text-decoration: none;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
-.btn:hover { background: var(--ink); color: var(--paper); }
+.btn:hover { background: var(--sunk); border-color: var(--ink-3); }
 /* A button that wraps to two lines has stopped looking like a button. */
 .btn { white-space: nowrap; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn:disabled:hover { background: transparent; color: var(--ink); }
 
-.btn-primary { background: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: var(--signal); border-color: var(--ink); color: var(--signal-ink); }
+.btn-primary { background: var(--signal); border-color: var(--signal); color: var(--signal-ink); }
+.btn-primary:hover { filter: brightness(0.94); }
 /* A greyed-out filled block reads as broken. Not-yet-usable is an outline. */
 .btn-primary:disabled,
 .btn-primary:disabled:hover { background: transparent; color: var(--ink-3); border-color: var(--hair); opacity: 1; }
 
 .btn-ghost { border-color: transparent; padding: 8px 12px; }
-.btn-ghost:hover { background: var(--ink); color: var(--paper); }
+.btn-ghost:hover { background: var(--sunk); }
 
-.btn-sm { padding: 5px 10px; font-size: 0.72rem; }
+.btn-sm { padding: 7px 13px; font-size: 0.85rem; }
 .btn-block { width: 100%; }
 .btn-danger { border-color: var(--alarm); color: var(--alarm-text); }
 .btn-danger:hover { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
@@ -271,7 +288,7 @@ h3 { font-size: 1rem; }
 .btn-ghost.btn-danger:hover { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field > label { font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+.field > label { font-size: 0.85rem; font-weight: 600; color: var(--ink-2); }
 .field > .hint { font-size: 0.82rem; color: var(--ink-3); line-height: 1.5; }
 
 /* input:not([type]) matters: an <input> with no type attribute is a text
@@ -280,16 +297,21 @@ h3 { font-size: 1rem; }
 input:not([type]), input[type="text"], input[type="email"], input[type="password"],
 input[type="date"], input[type="number"], select, textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: var(--rule) solid var(--ink);
-  border-radius: 0;
+  padding: 12px 14px;
+  border: var(--rule) solid var(--edge);
+  border-radius: var(--r-sm);
   background: var(--white);
   color: var(--ink);
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 textarea { resize: vertical; line-height: 1.7; }
-input:focus, select:focus, textarea:focus { outline: 3px solid var(--signal); outline-offset: -1px; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--signal);
+  box-shadow: 0 0 0 3px var(--signal-soft);
+}
 ::placeholder { color: var(--ink-3); opacity: 1; }
 
 /* --- Marks ------------------------------------------------------------------
@@ -319,25 +341,28 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--signal); ou
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 8px;
-  border: 2px solid var(--ink);
-  font-size: 11px;
+  padding: 5px 11px;
+  border: var(--rule) solid var(--edge);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   white-space: nowrap;
 }
 .chip-ink { background: var(--ink); color: var(--paper); }
-.chip-revision { border-color: var(--alarm); background: var(--alarm); color: var(--alarm-ink); }
-.chip-signal { border-color: var(--ink); background: var(--signal); color: var(--signal-ink); }
+.chip-revision { border-color: transparent; background: var(--alarm-soft); color: var(--alarm-text); }
+.chip-signal { border-color: transparent; background: var(--signal-soft); color: var(--signal); }
 
 /* --- Notices ---------------------------------------------------------------- */
 
 .note {
   display: flex;
-  gap: 16px;
-  padding: 14px 18px;
-  border: var(--rule) solid var(--ink);
+  gap: 14px;
+  padding: 15px 18px;
+  border: var(--rule) solid var(--edge);
+  border-radius: var(--r);
   background: var(--panel);
   font-size: 0.92rem;
   line-height: 1.55;
@@ -352,12 +377,12 @@ input:focus, select:focus, textarea:focus { outline: 3px solid var(--signal); ou
 /* The label is flex: none, so on a phone a label of more than a couple of
    words leaves the prose beside it about eighty pixels to live in. Stack. */
 @media (max-width: 560px) { .note { flex-direction: column; gap: 8px; } }
-.note-revision { background: var(--alarm); border-color: var(--alarm); color: var(--alarm-ink); }
-.note-revision strong, .note-revision a { color: var(--alarm-ink); }
-.note-revision .label { color: color-mix(in srgb, var(--alarm-ink) 75%, transparent); }
-.note-pending { background: var(--signal); border-color: var(--ink); color: var(--signal-ink); }
-.note-pending strong, .note-pending a { color: var(--signal-ink); }
-.note-pending .label { color: color-mix(in srgb, var(--signal-ink) 68%, transparent); }
+.note-revision { background: var(--alarm-soft); border-color: transparent; color: var(--ink-2); }
+.note-revision strong, .note-revision a { color: var(--alarm-text); }
+.note-revision .label { color: var(--alarm-text); }
+.note-pending { background: var(--signal-soft); border-color: transparent; color: var(--ink-2); }
+.note-pending strong, .note-pending a { color: var(--signal); }
+.note-pending .label { color: var(--signal); }
 .note-ink { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .note-ink strong, .note-ink a { color: var(--signal); }
 .note-ink .label { color: color-mix(in srgb, var(--paper) 62%, transparent); }
@@ -377,7 +402,7 @@ table.schedule th {
   text-transform: uppercase;
   color: var(--ink-3);
   padding: 9px 14px;
-  border-bottom: var(--rule) solid var(--ink);
+  border-bottom: var(--rule) solid var(--hair);
   white-space: nowrap;
 }
 table.schedule td { padding: 11px 14px; border-bottom: 1px solid var(--hair); vertical-align: top; }
@@ -407,47 +432,38 @@ table.schedule-wide { min-width: 520px; }
 
 /* --- Navigation --------------------------------------------------------------- */
 
-.topbar { position: sticky; top: 0; z-index: 40; background: var(--ink); color: var(--paper); }
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--hair);
+  color: var(--ink);
+}
 .topbar-inner { display: flex; align-items: center; gap: 24px; height: 58px; }
 
 .brand {
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--black); font-size: 1.05rem; letter-spacing: 0.02em;
-  text-decoration: none; color: var(--paper);
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--black); font-size: 1.08rem; font-weight: 600; letter-spacing: -0.01em;
+  text-decoration: none; color: var(--ink);
 }
 .brand-mark {
-  width: 24px; height: 24px; background: var(--signal); color: var(--signal-ink);
-  display: grid; place-items: center; font-size: 12px; font-family: var(--black);
+  width: 26px; height: 26px; border-radius: 8px;
+  background: var(--signal); color: var(--signal-ink);
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; font-family: var(--black);
 }
 
 .nav { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
 .nav a {
-  padding: 6px 12px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-  color: color-mix(in srgb, var(--paper) 62%, transparent);
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem; font-weight: 500; letter-spacing: 0;
+  color: var(--ink-2);
   text-decoration: none; white-space: nowrap;
 }
-.nav a:hover { color: var(--paper); }
-.nav a[aria-current="page"] { color: var(--signal-ink); background: var(--signal); }
+.nav a:hover { color: var(--ink); background: var(--sunk); }
+.nav a[aria-current="page"] { color: var(--signal); background: var(--signal-soft); }
 
-/* The top bar is ink, and .btn draws itself in ink for a paper ground — so
-   every action in the bar (sign in, sign out) was rendering ink-on-ink and was
-   invisible. Anything sitting in the bar has to be drawn for a dark ground. */
-.topbar .btn {
-  color: var(--paper);
-  border-color: color-mix(in srgb, var(--paper) 32%, transparent);
-}
-.topbar .btn:hover {
-  background: var(--signal);
-  border-color: var(--signal);
-  color: var(--signal-ink);
-}
-.topbar .btn-ghost {
-  border-color: transparent;
-  color: color-mix(in srgb, var(--paper) 62%, transparent);
-}
-.topbar .btn-ghost:hover { background: var(--signal); color: var(--signal-ink); }
 
 .tabbar { display: none; }
 @media (max-width: 760px) {
@@ -505,41 +521,61 @@ table.schedule-wide { min-width: 520px; }
 }
 :root[data-theme="dark"] { --d1: #4b4740; --d2: #6e6a5f; --d3: #948f81; --d4: #c0bbac; --d5: #f7f5ef; }
 
-/* --- The register as a drawing sheet -------------------------------------------
-   Thirteen cells to a row is one record sheet, so the grid reads as the
-   document it stands for: sheet number on the left like a drawing reference,
-   the count of weeks that survived on the right, the drawing between them.
+/* --- Weeks -----------------------------------------------------------------
+   Thirteen squares to a row, which is one record sheet, though nothing says so
+   out loud. The point is the colour arriving, not the accounting.
 --------------------------------------------------------------------------- */
 
-.register-sheet { display: flex; flex-direction: column; gap: 4px; }
-.register-row { display: flex; align-items: center; gap: 12px; }
-.register-ref {
-  width: 58px; flex: none; text-align: right;
-  font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--ink-3); white-space: nowrap;
+.weeks { display: flex; flex-direction: column; gap: 6px; }
+.weeks-row { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 6px; }
+.week {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  background: var(--sunk);
+  transition: background-color 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.register-count {
-  width: 42px; flex: none;
-  font-size: 11px; font-weight: 600; color: var(--ink-3);
+.week[data-state="some"] { background: color-mix(in srgb, var(--signal) 42%, var(--sunk)); }
+.week[data-state="full"] { background: var(--signal); }
+.week[data-state="none"] { background: transparent; }
+.week[data-now="true"] { box-shadow: inset 0 0 0 2px var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { .week { transition: none; } }
+
+/* --- Progress ---------------------------------------------------------------- */
+
+.progress { position: relative; width: 128px; height: 128px; flex: none; }
+.progress svg { transform: rotate(-90deg); }
+.progress-track { fill: none; stroke: var(--sunk); stroke-width: 12; }
+.progress-value {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.register-row .register { flex: 1 1 auto; min-width: 0; }
-.register-sheet .reg-cell { transition: background-color 260ms ease, border-color 260ms ease; }
-@media (prefers-reduced-motion: reduce) {
-  .register-sheet .reg-cell { transition: none; }
+@media (prefers-reduced-motion: reduce) { .progress-value { transition: none; } }
+.progress-mid {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px;
 }
-@media (max-width: 560px) {
-  .register-ref { width: 0; overflow: hidden; }
-  .register-count { width: 34px; font-size: 10px; }
+.progress-figure {
+  font-family: var(--black);
+  font-size: 1.9rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
+.progress-label { font-size: 0.74rem; color: var(--ink-3); }
 
 /* --- Bars and meters ---------------------------------------------------------- */
 
-.bar-track { height: 12px; background: var(--sunk); border: 2px solid var(--ink); }
+.bar-track { height: 12px; background: var(--sunk); border: var(--rule) solid var(--edge); }
 .bar-track-empty { background: transparent; border-style: dashed; }
 .bar-fill { height: 100%; background: var(--ink); }
 
 .scale { position: relative; height: 30px; }
-.scale-track { position: absolute; inset: 0 0 14px 0; border: 2px solid var(--ink); background: var(--sunk); }
+.scale-track { position: absolute; inset: 0 0 14px 0; border: var(--rule) solid var(--edge); background: var(--sunk); }
 .scale-fill { position: absolute; inset: 0; background: var(--ink); }
 .scale-ticks { position: absolute; inset: auto 0 0 0; height: 14px; }
 .scale-tick { position: absolute; top: 0; width: 2px; height: 5px; background: var(--ink); }
@@ -561,7 +597,7 @@ table.schedule-wide { min-width: 520px; }
    bottom: a wall that drains left to right is the shape everyone wants. */
 .participation-track {
   display: flex; align-items: flex-end; gap: 3px; height: 76px;
-  border-bottom: var(--rule) solid var(--ink);
+  border-bottom: var(--rule) solid var(--hair);
 }
 .participation-month {
   flex: 1; min-width: 4px; position: relative;
@@ -577,7 +613,7 @@ table.schedule-wide { min-width: 520px; }
 .offline-banner {
   background: var(--alarm); color: var(--alarm-ink);
   padding: 10px 16px; font-size: 0.82rem; line-height: 1.45;
-  border-bottom: var(--rule) solid var(--ink);
+  border-bottom: var(--rule) solid var(--hair);
 }
 .offline-banner strong { color: inherit; }
 
@@ -613,70 +649,102 @@ table.schedule-wide { min-width: 520px; }
 /* The dump surface is a column of text with a margin of notes beside it. */
 @media (max-width: 880px) { .dump-layout { grid-template-columns: minmax(0, 1fr) !important; } }
 
-/* --- The public tool -----------------------------------------------------------
-   One screen that does one thing. The register is the hero, the figures are its
-   title block, and the copy is a caption — so the spacing is generous around
-   the drawing and tight everywhere else.
+/* --- The tool ------------------------------------------------------------------
+   One thing on screen at a time, with air around it. Somebody arrives here
+   having put this off for months; the page should feel like sitting down with
+   a patient person, not like opening a form.
 --------------------------------------------------------------------------- */
 
-.tool { display: flex; flex-direction: column; gap: 26px; max-width: 720px; }
-.tool-head { display: flex; flex-direction: column; gap: 6px; }
-.tool-head h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); text-wrap: balance; max-width: 18ch; }
+.tool { max-width: 620px; margin-inline: auto; }
+.step { display: flex; flex-direction: column; gap: 22px; animation: rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .step { animation: none; } }
 
-.tool-ask { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
-.tool-ask .field { flex: 1 1 190px; }
-
-/* The title block: figures across the top of the drawing, hairline-separated
-   the way a drawing's information panel is, not four floating cards. */
-.tool-figures {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
-  gap: 0 28px;
-  border-top: var(--rule) solid var(--ink);
-  border-bottom: 1px solid var(--hair);
+.step h1 {
+  font-size: clamp(1.7rem, 4.6vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  text-wrap: balance;
+  max-width: 17ch;
 }
-.tool-figure {
+.lede { font-size: 1.05rem; line-height: 1.6; color: var(--ink-2); max-width: 46ch; }
+.hint { font-size: 0.86rem; color: var(--ink-3); }
+
+.ask { display: flex; flex-direction: column; gap: 8px; max-width: 320px; }
+.ask .field > label { font-size: 0.95rem; font-weight: 500; color: var(--ink); }
+
+/* The one action on the screen, sized like it. */
+.drop {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 12px 0 14px;
-  min-width: 0;
+  align-items: center;
+  gap: 5px;
+  padding: 30px 24px;
+  border: 1.5px dashed var(--edge);
+  border-radius: var(--r);
+  background: var(--panel);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 160ms ease, background-color 160ms ease;
 }
-.tool-figure .chip { align-self: flex-start; }
-.tool-of { font-size: 0.5em; color: var(--ink-3); letter-spacing: 0; }
+.drop:hover, .drop:focus-within { border-color: var(--signal); background: var(--signal-soft); }
+.drop-main { font-size: 1.02rem; font-weight: 600; }
+.drop-hint { font-size: 0.84rem; color: var(--ink-3); }
 
-.tool-act { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.tool-act .tiny { flex: 1 1 220px; }
+.soft-error { font-size: 0.9rem; color: var(--alarm-text); }
 
-.tool-found { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
-@media (max-width: 620px) { .tool-found { grid-template-columns: minmax(0, 1fr); } }
+.result { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.result-said { flex: 1 1 240px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.result-said h1 { max-width: 15ch; }
 
-.found-list { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; list-style: none; }
+.next { display: flex; flex-direction: column; gap: 11px; }
+.next p { font-size: 0.98rem; line-height: 1.55; color: var(--ink-2); display: flex; gap: 11px; margin: 0; align-items: baseline; }
+.next strong { color: var(--ink); font-weight: 600; }
+.next .dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--signal);
+  flex: none; margin-top: 8px;
+}
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+/* A button is inline-flex, but a flex column stretches its children — so a
+   lone button in a step would run the full width and stop reading as one. */
+.step > .btn { align-self: flex-start; }
+
+.found > summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--ink-3);
+  padding: 4px 0;
+}
+.found > summary::-webkit-details-marker { display: none; }
+.found > summary::after { content: ' →'; }
+.found[open] > summary::after { content: ' ↓'; }
+.found > summary:hover { color: var(--ink); }
+.found-list { display: flex; flex-direction: column; gap: 0; margin: 10px 0 0; padding: 0; list-style: none; }
 .found-list li {
-  display: flex;
-  gap: 12px;
-  align-items: baseline;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--hair);
-  font-size: 0.86rem;
-  line-height: 1.45;
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 9px 0; border-bottom: 1px solid var(--hair);
+  font-size: 0.92rem; color: var(--ink-2);
 }
 .found-list li:last-child { border-bottom: 0; }
-.found-list .ref { flex: none; width: 92px; font-size: 11px; }
-@media (max-width: 460px) {
+.found-date { flex: none; width: 86px; font-size: 0.82rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+@media (max-width: 440px) {
   .found-list li { flex-direction: column; gap: 2px; }
-  .found-list .ref { width: auto; }
+  .found-date { width: auto; }
 }
 
-/* A thin strip of everything else, so the tool is not competing with a menu. */
-.strip { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: baseline; }
+/* A quiet row of everything else, so it never competes with the one action. */
+.strip { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: baseline; }
 .strip a {
-  font-size: 0.86rem;
+  font-size: 0.92rem;
+  color: var(--ink-2);
   text-decoration: none;
-  border-bottom: 1px solid var(--hair);
+  border-bottom: 1px solid var(--edge);
   padding-bottom: 1px;
 }
-.strip a:hover { border-bottom-color: var(--ink); }
+.strip a:hover { color: var(--ink); border-bottom-color: var(--ink-3); }
 
 /* --- Guides ---------------------------------------------------------------------
    A guide exists to hand over one fact. So: the answer at reading-headline
@@ -696,7 +764,7 @@ table.schedule-wide { min-width: 520px; }
   grid-template-columns: repeat(auto-fit, minmax(146px, 1fr));
   gap: 0 28px;
   margin: 0;
-  border-top: var(--rule) solid var(--ink);
+  border-top: var(--rule) solid var(--hair);
   border-bottom: 1px solid var(--hair);
 }
 .facts > div { min-width: 0; padding: 11px 0 13px; }

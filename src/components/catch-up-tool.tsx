@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { RecoveryGrid } from './recovery-grid'
-import { recoveryWindow, triage, type RecoveryReport, type Trouble } from '@/lib/pedr/recover'
+import { Progress, RecoveryGrid } from './recovery-grid'
+import { recoveryWindow, triage, type RecoveryReport } from '@/lib/pedr/recover'
 import { SHEET_RULES } from '@/lib/pedr/constants'
-import { isDateKey, weekIdOf, weekRange, type WeekId } from '@/lib/pedr/week'
+import { formatDate, isDateKey, weekIdOf, weekRange, type WeekId } from '@/lib/pedr/week'
 import { stashPending } from '@/lib/pending-import'
 
 /**
@@ -18,13 +18,6 @@ import { stashPending } from '@/lib/pending-import'
  * a new record contains is eighteen months of work they had already done.
  */
 
-const TONE: Record<Trouble, { chip: string; word: string }> = {
-  fine: { chip: 'chip-ink', word: 'On top of it' },
-  slipping: { chip: 'chip-signal', word: 'Slipping' },
-  behind: { chip: 'chip-signal', word: 'Behind' },
-  serious: { chip: 'chip-revision', word: 'Needs a weekend' },
-}
-
 type Phase =
   | { at: 'idle' }
   | { at: 'working' }
@@ -35,7 +28,6 @@ const MAX_BYTES = 8_000_000
 
 export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'export' } = {}) {
   const [start, setStart] = useState('')
-  const [sheets, setSheets] = useState(0)
   const [phase, setPhase] = useState<Phase>({ at: 'idle' })
   const [canSave, setCanSave] = useState(true)
 
@@ -53,8 +45,8 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
     // Once a calendar has been read, the week count is measured rather than
     // guessed — which is the whole reason this asks one question instead of three.
     const weeksLogged = phase.at === 'done' ? phase.report.recovered : 0
-    return triage({ experienceStart: start, sheetsDone: sheets, weeksLogged })
-  }, [range, start, sheets, phase])
+    return triage({ experienceStart: start, sheetsDone: 0, weeksLogged })
+  }, [range, start, phase])
 
   const recovered = useMemo(() => {
     if (phase.at !== 'done') return undefined
@@ -107,81 +99,106 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
 
   const done = phase.at === 'done' ? phase.report : null
   const total = range ? weekRange(range.from, range.to).length : 0
-  const tone = verdict ? TONE[verdict.trouble] : null
+  const step = !range ? 1 : !done ? 2 : 3
 
   return (
     <div className="tool">
-      <div className="tool-head">
-        <h1>How much of your PEDR is already written down?</h1>
-        <p className="dim small">
-          Almost none of it, by hand. Almost all of it, in your calendar.
-        </p>
-      </div>
-
-      {/* One question. The drawing needs a start date and nothing else. */}
-      <div className="tool-ask">
-        <div className="field">
-          <label htmlFor="start">Experience started</label>
-          <input
-            id="start"
-            type="date"
-            value={start}
-            max={new Date().toISOString().slice(0, 10)}
-            onChange={(e) => { setStart(e.target.value); setPhase({ at: 'idle' }) }}
-          />
+      {step === 1 && (
+        <div className="step">
+          <h1>Behind on your PEDR?</h1>
+          <p className="lede">
+            So is nearly everyone. Most of what you need is already written down — let&rsquo;s go
+            and find it.
+          </p>
+          <div className="ask">
+            <div className="field">
+              <label htmlFor="start">When did you start in practice?</label>
+              <input
+                id="start"
+                type="date"
+                value={start}
+                max={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => { setStart(e.target.value); setPhase({ at: 'idle' }) }}
+              />
+            </div>
+            <p className="hint">A rough date is fine. You can change it later.</p>
+          </div>
         </div>
-        <div className="field" style={{ maxWidth: 130 }}>
-          <label htmlFor="sheets">Sheets signed off</label>
-          <input
-            id="sheets"
-            type="number"
-            min={0}
-            max={SHEET_RULES.requiredSheets}
-            value={sheets}
-            onChange={(e) => setSheets(Math.max(0, Number(e.target.value) || 0))}
-          />
-        </div>
-      </div>
+      )}
 
-      {range && (
-        <>
-          {/* The drawing. This is the argument; the words above are a caption. */}
-          <div className="tool-figures">
-            <Figure value={done ? `${done.recovered}` : '0'} of={`${total}`} label="Weeks with something in them" />
-            <Figure value={done ? `${done.monthsRecovered}` : '0'} of="24" label="Months you could claim" />
-            <Figure
-              value={done ? `${done.blank.length}` : `${total}`}
-              label="Weeks that are holes"
-              alarm={!done || done.blank.length > 0}
+      {step === 2 && range && (
+        <div className="step">
+          <h1>{total} weeks since you started.</h1>
+          <p className="lede">
+            Your calendar remembers nearly all of them. Bring it here and watch them come back.
+          </p>
+
+          <RecoveryGrid {...range} />
+
+          <label className="drop">
+            <input
+              type="file"
+              accept=".ics,text/calendar,.csv,.tsv,text/csv,text/plain"
+              hidden
+              onChange={(e) => { void read(e.target.files?.[0]); e.target.value = '' }}
             />
-            {tone && (
-              <div className="tool-figure">
-                <span className={`chip ${tone.chip}`}>{tone.word}</span>
-                <span className="tiny faint" style={{ marginTop: 6 }}>
-                  {verdict!.sheetsLate === 0
-                    ? 'Nothing past its deadline'
-                    : `${verdict!.sheetsLate} sheet${verdict!.sheetsLate === 1 ? '' : 's'} past the deadline`}
+            <span className="drop-main">
+              {phase.at === 'working' ? 'Reading your calendar…' : 'Choose your calendar file'}
+            </span>
+            <span className="drop-hint">
+              Outlook: File → Save Calendar. Google Calendar: Settings → Export.
+            </span>
+          </label>
+
+          {phase.at === 'error' && <p className="soft-error">{phase.message}</p>}
+
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setStart('')}>
+            ← Change the date
+          </button>
+        </div>
+      )}
+
+      {step === 3 && range && done && (
+        <div className="step">
+          <div className="result">
+            <Progress value={done.monthsRecovered} max={24} label="months" />
+            <div className="result-said">
+              <h1>You already have {done.monthsRecovered} months.</h1>
+              <p className="lede">
+                {done.recovered} of your {total} weeks have something in them, and every one came
+                out of work you had already done.
+              </p>
+            </div>
+          </div>
+
+          <RecoveryGrid {...range} recovered={recovered} />
+
+          <div className="next">
+            {done.blank.length > 0 && (
+              <p>
+                <span className="dot" aria-hidden="true" />
+                <span>
+                  <strong>{done.blank.length} weeks</strong> still need a line from you — an
+                  evening, not a weekend.
                 </span>
-              </div>
+              </p>
+            )}
+            {verdict && verdict.sheetsLate > 0 && (
+              <p>
+                <span className="dot" aria-hidden="true" />
+                <span>
+                  <strong>
+                    {verdict.sheetsLate} record{' '}
+                    {verdict.sheetsLate === 1 ? 'sheet is' : 'sheets are'} past the deadline.
+                  </strong>{' '}
+                  They still count — writing them up is all that is left.
+                </span>
+              </p>
             )}
           </div>
 
-          <RecoveryGrid {...range} recovered={recovered} animate />
-
-          <div className="tool-act">
-            {!done && (
-              <label className="btn btn-primary" style={{ cursor: 'pointer' }}>
-                {phase.at === 'working' ? 'Reading…' : 'Fill it from my calendar'}
-                <input
-                  type="file"
-                  accept=".ics,text/calendar,.csv,.tsv,text/csv,text/plain"
-                  hidden
-                  onChange={(e) => { void read(e.target.files?.[0]); e.target.value = '' }}
-                />
-              </label>
-            )}
-
-            {done && onKeep === 'account' && (
+          <div className="actions">
+            {onKeep === 'account' && (
               <button
                 type="button"
                 className="btn btn-primary"
@@ -197,31 +214,22 @@ export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'expo
                   window.location.assign('/sign-up')
                 }}
               >
-                Save {done.entries.length} entries to an account
+                Keep this
               </button>
             )}
-
-            {done && canSave && (
+            {canSave && (
               <button
                 type="button"
                 className={onKeep === 'export' ? 'btn btn-primary' : 'btn'}
                 onClick={() => { void download(done) }}
               >
-                Download a spreadsheet
+                Download a copy
               </button>
             )}
-
-            <span className="tiny faint">
-              {!done && 'Outlook: File → Save Calendar. Google Calendar: Settings → Export.'}
-            </span>
           </div>
 
-          {phase.at === 'error' && (
-            <p className="small" style={{ color: 'var(--alarm-text)' }}>{phase.message}</p>
-          )}
-
-          {done && <Found report={done} />}
-        </>
+          <Found report={done} />
+        </div>
       )}
     </div>
   )
@@ -282,56 +290,23 @@ async function download(report: RecoveryReport) {
   URL.revokeObjectURL(url)
 }
 
-function Figure({
-  value, of, label, alarm,
-}: { value: string; of?: string; label: string; alarm?: boolean }) {
-  return (
-    <div className="tool-figure">
-      <span className="figure-sm" style={alarm ? { color: 'var(--alarm-text)' } : undefined}>
-        {value}
-        {of && <span className="tool-of">/{of}</span>}
-      </span>
-      <span className="tiny faint">{label}</span>
-    </div>
-  )
-}
-
-/** What came back, as evidence rather than as a claim. */
 function Found({ report }: { report: RecoveryReport }) {
-  const sample = report.entries.slice(0, 6)
   return (
-    <div className="tool-found">
-      <div className="stack-s">
-        <span className="label">What it found</span>
-        <ul className="found-list">
-          {sample.map((entry, i) => (
-            <li key={`${entry.date}-${i}`}>
-              <span className="ref">{entry.date}</span>
-              <span>{entry.activity}</span>
-            </li>
-          ))}
-        </ul>
-        {report.entries.length > sample.length && (
-          <span className="tiny faint">+{report.entries.length - sample.length} more</span>
-        )}
-      </div>
-
-      {report.prompts.length > 0 && (
-        <div className="stack-s">
-          <span className="label">The holes it left</span>
-          <ul className="found-list">
-            {report.prompts.slice(0, 4).map((p) => (
-              <li key={p.weekId}>
-                <span className="ref">{p.label}</span>
-                <span>{p.ask}</span>
-              </li>
-            ))}
-          </ul>
-          {report.prompts.length > 4 && (
-            <span className="tiny faint">+{report.prompts.length - 4} more</span>
-          )}
-        </div>
+    <details className="found">
+      <summary>See what it found</summary>
+      <ul className="found-list">
+        {report.entries.slice(0, 8).map((entry, i) => (
+          <li key={`${entry.date}-${i}`}>
+            <span className="found-date">{formatDate(entry.date)}</span>
+            <span>{entry.activity}</span>
+          </li>
+        ))}
+      </ul>
+      {report.entries.length > 8 && (
+        <p className="hint" style={{ marginTop: 10 }}>
+          and {report.entries.length - 8} more
+        </p>
       )}
-    </div>
+    </details>
   )
 }

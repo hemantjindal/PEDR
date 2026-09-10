@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 // Self-hosted, so there is no third-party font request and it works offline.
-// Archivo Black carries the headline weight signage needs; Archivo is the same
-// skeleton at reading weight, so the two never look like different families.
-import '@fontsource/archivo/400.css'
-import '@fontsource/archivo/500.css'
-import '@fontsource/archivo/600.css'
-import '@fontsource/archivo-black/400.css'
+// Bricolage Grotesque is warm and contemporary where something has to carry a
+// headline; Figtree is open and friendly at reading size. Neither reads as
+// officialdom, which is the point.
+import '@fontsource/figtree/400.css'
+import '@fontsource/figtree/500.css'
+import '@fontsource/figtree/600.css'
+import '@fontsource/bricolage-grotesque/500.css'
+import '@fontsource/bricolage-grotesque/600.css'
 import './globals.css'
 import { ServiceWorker } from '@/components/offline'
 import { SITE, origin } from '@/lib/site'
@@ -44,8 +46,8 @@ export const viewport: Viewport = {
   // notch and the home indicator have to be accounted for in CSS instead.
   viewportFit: 'cover',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0d0c0a' },
-    { media: '(prefers-color-scheme: dark)', color: '#0d0c0a' },
+    { media: '(prefers-color-scheme: light)', color: '#f6f7f4' },
+    { media: '(prefers-color-scheme: dark)', color: '#101410' },
   ],
 }
 

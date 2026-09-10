@@ -50,7 +50,7 @@ export default async function Root() {
       <main className="wrap" style={{ flex: 1, paddingBlock: 34 }}>
         <div className="stack-l">
           <CatchUpTool />
-          <div className="strip">
+          <div className="strip" style={{ maxWidth: 620, marginInline: 'auto' }}>
             <Link href="/what-is-a-pedr">What a PEDR actually looks like</Link>
             <Link href="/guides">Deadlines, what counts, who signs</Link>
             <Link href="/sign-up">Keep a record</Link>
