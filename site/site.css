@@ -25,16 +25,5 @@ a { color: inherit; }
 .page { display: none; }
 .page[data-active="true"] { display: block; }
 
-/* Says what this is, once. It is the real site, but it is a copy of it that
-   cannot hold an account, and pretending otherwise would be the one dishonest
-   thing on a page whose whole argument is that it does not lie to you. */
-.site-note {
-  background: var(--signal); color: var(--signal-ink);
-  padding: 9px 16px; font-size: 0.8rem; line-height: 1.45;
-  border-bottom: var(--rule) solid var(--ink);
-}
-.site-note strong { color: inherit; }
-.site-note a { color: inherit; text-decoration: underline; }
-
 /* The dump and file inputs have to be 16px or iOS zooms the page on focus. */
 textarea, input[type="date"], input[type="number"] { font-size: 16px; }

@@ -29,7 +29,14 @@ export function AuthForm({
       {mode === 'sign-up' && (
         <div className="field">
           <label htmlFor="name">Your name</label>
-          <input id="name" name="name" required autoComplete="name" defaultValue={state.values?.name} />
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            autoComplete="name"
+            defaultValue={state.values?.name}
+          />
         </div>
       )}
 

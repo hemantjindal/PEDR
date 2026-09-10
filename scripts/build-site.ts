@@ -49,7 +49,7 @@ const TOOL_PAGE = `
     <div class="strip">
       <a href="#/what-is-a-pedr">What a PEDR actually looks like</a>
       <a href="#/guides">Deadlines, what counts, who signs</a>
-      <a href="#/app">Keep a record</a>
+      <a href="#/guides/behind-on-your-pedr">What to do about the gaps</a>
     </div>
   </div>
 </div>`
@@ -76,13 +76,12 @@ function strip(html: string): string {
     .replace(/<template[^>]*>[\s\S]*?<\/template>/g, '')
 }
 
-/** Routes become hashes; the two that need an account become the demo. */
+/** Routes become hashes. */
 function rewriteLinks(html: string): string {
   return html.replace(/href="(\/[^"#]*)"/g, (whole, href: string) => {
     if (href.startsWith('/_next') || href.startsWith('/icons') || href === '/manifest.webmanifest') {
       return whole
     }
-    if (href === '/sign-up' || href === '/sign-in') return 'href="#/app"'
     return `href="#${href}"`
   })
 }
@@ -92,38 +91,6 @@ async function fetchPage(path: string): Promise<string> {
   if (res.status !== 200) throw new Error(`${path} → ${res.status}. Is \`npm run start\` running?`)
   return res.text()
 }
-
-/** The page that replaces sign-up, because this copy cannot hold an account. */
-const APP_PAGE = `
-<div class="wrap" style="padding-block:28px">
-  <div class="stack-l" style="max-width:680px">
-    <div class="stack-s">
-      <span class="label">There is no account on this copy</span>
-      <h1>This is the site, not the app</h1>
-      <p class="dim">
-        Everything you can read here is the real thing, rendered by the real code. What it cannot
-        do is hold a record for you — that needs a database behind it, and this is a single file.
-      </p>
-    </div>
-    <section class="sheet stack-s">
-      <h2>What the account adds</h2>
-      <p class="small dim">
-        Your entries kept and scored week by week, coverage across the work stages and the
-        professional criteria, the examiner that says which claims you could not defend, the
-        quarterly sheets as Word or PDF, a calendar feed that nudges you on a Friday, and the
-        phone app you dump into on the way home.
-      </p>
-      <p class="small dim">
-        The engine behind all of that runs in a browser, so you can use the whole of it right now
-        over a demo record — the same code, the same record the seeded account gets.
-      </p>
-      <div class="row-wrap">
-        <a class="btn btn-primary" href="https://claude.ai/code/artifact/5b9ae995-6d2c-4e1f-869a-fb60aa88e208">Open the working demo</a>
-        <a class="btn" href="#/">Back to the tool</a>
-      </div>
-    </section>
-  </div>
-</div>`
 
 async function main() {
   const island = await build({
@@ -158,7 +125,6 @@ async function main() {
     pages.push({ ...page, html })
     process.stdout.write(`  ${page.path} — ${(html.length / 1024).toFixed(0)} kB\n`)
   }
-  pages.push({ path: '/app', html: APP_PAGE })
 
   const appCss = readFileSync(join(root, 'src/app/globals.css'), 'utf8')
     .replace(/^@import\s+"tailwindcss";\s*/m, '')
@@ -175,11 +141,8 @@ async function main() {
     '<a class="brand" href="#/"><span class="brand-mark">P</span><span>PEDR</span></a>',
     `<nav class="nav nav-public" aria-label="Sections">${nav}</nav>`,
     '<span class="spacer"></span>',
-    '<a class="btn btn-ghost btn-sm" href="#/app">The app</a>',
+    '<a class="btn btn-ghost btn-sm" href="#/what-is-a-pedr">A real sheet</a>',
     '</div></header>',
-    '<p class="site-note"><strong>The real site, in one file.</strong> ',
-    'The tool is the real engine and your calendar is read in this tab. ',
-    'This copy cannot hold an account.</p>',
     '<div style="flex:1">',
     ...pages.map((p) => `<section class="page" data-page="${p.path}">${p.html}</section>`),
     '</div>',

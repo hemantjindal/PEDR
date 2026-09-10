@@ -56,7 +56,7 @@ export default function WhatIsAPedrPage() {
   return (
     <div className="stack-l" style={{ maxWidth: 780 }}>
       <div className="stack-s">
-        <span className="label">Nobody shows you one until you have to write it</span>
+        <span className="label">A completed record sheet</span>
         <h1>What a PEDR actually looks like</h1>
         <p className="dim">
           This is a real quarterly record sheet, filled in. There are{' '}
@@ -227,22 +227,15 @@ export default function WhatIsAPedrPage() {
         note="Your employment supervisor and your PSA each write a short assessment and sign it. This part is not completed online — RIBA gives you a template to fill in and upload, which is why most mentors end up writing it from memory in a blank box."
       />
 
-      <section className="sheet stack">
-        <div className="sheet-head">
-          <div>
-            <span className="label">Now the useful part</span>
-            <h2 style={{ marginTop: 3 }}>You do not write this from memory</h2>
-          </div>
-        </div>
+      <section className="sheet stack-s">
+        <h2>Yours can build itself</h2>
         <p className="small dim">
-          Every figure above was generated from a diary of one-line entries — the sort of thing you
-          type on a Friday afternoon, or that gets pulled out of your calendar and your practice
-          timesheet automatically. Nobody sits down and writes one of these from a blank page, and
-          the people who try are the ones who are still trying in month twenty-two.
+          Every figure above came from one-line entries — the sort your calendar and your timesheet
+          already hold.
         </p>
         <div className="row-wrap">
-          <Link href="/sign-up" className="btn btn-primary">Start one</Link>
-          <Link href="/behind" className="btn">First — how far behind am I?</Link>
+          <Link href="/" className="btn btn-primary">See what yours looks like</Link>
+          <Link href="/guides" className="btn">Deadlines and what counts</Link>
         </div>
       </section>
     </div>

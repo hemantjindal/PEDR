@@ -35,15 +35,11 @@ export default function GuidesIndex() {
         <h1>Straight answers about the PEDR</h1>
         <p className="dim" style={{ maxWidth: '62ch' }}>
           {REQUIREMENTS.minTotalMonths} months of practical experience,{' '}
-          {SHEET_RULES.requiredSheets} record sheets, one deadline every quarter that nobody tells
-          you about. Most of what is written about this is a PDF you have not read. These are the
-          questions people actually type in at eleven at night.
+          {SHEET_RULES.requiredSheets} record sheets, and one deadline every quarter. Everything
+          you need to know about the PEDR, answered once.
         </p>
       </div>
 
-      {/* The two that are not reading — they are the thing itself — go first
-          and look different, because somebody who arrived frightened should
-          not have to pick their way down a list of articles to find them. */}
       <section className="stack">
         <span className="label">Start here</span>
         <div className="grid grid-2">
@@ -74,10 +70,8 @@ export default function GuidesIndex() {
       </section>
 
       <p className="tiny faint">
-        Everything here is checked against {PEDR_SYSTEM.name} guidance as of{' '}
-        {PEDR_SYSTEM.asOf}, and the numbers are generated from the same rules the app runs on, so
-        a guide cannot quietly disagree with the tool. The official record lives at{' '}
-        <a href={PEDR_SYSTEM.url} rel="noreferrer">{PEDR_SYSTEM.shortUrl}</a>; this is not it.
+        Checked against {PEDR_SYSTEM.name} guidance, {PEDR_SYSTEM.asOf}. Your mentor and PSA sign
+        at <a href={PEDR_SYSTEM.url} rel="noreferrer">{PEDR_SYSTEM.shortUrl}</a>.
       </p>
     </div>
   )

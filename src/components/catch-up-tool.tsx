@@ -1,23 +1,21 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { RecoveryGrid } from './recovery-grid'
 import { recoveryWindow, triage, type RecoveryReport, type Trouble } from '@/lib/pedr/recover'
 import { SHEET_RULES } from '@/lib/pedr/constants'
 import { isDateKey, weekIdOf, weekRange, type WeekId } from '@/lib/pedr/week'
+import { stashPending } from '@/lib/pending-import'
 
 /**
- * The public tool.
+ * The tool the site opens on.
  *
- * This used to be a form followed by four hundred words explaining what the
- * form would tell you. It now shows you instead: your two years as a register
- * of week-squares, hollow, and a button that fills them from your calendar.
+ * One question, then a register of week-squares drawn hollow, then a file. How
+ * much is logged, how many weeks are holes and how many months can be claimed
+ * all come out of the file rather than out of an estimate somebody types.
  *
- * One question is asked, because one is all that is needed before the drawing
- * can be drawn. Everything else — how much you have logged, how many weeks are
- * holes, how many months you can actually claim — comes out of the file, which
- * is more honest than asking somebody to estimate it.
+ * What it finds is carried into the account they make next, so the first thing
+ * a new record contains is eighteen months of work they had already done.
  */
 
 const TONE: Record<Trouble, { chip: string; word: string }> = {
@@ -35,20 +33,20 @@ type Phase =
 
 const MAX_BYTES = 8_000_000
 
-export function CatchUpTool() {
+export function CatchUpTool({ onKeep = 'account' }: { onKeep?: 'account' | 'export' } = {}) {
   const [start, setStart] = useState('')
   const [sheets, setSheets] = useState(0)
   const [phase, setPhase] = useState<Phase>({ at: 'idle' })
 
-  const window = useMemo(() => (isDateKey(start) ? recoveryWindow(start) : null), [start])
+  const range = useMemo(() => (isDateKey(start) ? recoveryWindow(start) : null), [start])
 
   const verdict = useMemo(() => {
-    if (!window) return null
+    if (!range) return null
     // Once a calendar has been read, the week count is measured rather than
     // guessed — which is the whole reason this asks one question instead of three.
     const weeksLogged = phase.at === 'done' ? phase.report.recovered : 0
     return triage({ experienceStart: start, sheetsDone: sheets, weeksLogged })
-  }, [window, start, sheets, phase])
+  }, [range, start, sheets, phase])
 
   const recovered = useMemo(() => {
     if (phase.at !== 'done') return undefined
@@ -61,7 +59,7 @@ export function CatchUpTool() {
   }, [phase])
 
   async function read(file: File | undefined) {
-    if (!file || !window) return
+    if (!file || !range) return
     if (file.size > MAX_BYTES) {
       setPhase({ at: 'error', message: 'Too big. Export a year at a time.' })
       return
@@ -77,9 +75,9 @@ export function CatchUpTool() {
       ])
       const isIcs = /BEGIN:VCALENDAR/i.test(text.slice(0, 4000))
       const entries = isIcs
-        ? ingest.calendarToEntries(ingest.parseCalendar(text, window))
-        : ingest.parseDump(text, { reference: window.to }).entries.filter(
-            (e) => e.date >= window.from && e.date <= window.to,
+        ? ingest.calendarToEntries(ingest.parseCalendar(text, range))
+        : ingest.parseDump(text, { reference: range.to }).entries.filter(
+            (e) => e.date >= range.from && e.date <= range.to,
           )
 
       if (entries.length === 0) {
@@ -90,7 +88,7 @@ export function CatchUpTool() {
         return
       }
       const report = recovery.recover({
-        ...window,
+        ...range,
         sources: [{ source: isIcs ? 'calendar' : 'timesheet', label: file.name, entries }],
       })
       setPhase({ at: 'done', report, label: file.name })
@@ -100,7 +98,7 @@ export function CatchUpTool() {
   }
 
   const done = phase.at === 'done' ? phase.report : null
-  const total = window ? weekRange(window.from, window.to).length : 0
+  const total = range ? weekRange(range.from, range.to).length : 0
   const tone = verdict ? TONE[verdict.trouble] : null
 
   return (
@@ -137,7 +135,7 @@ export function CatchUpTool() {
         </div>
       </div>
 
-      {window && (
+      {range && (
         <>
           {/* The drawing. This is the argument; the words above are a caption. */}
           <div className="tool-figures">
@@ -160,7 +158,7 @@ export function CatchUpTool() {
             )}
           </div>
 
-          <RecoveryGrid {...window} recovered={recovered} animate />
+          <RecoveryGrid {...range} recovered={recovered} animate />
 
           <div className="tool-act">
             {!done && (
@@ -174,10 +172,39 @@ export function CatchUpTool() {
                 />
               </label>
             )}
-            {done && <Link href="/sign-up" className="btn btn-primary">Keep these {done.entries.length} entries</Link>}
+
+            {done && onKeep === 'account' && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  stashPending({
+                    experienceStart: start,
+                    entries: done.entries,
+                    weeks: done.recovered,
+                    months: done.monthsRecovered,
+                  })
+                  // A full navigation, not a router push: this component also
+                  // runs outside a Next app, where there is no router to push.
+                  window.location.assign('/sign-up')
+                }}
+              >
+                Save {done.entries.length} entries to an account
+              </button>
+            )}
+
+            {done && (
+              <button
+                type="button"
+                className={onKeep === 'export' ? 'btn btn-primary' : 'btn'}
+                onClick={() => download(done)}
+              >
+                Download a spreadsheet
+              </button>
+            )}
+
             <span className="tiny faint">
-              Read in this tab. Never uploaded.{' '}
-              {!done && 'Outlook: File → Save Calendar. Google: Settings → Export.'}
+              {!done && 'Outlook: File → Save Calendar. Google Calendar: Settings → Export.'}
             </span>
           </div>
 
@@ -190,6 +217,30 @@ export function CatchUpTool() {
       )}
     </div>
   )
+}
+
+const CSV_HEAD = ['Date', 'Hours', 'Activity', 'People', 'Project']
+
+function download(report: RecoveryReport) {
+  const cell = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v)
+  const rows = report.entries.map((e) =>
+    [
+      e.date,
+      (e.minutes / 60).toFixed(2),
+      e.activity,
+      e.people.join('; '),
+      e.projectHint ?? '',
+    ].map(cell).join(','),
+  )
+  const blob = new Blob([[CSV_HEAD.join(','), ...rows].join('\r\n')], {
+    type: 'text/csv;charset=utf-8',
+  })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `pedr-recovered-${report.from}-to-${report.to}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 function Figure({

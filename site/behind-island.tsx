@@ -10,7 +10,7 @@ import { CatchUpTool } from '@/components/catch-up-tool'
 
 function mount() {
   for (const el of document.querySelectorAll('[data-tool]')) {
-    createRoot(el).render(<CatchUpTool />)
+    createRoot(el).render(<CatchUpTool onKeep="export" />)
   }
 }
 

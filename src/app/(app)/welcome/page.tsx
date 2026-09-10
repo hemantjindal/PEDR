@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth'
+import { FirstImport } from '@/components/first-import'
 import { ONBOARDING } from '@/lib/pedr/guidance'
 import { REQUIREMENTS, SHEET_RULES } from '@/lib/pedr/constants'
 
@@ -14,22 +15,16 @@ export default async function WelcomePage() {
       <div className="stack-s">
         <h1>Welcome{first ? `, ${first}` : ''}</h1>
         <p className="dim">
-          This is the diary everyone doing Part 3 is told to keep and almost nobody manages, because
-          the tool is never where you are when the thing happens.
+          Your record starts here. Log a week in three lines and the sheets build themselves.
         </p>
       </div>
 
-      <div className="note note-ink">
-        <span aria-hidden="true">→</span>
-        <span>
-          <strong>If you only do one thing:</strong> log this week. Three lines about what you did
-          and one about what annoyed you. Everything else here works off that.
-        </span>
-      </div>
+      <FirstImport />
 
       <div className="row-wrap">
-        <Link href="/dump" className="btn btn-primary">Log this week</Link>
-        <Link href="/guide" className="btn">Read the guide first</Link>
+        <Link href="/review" className="btn btn-primary">Check your entries</Link>
+        <Link href="/dump" className="btn">Log this week</Link>
+        <Link href="/start" className="btn btn-ghost">Set up your record</Link>
       </div>
 
       <section className="sheet stack">

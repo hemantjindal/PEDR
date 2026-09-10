@@ -99,21 +99,14 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         <div className="stack-l" style={{ marginTop: 22 }}>{g.body()}</div>
       </details>
 
-      <section className="sheet stack">
-        <div className="sheet-head">
-          <div>
-            <span className="label">Reading this because you are behind</span>
-            <h2 style={{ marginTop: 3 }}>It is already written down</h2>
-          </div>
-        </div>
+      <section className="sheet stack-s">
+        <h2>Keep a record without keeping a diary</h2>
         <p className="small dim">
-          The record you are missing is sitting in your calendar and your practice timesheet. This
-          pulls it back out, week by week, and tells you plainly which weeks it could not reach —
-          rather than filling them in with something plausible.
+          Point it at your calendar and your timesheet, and the quarterly sheets build themselves.
         </p>
         <div className="row-wrap">
-          <Link href="/behind" className="btn btn-primary">How far behind am I?</Link>
-          <Link href="/what-is-a-pedr" className="btn">Show me a finished sheet</Link>
+          <Link href="/" className="btn btn-primary">See what yours looks like</Link>
+          <Link href="/what-is-a-pedr" className="btn">A finished sheet</Link>
         </div>
       </section>
 
@@ -138,9 +131,8 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       )}
 
       <p className="tiny faint">
-        Checked against {PEDR_SYSTEM.name} guidance as of {PEDR_SYSTEM.asOf}. The official record
-        is at <a href={PEDR_SYSTEM.url} rel="noreferrer">{PEDR_SYSTEM.shortUrl}</a>, and that is
-        where your mentor and PSA sign.
+        Checked against {PEDR_SYSTEM.name} guidance, {PEDR_SYSTEM.asOf}. Your mentor and PSA sign
+        at <a href={PEDR_SYSTEM.url} rel="noreferrer">{PEDR_SYSTEM.shortUrl}</a>.
       </p>
     </div>
   )
