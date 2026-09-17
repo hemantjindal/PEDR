@@ -527,6 +527,12 @@ export async function updateUser(
   await db.update(schema.users).set(values).where(eq(schema.users.id, userId))
 }
 
+/** The account a background job is working on behalf of. */
+export async function findUserById(id: string) {
+  const rows = await db.select().from(schema.users).where(eq(schema.users.id, id)).limit(1)
+  return rows[0] ?? null
+}
+
 export async function findUserByCalendarToken(token: string) {
   const rows = await db
     .select()
@@ -644,4 +650,223 @@ export async function findImportedExternalIds(
     for (const row of rows) if (row.externalId) found.add(row.externalId)
   }
   return found
+}
+
+/* --- Connected calendars ---------------------------------------------------
+   A connection is an account this app is authorised against, as opposed to a
+   feed, which is a URL somebody pasted. The tokens on these rows are encrypted
+   before they get here; this layer only stores what it is handed.
+--------------------------------------------------------------------------- */
+
+export type CalendarConnection = typeof schema.calendarConnections.$inferSelect
+
+export async function getConnections(userId: string): Promise<CalendarConnection[]> {
+  return db
+    .select()
+    .from(schema.calendarConnections)
+    .where(eq(schema.calendarConnections.userId, userId))
+    .orderBy(asc(schema.calendarConnections.createdAt))
+}
+
+export async function getConnection(userId: string, id: string): Promise<CalendarConnection | null> {
+  const rows = await db
+    .select()
+    .from(schema.calendarConnections)
+    .where(and(
+      eq(schema.calendarConnections.userId, userId),
+      eq(schema.calendarConnections.id, id),
+    ))
+    .limit(1)
+  return rows[0] ?? null
+}
+
+/**
+ * The connection a push notification belongs to.
+ *
+ * A webhook arrives with no session and no user — the channel id is the only
+ * thing tying it to an account, which is why it is indexed and why the stored
+ * channel secret is checked before anything is done with it.
+ */
+export async function findConnectionByChannel(channelId: string): Promise<CalendarConnection | null> {
+  const rows = await db
+    .select()
+    .from(schema.calendarConnections)
+    .where(eq(schema.calendarConnections.channelId, channelId))
+    .limit(1)
+  return rows[0] ?? null
+}
+
+/** By id alone: the webhook and cron paths have no session to scope by. */
+export async function getConnectionById(id: string): Promise<CalendarConnection | null> {
+  const rows = await db
+    .select()
+    .from(schema.calendarConnections)
+    .where(eq(schema.calendarConnections.id, id))
+    .limit(1)
+  return rows[0] ?? null
+}
+
+/** Connections due a sync, oldest first. Used by the scheduled safety net. */
+export async function getStaleConnections(before: string, limit = 50): Promise<CalendarConnection[]> {
+  return db
+    .select()
+    .from(schema.calendarConnections)
+    .where(eq(schema.calendarConnections.enabled, true))
+    .orderBy(asc(sql`coalesce(${schema.calendarConnections.lastSyncedAt}, '')`))
+    .limit(limit)
+    .then((rows) => rows.filter((row) => !row.lastSyncedAt || row.lastSyncedAt < before))
+}
+
+export async function upsertConnection(input: {
+  userId: string
+  provider: string
+  accountEmail: string
+  accountName: string | null
+  calendarId: string
+  calendarName: string
+  accessToken: string
+  refreshToken: string | null
+  expiresAt: string | null
+  scope: string | null
+  windowFrom: string | null
+}): Promise<CalendarConnection> {
+  // Reconnecting the same calendar replaces the credentials rather than
+  // stacking a second row that syncs the same events.
+  const existing = await db
+    .select()
+    .from(schema.calendarConnections)
+    .where(and(
+      eq(schema.calendarConnections.userId, input.userId),
+      eq(schema.calendarConnections.provider, input.provider),
+      eq(schema.calendarConnections.calendarId, input.calendarId),
+    ))
+    .limit(1)
+
+  if (existing[0]) {
+    await db
+      .update(schema.calendarConnections)
+      .set({
+        accountEmail: input.accountEmail,
+        accountName: input.accountName,
+        calendarName: input.calendarName,
+        accessToken: input.accessToken,
+        // A refresh grant is not always reissued; keep the one that works.
+        ...(input.refreshToken ? { refreshToken: input.refreshToken } : {}),
+        expiresAt: input.expiresAt,
+        scope: input.scope,
+        enabled: true,
+        lastError: null,
+      })
+      .where(eq(schema.calendarConnections.id, existing[0].id))
+    return (await db
+      .select()
+      .from(schema.calendarConnections)
+      .where(eq(schema.calendarConnections.id, existing[0].id))
+      .limit(1))[0]
+  }
+
+  const row = {
+    id: randomUUID(),
+    userId: input.userId,
+    provider: input.provider,
+    accountEmail: input.accountEmail,
+    accountName: input.accountName,
+    calendarId: input.calendarId,
+    calendarName: input.calendarName,
+    accessToken: input.accessToken,
+    refreshToken: input.refreshToken,
+    expiresAt: input.expiresAt,
+    scope: input.scope,
+    syncCursor: null,
+    windowFrom: input.windowFrom,
+    channelId: null,
+    channelResourceId: null,
+    channelExpiresAt: null,
+    channelSecret: null,
+    ignore: [] as string[],
+    enabled: true,
+    lastSyncedAt: null,
+    lastImported: 0,
+    lastSkipped: 0,
+    lastError: null,
+    createdAt: now(),
+  }
+  await db.insert(schema.calendarConnections).values(row)
+  return row
+}
+
+/** Patch by id: the webhook and cron paths have a connection but no session. */
+export async function updateConnection(
+  id: string,
+  patch: Partial<typeof schema.calendarConnections.$inferInsert>,
+): Promise<void> {
+  await db
+    .update(schema.calendarConnections)
+    .set(patch)
+    .where(eq(schema.calendarConnections.id, id))
+}
+
+export async function deleteConnection(userId: string, id: string): Promise<void> {
+  await db
+    .delete(schema.calendarConnections)
+    .where(and(
+      eq(schema.calendarConnections.userId, userId),
+      eq(schema.calendarConnections.id, id),
+    ))
+}
+
+/**
+ * Take entries off the record because the meeting they came from is gone.
+ *
+ * Only ever unverified ones. Once somebody has looked at an entry and confirmed
+ * it, it is their record — a meeting deleted from a calendar months later does
+ * not get to quietly rewrite what they said they did.
+ */
+export async function deleteImportedByExternalIds(
+  userId: string,
+  ids: string[],
+): Promise<number> {
+  let removed = 0
+  for (let i = 0; i < ids.length; i += 200) {
+    const chunk = ids.slice(i, i + 200)
+    if (chunk.length === 0) continue
+    const rows = await db
+      .delete(schema.entries)
+      .where(and(
+        eq(schema.entries.userId, userId),
+        eq(schema.entries.verified, false),
+        inArray(schema.entries.externalId, chunk),
+      ))
+      .returning({ id: schema.entries.id })
+    removed += rows.length
+  }
+  return removed
+}
+
+/**
+ * Remove imported entries by the event they came from, across every date.
+ *
+ * An external id is `<provider>:<event id>:<date>`, and a provider reporting a
+ * deletion gives only the event id, so the match is on the prefix. LIKE treats
+ * `_` and `%` as wildcards and provider ids contain `_`, so they are escaped —
+ * otherwise a cancelled meeting could take an unrelated one with it.
+ */
+export async function deleteImportedByEventIds(
+  userId: string,
+  prefixes: string[],
+): Promise<number> {
+  let removed = 0
+  for (const prefix of prefixes.slice(0, 500)) {
+    const pattern = `${prefix.replace(/[\\%_]/g, (c) => `\\${c}`)}%`
+    const rows = await db
+      .delete(schema.entries)
+      .where(and(
+        eq(schema.entries.userId, userId),
+        eq(schema.entries.verified, false),
+        sql`${schema.entries.externalId} LIKE ${pattern} ESCAPE '\\'`,
+      ))
+      .returning({ id: schema.entries.id })
+    removed += rows.length
+  }
+  return removed
 }

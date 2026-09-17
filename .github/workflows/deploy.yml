@@ -9,6 +9,18 @@
 #   DATABASE_AUTH_TOKEN   the token Turso hands you with it
 #
 # Without them the job says so and stops, rather than failing red on every push.
+#
+# Four more are optional, and switch the calendar connectors on. Add them and
+# people can authorise Outlook or Google; leave them out and the Calendar page
+# says so and offers the .ics import instead. See docs/connectors.md.
+#
+#   MICROSOFT_CLIENT_ID / MICROSOFT_CLIENT_SECRET
+#   GOOGLE_CLIENT_ID    / GOOGLE_CLIENT_SECRET
+#
+# ENCRYPTION_KEY and CRON_SECRET are not secrets you provide: this workflow
+# generates each one the first time it is missing and never touches it again.
+# Rotating the encryption key would make every stored calendar token
+# undecryptable, so it is only ever created, never replaced.
 name: Deploy
 
 on:
@@ -28,6 +40,10 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+      MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
+      MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       # Where the site actually lives. Canonical tags, the sitemap, the OG
       # cards and the calendar feed are all absolute URLs, so this has to be
       # right at build time — the pages are prerendered, and a wrong value is
@@ -90,10 +106,37 @@ jobs:
           # set explicitly rather than left to VERCEL_PROJECT_PRODUCTION_URL:
           # that variable is not present during a prebuilt build, so the
           # prerendered pages came out with localhost canonicals.
+          # Set every time: these are owned by the repository secrets.
           for name in DATABASE_URL DATABASE_AUTH_TOKEN APP_URL; do
             for target in production preview; do
               vercel env rm "$name" "$target" --yes --token="$VERCEL_TOKEN" 2>/dev/null || true
               printf '%s' "${!name}" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN"
+            done
+          done
+
+          # Set only when provided. Absent, the connectors stay switched off and
+          # the Calendar page says why, rather than offering a broken button.
+          for name in MICROSOFT_CLIENT_ID MICROSOFT_CLIENT_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET; do
+            [ -n "${!name}" ] || { echo "No $name — leaving that connector off."; continue; }
+            for target in production preview; do
+              vercel env rm "$name" "$target" --yes --token="$VERCEL_TOKEN" 2>/dev/null || true
+              printf '%s' "${!name}" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN"
+            done
+          done
+
+          # Created once, then left alone for good. Re-generating ENCRYPTION_KEY
+          # would make every calendar token already in the database impossible
+          # to decrypt, so this only ever fills a gap.
+          existing=$(vercel env ls production --token="$VERCEL_TOKEN" 2>/dev/null || true)
+          for name in ENCRYPTION_KEY CRON_SECRET; do
+            if grep -qE "(^|[[:space:]])$name([[:space:]]|$)" <<<"$existing"; then
+              echo "$name already set — leaving it."
+              continue
+            fi
+            echo "Generating $name for the first time."
+            value=$(openssl rand -base64 32)
+            for target in production preview; do
+              printf '%s' "$value" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN"
             done
           done
 

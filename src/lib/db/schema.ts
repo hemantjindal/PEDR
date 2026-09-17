@@ -188,6 +188,66 @@ export const calendarFeeds = sqliteTable(
   (t) => [index('calendar_feeds_user_idx').on(t.userId)],
 )
 
+/**
+ * A connected calendar account.
+ *
+ * Not a file and not a URL somebody pasted — an account this app is authorised
+ * against, which it can keep reading. The tokens are encrypted at rest
+ * (`src/lib/secrets.ts`): a refresh token is a live key to a person's work
+ * calendar and stays valid for months, so a leaked backup must not be enough.
+ */
+export const calendarConnections = sqliteTable(
+  'calendar_connections',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    /** 'microsoft' or 'google'. */
+    provider: text('provider').notNull(),
+    /** Which account was authorised, shown back so you know what is linked. */
+    accountEmail: text('account_email').notNull().default(''),
+    accountName: text('account_name'),
+    /** Which calendar in that account. 'primary' unless they picked another. */
+    calendarId: text('calendar_id').notNull().default('primary'),
+    calendarName: text('calendar_name').notNull().default('Calendar'),
+
+    accessToken: text('access_token').notNull(),
+    /** Absent when the provider issued none — the connection then dies at expiry. */
+    refreshToken: text('refresh_token'),
+    /** ISO. Refreshed early rather than on failure. */
+    expiresAt: text('expires_at'),
+    scope: text('scope'),
+
+    /**
+     * Where the last sync got to. Google hands back an opaque syncToken,
+     * Microsoft a full deltaLink URL; both mean "only what changed since".
+     */
+    syncCursor: text('sync_cursor'),
+    /** How far back the first sync reached, so the window is not re-walked. */
+    windowFrom: text('window_from'),
+
+    /** The push subscription, so a change arrives rather than being waited for. */
+    channelId: text('channel_id'),
+    channelResourceId: text('channel_resource_id'),
+    channelExpiresAt: text('channel_expires_at'),
+    /** Echoed back by the provider on every notification; proves it is them. */
+    channelSecret: text('channel_secret'),
+
+    /** Title fragments this user wants ignored, on top of the defaults. */
+    ignore: text('ignore', { mode: 'json' }).$type<string[]>().notNull().default([]),
+    enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+    lastSyncedAt: text('last_synced_at'),
+    lastImported: integer('last_imported').notNull().default(0),
+    lastSkipped: integer('last_skipped').notNull().default(0),
+    lastError: text('last_error'),
+    createdAt: text('created_at').notNull(),
+  },
+  (t) => [
+    index('calendar_connections_user_idx').on(t.userId),
+    index('calendar_connections_channel_idx').on(t.channelId),
+    uniqueIndex('calendar_connections_account_idx').on(t.userId, t.provider, t.calendarId),
+  ],
+)
+
 export const weekNotes = sqliteTable(
   'week_notes',
   {
@@ -351,6 +411,37 @@ CREATE TABLE IF NOT EXISTS calendar_feeds (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS calendar_feeds_user_idx ON calendar_feeds (user_id);
+
+CREATE TABLE IF NOT EXISTS calendar_connections (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider TEXT NOT NULL,
+  account_email TEXT NOT NULL DEFAULT '',
+  account_name TEXT,
+  calendar_id TEXT NOT NULL DEFAULT 'primary',
+  calendar_name TEXT NOT NULL DEFAULT 'Calendar',
+  access_token TEXT NOT NULL,
+  refresh_token TEXT,
+  expires_at TEXT,
+  scope TEXT,
+  sync_cursor TEXT,
+  window_from TEXT,
+  channel_id TEXT,
+  channel_resource_id TEXT,
+  channel_expires_at TEXT,
+  channel_secret TEXT,
+  ignore TEXT NOT NULL DEFAULT '[]',
+  enabled INTEGER NOT NULL DEFAULT 1,
+  last_synced_at TEXT,
+  last_imported INTEGER NOT NULL DEFAULT 0,
+  last_skipped INTEGER NOT NULL DEFAULT 0,
+  last_error TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS calendar_connections_user_idx ON calendar_connections (user_id);
+CREATE INDEX IF NOT EXISTS calendar_connections_channel_idx ON calendar_connections (channel_id);
+CREATE UNIQUE INDEX IF NOT EXISTS calendar_connections_account_idx
+  ON calendar_connections (user_id, provider, calendar_id);
 
 CREATE TABLE IF NOT EXISTS week_notes (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
