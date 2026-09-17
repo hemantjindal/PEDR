@@ -28,6 +28,12 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+      # Where the site actually lives. Canonical tags, the sitemap, the OG
+      # cards and the calendar feed are all absolute URLs, so this has to be
+      # right at build time — the pages are prerendered, and a wrong value is
+      # baked into the HTML. Set the APP_URL repository variable when a custom
+      # domain replaces the vercel.app one.
+      APP_URL: ${{ vars.APP_URL || 'https://pedr.vercel.app' }}
     steps:
       - name: Check what we have
         id: have
@@ -80,9 +86,11 @@ jobs:
             --scope hemantjindal890-6944s-projects \
             || vercel link --yes --token="$VERCEL_TOKEN" --project pedr
 
-          # The running app needs the database; APP_URL it works out for
-          # itself from VERCEL_PROJECT_PRODUCTION_URL.
-          for name in DATABASE_URL DATABASE_AUTH_TOKEN; do
+          # The running app needs the database and its own address. APP_URL is
+          # set explicitly rather than left to VERCEL_PROJECT_PRODUCTION_URL:
+          # that variable is not present during a prebuilt build, so the
+          # prerendered pages came out with localhost canonicals.
+          for name in DATABASE_URL DATABASE_AUTH_TOKEN APP_URL; do
             for target in production preview; do
               vercel env rm "$name" "$target" --yes --token="$VERCEL_TOKEN" 2>/dev/null || true
               printf '%s' "${!name}" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN"
@@ -93,16 +101,42 @@ jobs:
           vercel build --prod --token="$VERCEL_TOKEN"
           url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
           echo "url=$url" >> "$GITHUB_OUTPUT"
-          echo "### Deployed" >> "$GITHUB_STEP_SUMMARY"
-          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Deployed"
+            echo ""
+            echo "- Live: $APP_URL"
+            echo "- This build: $url"
+          } >> "$GITHUB_STEP_SUMMARY"
 
+      # The deployment URL that `vercel deploy` prints sits behind Vercel
+      # Authentication, so it answers 401 to anyone but a logged-in member.
+      # The production alias is the one the public gets, and the one to check.
       - name: Check it answers
         if: steps.have.outputs.ready == 'yes'
         run: |
-          url="${{ steps.vercel.outputs.url }}"
+          set -uo pipefail
           for i in $(seq 1 20); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "$url/guides" || true)
-            [ "$code" = "200" ] && echo "$url is up" && exit 0
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$APP_URL/guides" || true)
+            [ "$code" = "200" ] && echo "$APP_URL/guides -> 200" && break
+            if [ "$i" = "20" ]; then echo "no 200 from $APP_URL/guides (last: $code)"; exit 1; fi
             sleep 5
           done
-          echo "no 200 from $url/guides" && exit 1
+
+          # Canonicals are prerendered, so a wrong APP_URL is invisible until
+          # something reads the HTML. Read the HTML.
+          canonical=$(curl -s "$APP_URL/guides" | grep -o 'rel="canonical" href="[^"]*"' | head -1)
+          echo "$canonical"
+          case "$canonical" in
+            *"$APP_URL/guides"*) ;;
+            *) echo "canonical does not point at $APP_URL"; exit 1 ;;
+          esac
+
+          # Proves the deployed function can reach the database, not just that
+          # CI can. This route looks a token up and returns 404 when it finds
+          # nothing; a database it cannot reach would be a 500 instead.
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$APP_URL/api/ics/definitely-not-a-real-token" || true)
+          echo "database probe -> $code"
+          [ "$code" = "404" ] || { echo "the app cannot reach its database"; exit 1; }
+
+          echo "### Live" >> "$GITHUB_STEP_SUMMARY"
+          echo "$APP_URL — pages served, canonicals correct, database reachable." >> "$GITHUB_STEP_SUMMARY"
