@@ -72,6 +72,9 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Publishing needs the repository's Pages source set to GitHub Actions.
+    # Until it is, build and upload still run and stay green.
+    if: vars.PAGES_ENABLED == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -1,0 +1,108 @@
+# Deploy the app — the real one, with a database behind it.
+#
+# This session cannot reach vercel.com; its egress policy refuses the host. A
+# GitHub runner has no such restriction, so the deploy lives here instead of on
+# my machine. Everything it needs is three secrets on the repository.
+#
+#   VERCEL_TOKEN          vercel.com/account/tokens
+#   DATABASE_URL          libsql://<name>.turso.io
+#   DATABASE_AUTH_TOKEN   the token Turso hands you with it
+#
+# Without them the job says so and stops, rather than failing red on every push.
+name: Deploy
+
+on:
+  push:
+    branches: [claude/arb-part2-part3-plan-csch0m]
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
+    steps:
+      - name: Check what we have
+        id: have
+        run: |
+          missing=""
+          [ -n "$VERCEL_TOKEN" ]        || missing="$missing VERCEL_TOKEN"
+          [ -n "$DATABASE_URL" ]        || missing="$missing DATABASE_URL"
+          [ -n "$DATABASE_AUTH_TOKEN" ] || missing="$missing DATABASE_AUTH_TOKEN"
+          if [ -n "$missing" ]; then
+            echo "Not deploying. Missing repository secrets:$missing"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            echo "ready=no" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.have.outputs.ready == 'yes'
+
+      - uses: actions/setup-node@v4
+        if: steps.have.outputs.ready == 'yes'
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+        if: steps.have.outputs.ready == 'yes'
+
+      # Tests first: a deploy is not the place to find out.
+      - run: npm test
+        if: steps.have.outputs.ready == 'yes'
+
+      # Creates every table that is missing and adds every column that is
+      # missing. Safe to run on every deploy, including the first.
+      - name: Push the schema
+        if: steps.have.outputs.ready == 'yes'
+        run: npm run db:push
+
+      - name: Deploy
+        if: steps.have.outputs.ready == 'yes'
+        id: vercel
+        run: |
+          set -euo pipefail
+          npm i -g vercel@latest
+
+          # Creates the project on the first run and reuses it after. The
+          # scope is named so a token whose default is a personal account does
+          # not quietly put the project somewhere else.
+          vercel link --yes --token="$VERCEL_TOKEN" --project pedr \
+            --scope hemantjindal890-6944s-projects \
+            || vercel link --yes --token="$VERCEL_TOKEN" --project pedr
+
+          # The running app needs the database; APP_URL it works out for
+          # itself from VERCEL_PROJECT_PRODUCTION_URL.
+          for name in DATABASE_URL DATABASE_AUTH_TOKEN; do
+            for target in production preview; do
+              vercel env rm "$name" "$target" --yes --token="$VERCEL_TOKEN" 2>/dev/null || true
+              printf '%s' "${!name}" | vercel env add "$name" "$target" --token="$VERCEL_TOKEN"
+            done
+          done
+
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check it answers
+        if: steps.have.outputs.ready == 'yes'
+        run: |
+          url="${{ steps.vercel.outputs.url }}"
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$url/guides" || true)
+            [ "$code" = "200" ] && echo "$url is up" && exit 0
+            sleep 5
+          done
+          echo "no 200 from $url/guides" && exit 1
