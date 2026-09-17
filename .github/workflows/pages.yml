@@ -1,0 +1,84 @@
+# Build the public site and publish it to GitHub Pages.
+#
+# The site is one self-contained HTML file — every route is a hash, the
+# stylesheet and the engine are inlined — so it needs no server and it does not
+# care what path it is served from. That is what makes Pages a real host for it
+# rather than a compromise.
+name: Site
+
+on:
+  push:
+    branches: [claude/arb-part2-part3-plan-csch0m]
+    paths-ignore: ['**.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; a queued run supersedes an older one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SITE_ORIGIN: https://hemantjindal.github.io/PEDR
+      APP_URL: https://hemantjindal.github.io/PEDR
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # The stitcher reads the pages out of a running production build, so what
+      # ships is exactly what the app renders rather than a second copy of it.
+      # Server and stitcher share one step: a background process started in one
+      # step is not reliably alive in the next.
+      - name: Build the site
+        run: |
+          npm run start &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for i in $(seq 1 40); do
+            if curl -sf http://localhost:3000/guides >/dev/null; then break; fi
+            if [ "$i" = "40" ]; then echo "the app never came up"; exit 1; fi
+            sleep 2
+          done
+          npm run site
+
+      - name: Collect
+        run: |
+          mkdir -p out
+          cp site/dist/index.html out/index.html
+          # Pages serves 404.html for unknown paths; the site is one page with
+          # hash routes, so send anybody who lands deep to the front of it.
+          cp site/dist/index.html out/404.html
+          ls -la out
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

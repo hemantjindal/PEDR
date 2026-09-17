@@ -25,6 +25,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const siteDir = join(root, 'site')
 const outDir = join(siteDir, 'dist')
 const base = process.env.SITE_BASE ?? 'http://localhost:3000'
+const origin = process.env.SITE_ORIGIN ?? base
 
 interface Page {
   /** The app route, which becomes the hash. */
@@ -192,6 +193,25 @@ async function main() {
   mkdirSync(outDir, { recursive: true })
   const out = join(outDir, 'pedr-site.html')
   writeFileSync(out, fragment)
+
+  // The same page wrapped in a document, for a host that serves files rather
+  // than embedding them.
+  const document = [
+    '<!doctype html>',
+    '<html lang="en-GB">',
+    '<head>',
+    '<meta charset="utf-8">',
+    '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+    '<meta name="theme-color" content="#f2efe6">',
+    `<link rel="canonical" href="${origin}/">`,
+    fragment.slice(0, fragment.indexOf('</style>') + 8),
+    '</head>',
+    '<body>',
+    fragment.slice(fragment.indexOf('</style>') + 8),
+    '</body>',
+    '</html>',
+  ].join('\n')
+  writeFileSync(join(outDir, 'index.html'), document)
   console.log(
     `${out} — ${(fragment.length / 1024).toFixed(0)} kB ` +
     `(${pages.length} pages, island ${(js.length / 1024).toFixed(0)} kB)`,
