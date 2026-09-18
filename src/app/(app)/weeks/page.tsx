@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { NothingYet } from '@/components/nothing-yet'
 import { requireUser } from '@/lib/auth'
 import { getDashboard } from '@/lib/data'
 import { SCORE_BANDS } from '@/lib/pedr/constants'
@@ -14,16 +15,56 @@ export default async function WeeksPage() {
 
   const missing = d.scores.filter((s) => s.score === 0).length
   const thin = d.thinWeeks.length
+  const started = d.entries.length > 0
 
   return (
     <div className="stack-l">
-      <div className="stack-s">
-        <h1>Weeks</h1>
-        <p className="dim">
-          {d.scores.length} weeks since the record starts · {missing} with nothing on them ·{' '}
-          {thin} logged but thin.
-        </p>
+      <div className="page-head">
+        <div>
+          <span className="label">Record</span>
+          <h1>Weeks</h1>
+          {started ? (
+            <p>
+              {d.scores.length} weeks since the record starts · {missing} with nothing on them ·{' '}
+              {thin} logged but thin.
+            </p>
+          ) : (
+            <p>Every week of your experience, and what is on each one.</p>
+          )}
+        </div>
       </div>
+
+      {/*
+        With nothing logged this was a table of fifty-three empty rows under a
+        line reading "53 with nothing on them". Accurate, and a wall of failure
+        for somebody who started yesterday.
+      */}
+      {!started ? (
+        <NothingYet
+          label="Nothing logged yet"
+          title="One week is enough to start"
+          actions={
+            <>
+              <Link href="/dump" className="btn btn-primary">Log this week</Link>
+              <Link href="/calendar" className="btn">Connect your calendar</Link>
+              <Link href="/catch-up" className="btn btn-ghost">Catch up on old weeks</Link>
+            </>
+          }
+          aside={
+            <p className="small dim">
+              A week takes about three lines, typed badly. You are not writing the record here —
+              you are leaving yourself enough to write it from.
+            </p>
+          }
+        >
+          <p className="dim">
+            Each week you log appears here with a score and whatever is still missing from it, so
+            you can see at a glance which weeks are worth ten minutes. Start with this week, while
+            you still remember it.
+          </p>
+        </NothingYet>
+      ) : (
+        <>
 
       {missing > 0 && (
         <div className="note note-pending">
@@ -73,6 +114,8 @@ export default async function WeeksPage() {
           </table>
         </div>
       </div>
+        </>
+      )}
     </div>
   )
 }

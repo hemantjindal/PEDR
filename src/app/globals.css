@@ -1084,6 +1084,36 @@ table.schedule-wide { min-width: 520px; }
   font-size: 0.95rem; font-weight: 500; color: var(--ink);
 }
 
+/* --- A fold --------------------------------------------------------------------
+   Reference material that belongs on the page but must not *be* the page. The
+   difference between a screen somebody reads and a screen somebody closes is
+   usually thirteen definitions they did not ask for.
+--------------------------------------------------------------------------- */
+
+.fold {
+  border: var(--rule) solid var(--hair);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--panel) 50%, transparent);
+  padding: 14px 18px;
+}
+.fold > summary {
+  display: flex; align-items: baseline; gap: 12px;
+  cursor: pointer; list-style: none;
+  font-weight: 600; color: var(--ink);
+}
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary::before {
+  content: '+';
+  font-family: var(--mono); font-size: 0.95rem; font-weight: 400;
+  color: var(--signal);
+  width: 14px; flex: none;
+}
+.fold[open] > summary::before { content: '\2212'; }
+.fold > summary > span:first-of-type { flex: 1; min-width: 0; }
+.fold > summary:hover { color: var(--signal); }
+.fold[open] { background: transparent; }
+.fold[open] > summary { padding-bottom: 12px; border-bottom: var(--rule) solid var(--hair); }
+
 /* --- Print --------------------------------------------------------------------- */
 
 @media print {

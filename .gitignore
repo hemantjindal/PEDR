@@ -22,3 +22,6 @@ data/
 coverage/
 demo/dist/
 site/dist/
+
+# Scratch scripts used while testing, never shipped
+scripts/tmp/

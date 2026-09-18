@@ -154,6 +154,15 @@ export default async function DashboardPage() {
           repeats it. */}
       <MissionPanel board={d.missions} />
 
+      {/*
+        Everything below is analysis, and with nothing logged all of it says
+        the same thing in six different ways: fourteen viva questions nobody
+        can answer, thirteen criteria marked NEVER, fifty-three empty cells and
+        a chart of nothing. The panel above already says what to do first;
+        repeating "you have done none of it" underneath is not information.
+      */}
+      {started && (
+        <>
       {/* The viva is the point of the record, so its worst three sit above the
           register rather than at the end of the page. */}
       <ExamPanel report={d.exam} limit={3} />
@@ -351,6 +360,8 @@ export default async function DashboardPage() {
             </table>
           </div>
         </section>
+      )}
+        </>
       )}
     </div>
   )

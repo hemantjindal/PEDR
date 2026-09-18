@@ -78,6 +78,9 @@ export default async function CalendarPage({
   ].filter((v): v is string => Boolean(v)).sort().at(-1)
 
   const result = connect ? RESULTS[connect] : undefined
+  // Four counters reading zero is not a status panel, it is clutter. It appears
+  // once there is something for it to count.
+  const anythingYet = connections.length > 0 || fromCalendar.length > 0
 
   return (
     <div className="stack-l">
@@ -86,8 +89,8 @@ export default async function CalendarPage({
           <span className="label">Calendar</span>
           <h1>What you already wrote down</h1>
           <p>
-            Your calendar recorded every working day as it happened — what, when, how long, and who
-            was in the room. Connect it once and it keeps feeding your record.
+            Your calendar recorded every working day as it happened. Connect it once and it keeps
+            feeding your record.
           </p>
         </div>
       </div>
@@ -99,126 +102,97 @@ export default async function CalendarPage({
         </p>
       ) : null}
 
-      <div className="titleblock no-print">
-        <div>
-          <span className="label">Connected</span>
-          <span className="value">{connections.length}</span>
+      {anythingYet && (
+        <div className="titleblock no-print">
+          <div>
+            <span className="label">Connected</span>
+            <span className="value">{connections.length}</span>
+          </div>
+          <div>
+            <span className="label">From calendars</span>
+            <span className="value">{fromCalendar.length}</span>
+          </div>
+          <div>
+            <span className="label">Last read</span>
+            <span className="value">{lastSync ? formatDate(lastSync.slice(0, 10)) : 'never'}</span>
+          </div>
         </div>
-        <div>
-          <span className="label">From calendars</span>
-          <span className="value">{fromCalendar.length}</span>
+      )}
+
+      {unavailable ? (
+        <p className="note">
+          <span className="label">Not yet</span>
+          <span>{unavailable}</span>
+        </p>
+      ) : (
+        <div style={{ maxWidth: 760 }}>
+          <CalendarConnections connections={views} providers={offer} />
         </div>
-        <div>
-          <span className="label">Last read</span>
-          <span className="value">{lastSync ? formatDate(lastSync.slice(0, 10)) : 'never'}</span>
+      )}
+
+      {/*
+        Everything below here is worth saying and worth not saying first. The
+        page had two reference panels and a whole import form open at once,
+        which is a lot to meet when all you wanted was to press one button.
+      */}
+      <details className="fold">
+        <summary>
+          <span>What it will and will not put on your record</span>
+          <span className="tiny faint">worth 30 seconds</span>
+        </summary>
+        <div className="grid grid-2" style={{ marginTop: 16 }}>
+          {[
+            [
+              'It fixes the dates',
+              'A calendar was written at the time. Nothing else you have was — which is exactly why a quarter reconstructed from memory has holes in it.',
+            ],
+            [
+              'It fixes the people',
+              'Who was in the room is on every invite and in nobody’s memory. It is also the thing that shows an examiner the level you were working at.',
+            ],
+            [
+              'It does not know the work',
+              'Six hours on a package appears in no calendar. What comes in is a skeleton of the week — the meetings — and you fill in the rest.',
+            ],
+            [
+              'It never guesses hours',
+              'The length of a meeting is a fact and gets used as one. All-day leave is the one assumption made, and it is marked as an estimate.',
+            ],
+            [
+              'Nothing lands unchecked',
+              'Everything a connected calendar brings in waits in Review until you have looked at it. Nothing writes to your record behind your back.',
+            ],
+            [
+              'The noise is dropped',
+              'Cancelled meetings, anything you declined, anything marked free, all-day blocks that are not leave, lunch, focus time, standups, commutes, birthdays, anything under 15 minutes. Every one is listed on the review screen with its reason.',
+            ],
+          ].map(([term, note]) => (
+            <div className="stack-s" key={term}>
+              <div className="label label-ink">{term}</div>
+              <p className="small dim">{note}</p>
+            </div>
+          ))}
         </div>
-        <div>
-          <span className="label">Today</span>
-          <span className="value">{formatDate(today, { weekday: true })}</span>
+      </details>
+
+      <details className="fold">
+        <summary>
+          <span>Import a file instead</span>
+          <span className="tiny faint">if your practice blocks apps</span>
+        </summary>
+        <div className="stack" style={{ marginTop: 16, maxWidth: 760 }}>
+          <p className="small dim">
+            Some tenants block third-party apps outright. A published link or an exported .ics file
+            does the same job — it just will not keep itself up to date.
+          </p>
+          <CalendarImport
+            projects={projects}
+            feeds={feeds}
+            today={today}
+            defaultFrom={window.from}
+          />
         </div>
-      </div>
-
-      <div className="split">
-        <div className="stack-l">
-          <section className="stack">
-            <div className="stack-s">
-              <span className="label">Once, and then never again</span>
-              <h2>Connect your calendar</h2>
-            </div>
-
-            {unavailable ? (
-              <p className="note">
-                <span className="label">Not yet</span>
-                <span>{unavailable}</span>
-              </p>
-            ) : (
-              <CalendarConnections connections={views} providers={offer} />
-            )}
-          </section>
-
-          <section className="stack">
-            <div className="stack-s">
-              <span className="label">If your practice will not allow it</span>
-              <h2>Import a file instead</h2>
-              <p className="small dim" style={{ maxWidth: '58ch' }}>
-                Some tenants block third-party apps outright. A published link or an exported .ics
-                file does the same job — it just will not keep itself up to date.
-              </p>
-            </div>
-            <CalendarImport
-              projects={projects}
-              feeds={feeds}
-              today={today}
-              defaultFrom={window.from}
-            />
-          </section>
-        </div>
-
-        <aside className="stack no-print">
-          <section className="sheet stack">
-            <div className="sheet-head">
-              <div>
-                <span className="label">What it can and cannot do</span>
-                <h2 style={{ marginTop: 3 }}>Read this first</h2>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {[
-                [
-                  'It fixes the dates',
-                  'A calendar was written at the time. Nothing else you have was — which is exactly why a quarter reconstructed from memory has holes in it.',
-                ],
-                [
-                  'It fixes the people',
-                  'Who was in the room is on every invite and in nobody’s memory. It is also the thing that shows an examiner the level you were working at.',
-                ],
-                [
-                  'It does not know the work',
-                  'Six hours on a package appears in no calendar. What comes in is a skeleton of the week — the meetings — and you fill in the rest.',
-                ],
-                [
-                  'It never guesses hours',
-                  'The length of a meeting is a fact and gets used as one. All-day leave is the one assumption made, and it is marked as an estimate.',
-                ],
-                [
-                  'Nothing lands unchecked',
-                  'Everything a connected calendar brings in waits in Review until you have looked at it. It is your record; nothing writes to it behind your back.',
-                ],
-              ].map(([term, note], i) => (
-                <div
-                  key={term}
-                  style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : '1px solid var(--hair)' }}
-                >
-                  <div className="label label-ink" style={{ marginBottom: 4 }}>{term}</div>
-                  <p className="small dim">{note}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="sheet stack">
-            <div className="sheet-head">
-              <div>
-                <span className="label">Thrown away automatically</span>
-                <h2 style={{ marginTop: 3 }}>The noise</h2>
-              </div>
-            </div>
-            <p className="small dim" style={{ marginBottom: 8 }}>
-              Cancelled meetings, anything you declined, anything marked free, all-day blocks that
-              are not leave, and the standing furniture of a week:
-            </p>
-            <div className="row-wrap" style={{ gap: 5 }}>
-              {['Lunch', 'Focus time', 'Standup', 'Holds', 'Commute', 'Dentist', 'Birthdays', 'Under 15 min'].map((word) => (
-                <span className="chip" key={word}>{word}</span>
-              ))}
-            </div>
-            <p className="tiny faint" style={{ marginTop: 10 }}>
-              Every one is listed on the review screen with the reason, so nothing disappears
-              quietly.
-            </p>
-          </section>
-        </aside>
-      </div>
+      </details>
     </div>
   )
 }
